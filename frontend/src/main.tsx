@@ -11,10 +11,12 @@ import CommitsPage from "@/routes/admin-panel/commits/CommitsPage.tsx";
 import FilesPage from "@/routes/admin-panel/files/FilesPage.tsx";
 import AstTreesPage from "@/routes/admin-panel/ast-trees/AstTreesPage.tsx";
 import ImportExportDBPage from "@/routes/admin-panel/import-export-db/ImportExportDBPage.tsx";
+import Header from "@/components/custom/header/Header.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <BrowserRouter>
+            {/*<Header/>*/}
             <Routes>
                 <Route path="/" element={<App/>}/>
                 <Route path="/auth" element={<AuthorisationPage/>}/>
