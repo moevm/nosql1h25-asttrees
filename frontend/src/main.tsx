@@ -1,7 +1,6 @@
 import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import AuthorisationPage from "@/routes/reg-auth-page/AuthorisationPage.tsx";
 import AdminPanelLayout from "@/routes/admin-panel/AdminPanelLayout.tsx";
@@ -22,15 +21,12 @@ createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
             <Routes>
                 <Route element={<HeaderLayout/>}>
-                    <Route path="/" element={<App/>}/>
                     <Route path="/auth" element={<AuthorisationPage/>}/>
 
                     <Route path="users/:userId" element={<UserLayout/>}>
-                        <Route path="/" element={<UserPage/>}>
-                            <Route path="repo/:repoId" element={<Navigate relative="path" to="/" replace/>}/>
-                            <Route path="repo/:repoId" element={<RepoLayout/>}>
-                                <Route path="/" element={<RepoViewPage/>}/>
-                            </Route>
+                        <Route path="" element={<UserPage/>}/>
+                        <Route path="repo/:repoId" element={<RepoLayout/>}>
+                            <Route path="" element={<RepoViewPage/>}/>
                         </Route>
                     </Route>
 

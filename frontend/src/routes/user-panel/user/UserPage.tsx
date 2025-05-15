@@ -1,19 +1,24 @@
-import {Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList} from "@/components/ui/breadcrumb.tsx";
-import {useLocation} from "react-router-dom";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbList,
+    BreadcrumbPage
+} from "@/components/ui/breadcrumb.tsx";
 import {UserIcon} from "lucide-react";
+import {useAtomValue} from "jotai/react";
+import {$userId} from "@/store.ts";
 
 function UserPage () {
-    const location = useLocation();
-    const path = location.pathname;
+    const userId = useAtomValue($userId)!
 
     return (
         <div className="p-10">
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href={`${path}`}>
-                            <UserIcon/><span>{path}</span>
-                        </BreadcrumbLink>
+                        <BreadcrumbPage>
+                            <UserIcon/><span>{userId}</span>
+                        </BreadcrumbPage>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
