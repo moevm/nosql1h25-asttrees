@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: backend
+arangodb:
+  spring:
+    data:
+      database: test-db
+      user: root
+      password: ''
+      hosts: localhost:8529
+
+springdoc:
+  api-docs:
+    path: /openapi.json
+  swagger-ui:
+    path: /docs
