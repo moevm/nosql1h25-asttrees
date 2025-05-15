@@ -15,25 +15,23 @@ function RepoCard ({ id, name, created_at, visibility }: repoProps) {
     return (
         <Card>
             <CardContent>
-                <CardHeader>
-                    <div className="flex justify-between">
-                        <div>
-                            <CardTitle>
-                                <div className="flex items-center justify-between">
-                                    <Label>{name}</Label>
-                                    <Badge>{visibility}</Badge>
-                                </div>
-                            </CardTitle>
-                            <CardDescription>{created_at}</CardDescription>
-                        </div>
-                        <div>
-                            <Button>
-                                Редактировать
-                            </Button>
-                        </div>
-
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>
+                            <div className="flex items-center justify-between gap-2">
+                                <Label>{name}</Label>
+                                <Badge>{visibility}</Badge>
+                            </div>
+                        </CardTitle>
+                        <CardDescription>{created_at}</CardDescription>
                     </div>
-                </CardHeader>
+                    <div>
+                        <Button>
+                            Редактировать
+                        </Button>
+                    </div>
+
+                </div>
             </CardContent>
         </Card>
     )

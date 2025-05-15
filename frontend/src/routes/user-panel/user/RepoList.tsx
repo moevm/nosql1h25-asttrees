@@ -56,7 +56,7 @@ function RepoList () {
             </div>
 
             {reposArr ? (
-                <div>
+                <div className={"flex flex-col gap-3"}>
                     {reposArr.repos.map((repo) => (
                         <RepoCard
                             key={repo.id}
@@ -69,7 +69,9 @@ function RepoList () {
                 </div>
             ) : (
                 <div>
-
+                    <Label className={"text-xl font-bold"}>
+                        Грустно
+                    </Label>
                 </div>
             )}
 
