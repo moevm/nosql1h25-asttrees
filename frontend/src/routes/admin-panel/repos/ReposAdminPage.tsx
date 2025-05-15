@@ -1,4 +1,4 @@
-function ReposPage() {
+function ReposAdminPage() {
     return (
         <div>
             Ну репозиторий
@@ -6,4 +6,4 @@ function ReposPage() {
     )
 }
 
-export default ReposPage;
+export default ReposAdminPage;

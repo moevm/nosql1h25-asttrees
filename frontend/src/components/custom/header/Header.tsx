@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
-import { useLocation } from "react-router-dom"
+import {Navigate, useLocation} from "react-router-dom"
+import {NavLink} from "react-router";
 
 
 // TODO: можно конечно и оставить такую проверку, но лучше явно переделать потом
@@ -24,7 +25,11 @@ function Header() {
                         <Button className="hidden md:flex bg-red-800 hover:bg-red-950">Админ-панель</Button>
                     )}
                     {path !== "/auth" && (
-                        <Button className="hidden md:flex">Профиль</Button>
+                        <Button className="hidden md:flex">
+                            <NavLink to="MEGASUPERUSER">
+                                Профиль
+                            </NavLink>
+                        </Button>
                     )}
                 </div>
             </div>
