@@ -5,13 +5,19 @@ import {
     BreadcrumbList, BreadcrumbPage,
     BreadcrumbSeparator
 } from "@/components/ui/breadcrumb.tsx";
-import {UserIcon} from "lucide-react";
+import {Package, UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
 import {$repoId, $userId} from "@/store.ts";
+import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 
 function RepoViewPage() {
     const repoId = useAtomValue($repoId)!
     const userId = useAtomValue($userId)!
+    const sttt = [
+        "aaa",
+        "bbb",
+        "ccc"
+    ]
 
     return (
         <div className="p-10">
@@ -25,11 +31,16 @@ function RepoViewPage() {
                     <BreadcrumbSeparator/>
                     <BreadcrumbItem>
                         <BreadcrumbPage>
-                            <span>{repoId}</span>
+                            <Package/> <span>{repoId}</span>
                         </BreadcrumbPage>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
+
+            <RepoFileTable data={sttt}/>
+
+
+
         </div>
     )
 }
