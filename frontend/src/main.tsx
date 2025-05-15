@@ -12,7 +12,10 @@ import FilesPage from "@/routes/admin-panel/files/FilesPage.tsx";
 import AstTreesPage from "@/routes/admin-panel/ast-trees/AstTreesPage.tsx";
 import ImportExportDBPage from "@/routes/admin-panel/import-export-db/ImportExportDBPage.tsx";
 import HeaderLayout from "@/routes/header-layout/HeaderLayout.tsx";
-import UserPage from "@/routes/user-panel/repos/UserPage.tsx";
+import UserPage from "@/routes/user-panel/user/UserPage.tsx";
+import RepoViewPage from "@/routes/user-panel/user/repo-panel/repo/RepoViewPage.tsx";
+import UserLayout from "@/routes/user-panel/UserLayout.tsx";
+import RepoLayout from "@/routes/user-panel/user/repo-panel/RepoLayout.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
@@ -21,8 +24,17 @@ createRoot(document.getElementById('root')!).render(
                 <Route element={<HeaderLayout/>}>
                     <Route path="/" element={<App/>}/>
                     <Route path="/auth" element={<AuthorisationPage/>}/>
-                    <Route path={"/MEGASUPERUSER"} element={<UserPage/>}/>
-                    <Route path="/admin" element={<Navigate relative="path" to="users" replace/>}/>
+
+                    <Route path="users/:userId" element={<UserLayout/>}>
+                        <Route path="/" element={<UserPage/>}>
+                            <Route path="repo/:repoId" element={<Navigate relative="path" to="/" replace/>}/>
+                            <Route path="repo/:repoId" element={<RepoLayout/>}>
+                                <Route path="/" element={<RepoViewPage/>}/>
+                            </Route>
+                        </Route>
+                    </Route>
+
+                    <Route path="admin" element={<Navigate relative="path" to="users" replace/>}/>
                     <Route path="admin" element={<AdminPanelLayout/>}>
                         <Route path="users" element={<UsersPage/>}/>
                         <Route path="repos" element={<ReposAdminPage/>}/>
