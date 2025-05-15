@@ -1,0 +1,46 @@
+import {StrictMode} from 'react'
+import {createRoot} from 'react-dom/client'
+import './index.css'
+import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
+import AuthorisationPage from "@/routes/reg-auth-page/AuthorisationPage.tsx";
+import AdminPanelLayout from "@/routes/admin-panel/AdminPanelLayout.tsx";
+import UsersPage from "@/routes/admin-panel/users/UsersPage.tsx";
+import ReposAdminPage from "@/routes/admin-panel/repos/ReposAdminPage.tsx";
+import CommitsPage from "@/routes/admin-panel/commits/CommitsPage.tsx";
+import FilesPage from "@/routes/admin-panel/files/FilesPage.tsx";
+import AstTreesPage from "@/routes/admin-panel/ast-trees/AstTreesPage.tsx";
+import ImportExportDBPage from "@/routes/admin-panel/import-export-db/ImportExportDBPage.tsx";
+import HeaderLayout from "@/routes/header-layout/HeaderLayout.tsx";
+import UserPage from "@/routes/user-panel/user/UserPage.tsx";
+import RepoViewPage from "@/routes/user-panel/user/repo-panel/repo/RepoViewPage.tsx";
+import UserLayout from "@/routes/user-panel/UserLayout.tsx";
+import RepoLayout from "@/routes/user-panel/user/repo-panel/RepoLayout.tsx";
+
+createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+        <BrowserRouter>
+            <Routes>
+                <Route element={<HeaderLayout/>}>
+                    <Route path="/auth" element={<AuthorisationPage/>}/>
+
+                    <Route path="users/:userId" element={<UserLayout/>}>
+                        <Route path="" element={<UserPage/>}/>
+                        <Route path="repo/:repoId" element={<RepoLayout/>}>
+                            <Route path="" element={<RepoViewPage/>}/>
+                        </Route>
+                    </Route>
+
+                    <Route path="admin" element={<Navigate relative="path" to="users" replace/>}/>
+                    <Route path="admin" element={<AdminPanelLayout/>}>
+                        <Route path="users" element={<UsersPage/>}/>
+                        <Route path="repos" element={<ReposAdminPage/>}/>
+                        <Route path="commits" element={<CommitsPage/>}/>
+                        <Route path="files" element={<FilesPage/>}/>
+                        <Route path="ast-trees" element={<AstTreesPage/>}/>
+                        <Route path="import-export" element={<ImportExportDBPage/>}/>
+                    </Route>
+                </Route>
+            </Routes>
+        </BrowserRouter>
+    </StrictMode>,
+)
