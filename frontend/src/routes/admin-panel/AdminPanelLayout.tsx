@@ -4,10 +4,12 @@ import {Outlet} from "react-router-dom";
 
 function AdminPanelLayout() {
     return (
-        <div>
+        <div className="">
             <SidebarProvider>
                 <AppSidebar/>
-                <Outlet/>
+                <main>
+                    <Outlet/>
+                </main>
             </SidebarProvider>
         </div>
     )
