@@ -1,14 +1,16 @@
 import {
     Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage
+    BreadcrumbLink,
+    BreadcrumbList, BreadcrumbPage,
+    BreadcrumbSeparator
 } from "@/components/ui/breadcrumb.tsx";
 import {UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
-import {$userId} from "@/store.ts";
+import {$repoId, $userId} from "@/store.ts";
 
-function UserPage () {
+function RepoViewPage() {
+    const repoId = useAtomValue($repoId)!
     const userId = useAtomValue($userId)!
 
     return (
@@ -16,8 +18,14 @@ function UserPage () {
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbPage>
+                        <BreadcrumbLink href={`/users/${userId}`}>
                             <UserIcon/><span>{userId}</span>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator/>
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>
+                            <span>{repoId}</span>
                         </BreadcrumbPage>
                     </BreadcrumbItem>
                 </BreadcrumbList>
@@ -26,4 +34,4 @@ function UserPage () {
     )
 }
 
-export default UserPage;
+export default RepoViewPage;
