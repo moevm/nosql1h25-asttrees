@@ -12,7 +12,7 @@ import FilesPage from "@/routes/admin-panel/files/FilesPage.tsx";
 import AstTreesPage from "@/routes/admin-panel/ast-trees/AstTreesPage.tsx";
 import ImportExportDBPage from "@/routes/admin-panel/import-export-db/ImportExportDBPage.tsx";
 import HeaderLayout from "@/routes/header-layout/HeaderLayout.tsx";
-import UserPage from "@/routes/user-panel/repos/UserPage.tsx";
+import UserPage from "@/routes/user-panel/user/UserPage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
@@ -21,6 +21,8 @@ createRoot(document.getElementById('root')!).render(
                 <Route element={<HeaderLayout/>}>
                     <Route path="/" element={<App/>}/>
                     <Route path="/auth" element={<AuthorisationPage/>}/>
+
+
                     <Route path={"/MEGASUPERUSER"} element={<UserPage/>}/>
                     <Route path="/admin" element={<Navigate relative="path" to="users" replace/>}/>
                     <Route path="admin" element={<AdminPanelLayout/>}>
