@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -44,6 +45,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn("Access Denied: {} - Path: {}", ex.getMessage(), request.getDescription(false));
         ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Access Denied: You do not have permission to perform this action.");
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    protected ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex, WebRequest request) {
+        log.warn("Invalid credentials: {} - Path: {}", ex.getMessage(), request.getDescription(false));
+        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Invalid credentials.");
+        return new ResponseEntity<>(ErrorResponseDto, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AuthenticationException.class)

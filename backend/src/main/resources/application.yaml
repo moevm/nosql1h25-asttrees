@@ -14,3 +14,9 @@ springdoc:
     path: /openapi.json
   swagger-ui:
     path: /docs
+
+jwt:
+  secret: saaI9zMtell9xbas423Tm0AirflZjD5NDbSKut3O2RSKT3WX+B42/Rr+YGb8S4uXRf7wp8HWNMcy5TsLR+yV/mGqpaVP/mt0N/jShm4323Y= # todo change on prod
+  expiration-ms: 3600000
+
+
