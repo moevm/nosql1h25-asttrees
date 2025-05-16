@@ -2,6 +2,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Badge} from "@/components/ui/badge.tsx";
+import {useNavigate} from "react-router-dom";
 
 interface repoProps {
     id: number,
@@ -11,29 +12,37 @@ interface repoProps {
 
 }
 
-function RepoCard ({ id, name, created_at, visibility }: repoProps) {
-    return (
-        <Card>
-            <CardContent>
-                <div className="flex justify-between items-center">
-                    <div>
-                        <CardTitle>
-                            <div className="flex items-center justify-between gap-2">
-                                <Label>{name}</Label>
-                                <Badge>{visibility}</Badge>
-                            </div>
-                        </CardTitle>
-                        <CardDescription>{created_at}</CardDescription>
-                    </div>
-                    <div>
-                        <Button>
-                            Редактировать
-                        </Button>
-                    </div>
+function RepoCard({id, name, created_at, visibility}: repoProps) {
+    const nav = useNavigate();
 
-                </div>
-            </CardContent>
-        </Card>
+    return (
+        <div className={"transition-transform hover:scale-102 hover:cursor-pointer"}
+             onClick={() => {
+                 nav(`repo/${name}`);
+             }}
+        >
+            <Card>
+                <CardContent>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <CardTitle>
+                                <div className="flex items-center justify-between gap-2">
+                                    <Label>{name}</Label>
+                                    <Badge>{visibility}</Badge>
+                                </div>
+                            </CardTitle>
+                            <CardDescription>{created_at}</CardDescription>
+                        </div>
+                        <div>
+                            <Button>
+                                Редактировать
+                            </Button>
+                        </div>
+
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
     )
 }
 
