@@ -15,9 +15,13 @@ import UserPage from "@/routes/user-panel/user/UserPage.tsx";
 import RepoViewPage from "@/routes/user-panel/user/repo-panel/repo/RepoViewPage.tsx";
 import UserLayout from "@/routes/user-panel/UserLayout.tsx";
 import RepoLayout from "@/routes/user-panel/user/repo-panel/RepoLayout.tsx";
+import {QueryClientProvider} from "@tanstack/react-query";
+import {queryClient} from "@/api";
+import {Toaster} from "sonner";
 
 createRoot(document.getElementById('root')!).render(
-    <StrictMode>
+    <QueryClientProvider client={queryClient}>
+        <Toaster/>
         <BrowserRouter>
             <Routes>
                 <Route element={<HeaderLayout/>}>
@@ -42,5 +46,6 @@ createRoot(document.getElementById('root')!).render(
                 </Route>
             </Routes>
         </BrowserRouter>
-    </StrictMode>,
+    </QueryClientProvider>
+
 )
