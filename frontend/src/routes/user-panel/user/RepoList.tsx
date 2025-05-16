@@ -7,12 +7,12 @@ import {
     ArrowLeft,
     ArrowRight,
     BoxIcon,
-    FilterIcon,
+    FilterIcon, Package,
     SearchIcon,
     SettingsIcon
 } from "lucide-react";
 import RepoCard from "@/routes/user-panel/user/RepoCard.tsx";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 
 function RepoList () {
     const reposArr = {
@@ -28,14 +28,27 @@ function RepoList () {
     };
 
     const [page, setPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState("");
+
     const reposPerPage = 10;
 
-    const totalPages = Math.ceil(reposArr.repos.length / reposPerPage);
+    const filteredRepos = useMemo(() => {
+        return reposArr.repos.filter((repo) =>
+            repo.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [searchTerm, reposArr.repos]);
 
-    const paginatedRepos = reposArr.repos.slice(
+    const totalPages = Math.ceil(filteredRepos.length / reposPerPage);
+
+    const paginatedRepos = filteredRepos.slice(
         (page - 1) * reposPerPage,
         page * reposPerPage
     );
+
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(event.target.value);
+        setPage(1);
+    };
 
     const handleNext = () => setPage((prev) => Math.min(prev + 1, totalPages));
     const handlePrev = () => setPage((prev) => Math.max(prev - 1, 1));
@@ -60,7 +73,7 @@ function RepoList () {
                     <SearchIcon/>
                     <Input
                         placeholder={""}
-                        onChange={(event) => {}}
+                        onChange={handleSearch}
                         className="max-w-sm"
                     />
                     <Button>
@@ -69,7 +82,7 @@ function RepoList () {
                 </div>
                 <div className={"flex items-center gap-1 ml-auto"}>
                     <Button>
-                        <BoxIcon/> Добавить в репозиторий
+                        <Package/> Добавить в репозиторий
                     </Button>
                 </div>
             </div>
