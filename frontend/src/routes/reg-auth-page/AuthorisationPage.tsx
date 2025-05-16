@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 
 import {
     Tabs,
@@ -27,27 +24,47 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {useQueryClient} from "@tanstack/react-query";
+import {$api, createMutationOptions} from "@/api";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod";
+import {useForm} from "react-hook-form";
+import {toast} from "sonner";
 
 // Схемы валидации
 const loginSchema = z.object({
-    login: z.string().min(3, "Минимум 3 символа"),
-    password: z.string().min(6, "Минимум 6 символов"),
+    login: z.string().min(3, {message: "Минимум 3 символа"}),
+    password: z.string().min(6, {message: "Минимум 6 символов"}),
 });
 
 const registrationSchema = z.object({
-    login: z.string().min(3, "Минимум 3 символа"),
+    login: z.string().min(3, {message: "Минимум 3 символа"}),
     email: z.string().email("Неверный email"),
-    password: z.string().min(6, "Минимум 6 символов"),
+    password: z.string().min(6, {message: "Минимум 6 символов"}),
 });
 
-type LoginValues = z.infer<typeof loginSchema>;
-type RegisterValues = z.infer<typeof registrationSchema>;
 
 function AuthorisationPage() {
     const [tab, setTab] = useState("authorisation");
 
+    const queryClient = useQueryClient()
+    const {mutate, isPending} = $api.useMutation('post', '/auth/register', createMutationOptions({
+        onSuccess: async (data: any) => {
+            console.log(data);
+        },
+        onError: async (data: any) => {
+            if (data.error == "username already exists") {
+                toast.error("Пользователь с таким логином уже существует");
+            }
+            else {
+                toast.error(data);
+            }
+            console.log(data);
+        }
+    }))
+
     // Авторизация
-    const loginForm = useForm<LoginValues>({
+    const loginForm = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
             login: "",
@@ -55,12 +72,12 @@ function AuthorisationPage() {
         },
     });
 
-    const handleLogin = (data: LoginValues) => {
-        console.log("Вход:", data);
+    const handleLogin = (values: z.infer<typeof loginSchema>) => {
+        console.log("Вход:", values);
     };
 
     // Регистрация
-    const registerForm = useForm<RegisterValues>({
+    const registerForm = useForm<z.infer<typeof registrationSchema>>({
         resolver: zodResolver(registrationSchema),
         defaultValues: {
             login: "",
@@ -69,8 +86,16 @@ function AuthorisationPage() {
         },
     });
 
-    const handleRegister = (data: RegisterValues) => {
-        console.log("Регистрация:", data);
+    const handleRegister = (values: z.infer<typeof registrationSchema>) => {
+        console.log("йоу?")
+        mutate({
+            body: {
+                username: values.login,
+                email: values.email,
+                password: values.password
+            }
+        });
+        console.log("Регистрация:", values);
     };
 
     return (
