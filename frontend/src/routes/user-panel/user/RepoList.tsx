@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import RepoCard from "@/routes/user-panel/user/RepoCard.tsx";
 import {useMemo, useState} from "react";
-import UserSettings from "@/components/dialogs/UserSettings.tsx";
+import UserSettingsDialog from "@/components/dialogs/UserSettingsDialog.tsx";
+import UserAddRepoDialog from "@/components/dialogs/UserAddRepoDialog.tsx";
 
 function RepoList () {
     const reposArr = {
@@ -66,7 +67,7 @@ function RepoList () {
             <div className={"flex justify-between gap-1"}>
                 <Label className={"text-xl font-bold"}>Репозитории</Label>
                 <div className={"ml-auto flex justify-center"}>
-                    <UserSettings/>
+                    <UserSettingsDialog/>
                 </div>
             </div>
             <div className={"flex justify-between"}>
@@ -82,9 +83,7 @@ function RepoList () {
                     </Button>
                 </div>
                 <div className={"flex items-center gap-1 ml-auto"}>
-                    <Button>
-                        <Package/> Добавить в репозиторий
-                    </Button>
+                    <UserAddRepoDialog/>
                 </div>
             </div>
 

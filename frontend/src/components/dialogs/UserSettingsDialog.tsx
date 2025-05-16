@@ -30,7 +30,7 @@ const formSchema = z.object({
     newPassword: z.string().min(3, "Минимум 3 символа"),
 });
 
-function UserSettings () {
+function UserSettingsDialog () {
 
     const [visibility, setVisibility] = useState<string>("public");
 
@@ -105,8 +105,8 @@ function UserSettings () {
                                     <Eye className=""/>
                                     <div className="flex flex-col gap-1">
                                         <Label className="font-bold">Публичный</Label>
-                                        <Label className="text-gray-400">Любой человек может просматревать ваши
-                                            репозитории</Label>
+                                        <Label className="text-gray-400">Любой человек может просматревать ваш
+                                            профиль</Label>
                                     </div>
                                 </div>
 
@@ -142,4 +142,4 @@ function UserSettings () {
     )
 }
 
-export default UserSettings;
+export default UserSettingsDialog;
