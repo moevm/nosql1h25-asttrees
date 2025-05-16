@@ -12,21 +12,24 @@ import {
     SettingsIcon
 } from "lucide-react";
 import RepoCard from "@/routes/user-panel/user/RepoCard.tsx";
+import type {repoProps} from "@/routes/user-panel/user/RepoCard.tsx";
 import {useMemo, useState} from "react";
 import UserSettingsDialog from "@/components/dialogs/UserSettingsDialog.tsx";
 import UserAddRepoDialog from "@/components/dialogs/UserAddRepoDialog.tsx";
 
 function RepoList () {
+    const visibilityOptions = ["public", "protected", "private"];
+
     const reposArr = {
-        repos: [
-            // Пример 30 репозиториев
-            ...Array.from({ length: 30 }, (_, i) => ({
-                id: i + 1,
-                name: `repo${i + 1}`,
-                created_at: new Date().toLocaleDateString(),
-                visibility: i % 2 === 0 ? "public" : "private",
-            })),
-        ],
+        repos: Array.from({ length: 30 }, (_, i) => ({
+            id: `repo-${i + 1}`,
+            name: `repo${i + 1}`,
+            owner: `user${(i % 5) + 1}`,
+            defaultBranch: "main",
+            originalLink: `https://github.com/user${(i % 5) + 1}/repo${i + 1}`,
+            createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+            visibility: visibilityOptions[i % visibilityOptions.length],
+        }) as repoProps),
     };
 
     const [page, setPage] = useState(1);
@@ -90,12 +93,7 @@ function RepoList () {
             {paginatedRepos.length > 0 ? (
                 <div className="flex flex-col gap-3">
                     {paginatedRepos.map((repo) => (
-                        <RepoCard
-                            key={repo.id}
-                            id={repo.id}
-                            name={repo.name}
-                            created_at={repo.created_at}
-                            visibility={repo.visibility}
+                        <RepoCard repo={repo}
                         />
                     ))}
                 </div>

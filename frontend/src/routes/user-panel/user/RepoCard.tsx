@@ -3,23 +3,35 @@ import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Badge} from "@/components/ui/badge.tsx";
 import {useNavigate} from "react-router-dom";
+import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
+import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
+import {useRef, useState} from "react";
 
-interface repoProps {
+export interface repoProps {
     id: number,
     name: string,
-    created_at: string,
+    owner: string,
+    defaultBranch: string,
+    originalLink: string,
+    createdAt: string,
     visibility: string,
 
 }
 
-function RepoCard({id, name, created_at, visibility}: repoProps) {
+function RepoCard({repo}: { repo: repoProps }) {
     const nav = useNavigate();
+    const ignoreClick = useRef(false);
 
     return (
-        <div className={"transition-transform hover:scale-102 hover:cursor-pointer"}
-             onClick={() => {
-                 nav(`repo/${name}`);
-             }}
+        <div
+            className="transition-transform hover:scale-102 hover:cursor-pointer"
+            onClick={(e) => {
+                if (ignoreClick.current) {
+                    ignoreClick.current = false;
+                    return;
+                }
+                nav(`repo/${repo.name}`);
+            }}
         >
             <Card>
                 <CardContent>
@@ -27,23 +39,34 @@ function RepoCard({id, name, created_at, visibility}: repoProps) {
                         <div>
                             <CardTitle>
                                 <div className="flex items-center justify-between gap-2">
-                                    <Label>{name}</Label>
-                                    <Badge>{visibility}</Badge>
+                                    <Label>{repo.name}</Label>
+                                    <Badge>{repo.visibility}</Badge>
                                 </div>
                             </CardTitle>
-                            <CardDescription>{created_at}</CardDescription>
-                        </div>
-                        <div>
-                            <Button>
-                                Редактировать
-                            </Button>
+                            <CardDescription>{repo.createdAt}</CardDescription>
                         </div>
 
+                        <div>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            ignoreClick.current = true;
+                                        }}
+                                    >
+                                        Редактировать
+                                    </Button>
+                                </DialogTrigger>
+                                <UserRepoSettingsDialog repo={repo} />
+                            </Dialog>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
         </div>
-    )
+    );
 }
 
 export default RepoCard;

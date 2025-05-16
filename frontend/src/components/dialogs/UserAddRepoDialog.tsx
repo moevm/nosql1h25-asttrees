@@ -1,5 +1,6 @@
 import {Dialog} from "@radix-ui/react-dialog";
 import {
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -55,7 +56,7 @@ function UserAddRepoDialog () {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-w-screen-sm w-full">
+            <DialogContent className="w-full max-w-md">
                 <DialogHeader>
                     <DialogTitle>Добавить репозиторий</DialogTitle>
                 </DialogHeader>
@@ -149,8 +150,13 @@ function UserAddRepoDialog () {
                             </Button>
                         </div>
 
-                        <DialogFooter>
-                            <Button type="submit">Сохранить</Button>
+                        <DialogFooter className={"flex w-full justify-between"}>
+                            <Button type="submit">Импортировать</Button>
+                            <div className={"ml-auto"}>
+                                <DialogClose asChild >
+                                    <Button variant="outline" type={"button"}>Отмена</Button>
+                                </DialogClose>
+                            </div>
                         </DialogFooter>
                     </form>
                 </Form>

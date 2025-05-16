@@ -1,5 +1,6 @@
 import {Dialog} from "@radix-ui/react-dialog";
 import {
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -131,8 +132,13 @@ function UserSettingsDialog () {
                             </Button>
                         </div>
 
-                        <DialogFooter>
+                        <DialogFooter className={"flex w-full justify-between"}>
                             <Button type="submit">Сохранить</Button>
+                            <div className={"ml-auto"}>
+                                <DialogClose asChild >
+                                    <Button variant="outline" type={"button"}>Отмена</Button>
+                                </DialogClose>
+                            </div>
                         </DialogFooter>
                     </form>
                 </Form>
