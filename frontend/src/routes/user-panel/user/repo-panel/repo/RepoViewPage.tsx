@@ -5,12 +5,15 @@ import {
     BreadcrumbList, BreadcrumbPage,
     BreadcrumbSeparator
 } from "@/components/ui/breadcrumb.tsx";
-import {BoxIcon, Package, UserIcon} from "lucide-react";
+import {BoxIcon, Package, Settings, UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
 import {$repoId, $userId} from "@/store.ts";
 import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import type {RepoFileProps} from "@/types/RepoFileProps.ts";
+import {Button} from "@/components/ui/button.tsx";
+import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
+import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
 
 function RepoViewPage() {
     const repoId = useAtomValue($repoId)!
@@ -55,31 +58,51 @@ function RepoViewPage() {
 
     return (
         <div className="p-10 flex flex-col gap-2">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/users/${userId}`}>
-                            <div className="flex items-center justify-between gap-1">
-                                <UserIcon/>
-                                <Label>{userId}</Label>
-                            </div>
+            <div className={"flex justify-between"}>
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/users/${userId}`}>
+                                <div className="flex items-center justify-between gap-1">
+                                    <UserIcon/>
+                                    <Label>{userId}</Label>
+                                </div>
 
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator/>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>
-                            <div className="flex items-center justify-between gap-1">
-                                <Package/>
-                                <Label>{repoId}</Label>
-                            </div>
-                        </BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator/>
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>
+                                <div className="flex items-center justify-between gap-1">
+                                    <Package/>
+                                    <Label>{repoId}</Label>
+                                </div>
+                            </BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+
+                 {/*TODO: получаем по id репо и передаем в диалог*/}
+                {/*<div>*/}
+                {/*    <Dialog>*/}
+                {/*        <DialogTrigger asChild>*/}
+                {/*            <Button variant="ghost">*/}
+                {/*                Редактировать*/}
+                {/*            </Button>*/}
+                {/*        </DialogTrigger>*/}
+                {/*        <UserRepoSettingsDialog repo={repo}/>*/}
+                {/*    </Dialog>*/}
+                {/*</div>*/}
+                <div>
+                    <Button onClick={() => {
+                        console.log("Потом)")}}>
+                        <Settings/> Настройки
+                    </Button>
+                </div>
+            </div>
+
 
             <RepoFileTable data={mockCommits as RepoFileProps}/>
-
 
 
         </div>
