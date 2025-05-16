@@ -2,6 +2,9 @@ package ru.sweetgit.backend.service;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
@@ -9,6 +12,7 @@ import ru.sweetgit.backend.model.UserModel;
 import ru.sweetgit.backend.model.UserVisibilityModel;
 import ru.sweetgit.backend.repo.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -39,10 +43,30 @@ public class UserService {
         if (currentUser.getId().equals(user.id())) {
             return true;
         }
-        if (UserDetailsServiceImpl.isAdmin(currentUser)) {
+        if (isAdmin(currentUser)) {
             return true;
         }
         return false;
+    }
+
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+
+    public static boolean isAdmin(UserDetails userDetails) {
+        return userDetails.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_ADMIN));
+    }
+
+    public UserDetails buildUserDetails(UserModel user) {
+        var authorities = new ArrayList<GrantedAuthority>();
+        if (user.isAdmin()) {
+            authorities.add(new SimpleGrantedAuthority(ROLE_ADMIN));
+        }
+
+        return new UserDetailsWithId(
+                user.id(),
+                user.username(),
+                user.passwordHash(),
+                authorities
+        );
     }
 
     public void requireUserVisible(UserModel user, @Nullable UserDetailsWithId currentUser) {
