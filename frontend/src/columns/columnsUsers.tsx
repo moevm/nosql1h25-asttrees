@@ -155,6 +155,6 @@ export const columnsUser = [
             type: 'string'
         },
         sortingFn: customSortingFn,
-        cell: ({cell}) => <ListRenderer value={cell.getValue()} />
+        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
 ] as TypedColumnDef<ApiUserModel>[]

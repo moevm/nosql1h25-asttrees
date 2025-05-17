@@ -6,7 +6,7 @@ import {useNavigate} from "react-router-dom";
 import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
 import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
 import {useRef} from "react";
-import type {ApiRepositoryModel} from "@/store.ts";
+import type {ApiRepositoryModel} from "@/store/store.ts";
 
 
 function RepoCard({repo}: { repo: ApiRepositoryModel }) {

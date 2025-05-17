@@ -9,7 +9,7 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {Eye, EyeOff, Package, SettingsIcon, Shield} from "lucide-react";
+import {Eye, EyeOff, Package, Shield} from "lucide-react";
 import * as z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/form.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {useState} from "react";
+import {useRegisterMutation} from "@/api/auth.ts";
+import {useAddRepoMutation} from "@/components/dialogs/reposQuaries.ts";
 
 const formSchema = z.object({
     url: z.string().min(3, "Минимум 3 символа"),
@@ -32,6 +34,11 @@ const formSchema = z.object({
 });
 
 function UserAddRepoDialog () {
+
+    const {
+        mutate,
+        isPending
+    } = useAddRepoMutation()
 
     const [visibility, setVisibility] = useState<string>("public");
 
@@ -44,8 +51,15 @@ function UserAddRepoDialog () {
     });
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-
         console.log(values, visibility)
+        mutate({
+            body: {
+                originalLink: values.url,
+                name: values.name,
+                visibility: visibility.toUpperCase()
+            }
+        });
+
     }
 
     return (
