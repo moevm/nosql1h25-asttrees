@@ -21,7 +21,6 @@ export type ApiRepositoryModel = components['schemas']['RepositoryDto']
 export type ApiRepositoryViewModel = components['schemas']['RepositoryViewDto']
 export type ApiUserModel = components['schemas']['UserDto']
 
-export const $userId = atom<string | null>(null)
 export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
 
@@ -38,4 +37,24 @@ export const $currentUserQuery = atomWithQuery((get) => {
 
 export const $currentUser = loadableQuery($currentUserQuery)
 
-export type ApiUserModel = components['schemas']['UserDto']
+export const $currentUserReposQueryOptions = (userId: string, enabled: boolean) => $api.queryOptions(
+    'get',
+    '/users/{userId}/repositories',
+    {
+        params: {
+            path: {
+                userId: userId
+            }
+        },
+    },
+    {enabled}
+)
+
+export const $currentUserReposQuery = atomWithQuery((get) => {
+    const currentUser = get($currentUser)
+    const enabled = currentUser.state === 'hasData'
+    const userId = enabled ? currentUser.data.id! : ''
+    return $currentUserReposQueryOptions(userId, enabled)
+})
+
+export const $currentUserRepos = loadableQuery($currentUserReposQuery)

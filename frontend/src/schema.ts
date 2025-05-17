@@ -148,14 +148,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view": {
+    "/repositories/{repoId}/branches/{branchId}/commits": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["viewRepository"];
+        get: operations["getBranchCommits"];
         put?: never;
         post?: never;
         delete?: never;
@@ -164,14 +164,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/entities/users": {
+    "/repositories/{repoId}/branches/{branchId}/commits/{commitHash}/view": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["getUsers"];
+        get: operations["viewRepository"];
         put?: never;
         post?: never;
         delete?: never;
@@ -207,44 +207,6 @@ export interface components {
             /** @enum {string} */
             visibility: "PUBLIC" | "PROTECTED" | "PRIVATE";
         };
-        RepositoryDto: {
-            id?: string;
-            name?: string;
-            owner?: string;
-            defaultBranch?: string;
-            /** Format: uri */
-            originalLink?: string;
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        AuthRegisterRequest: {
-            username: string;
-            email?: string;
-            password: string;
-        };
-        UserDto: {
-            id?: string;
-            username?: string;
-            email?: string;
-            /** @enum {string} */
-            visibility?: "PUBLIC" | "PRIVATE";
-            /** Format: date-time */
-            createdAt?: string;
-            isAdmin?: boolean;
-        };
-        GrantedAuthority: {
-            authority?: string;
-        };
-        UserDetailsWithId: {
-            password?: string;
-            username?: string;
-            authorities?: components["schemas"]["GrantedAuthority"][];
-            accountNonExpired?: boolean;
-            accountNonLocked?: boolean;
-            credentialsNonExpired?: boolean;
-            enabled?: boolean;
-            id?: string;
-        };
         BranchDto: {
             id?: string;
             name?: string;
@@ -266,16 +228,17 @@ export interface components {
             linesRemoved?: number;
             /** Format: date-time */
             createdAt?: string;
-            rootFiles?: components["schemas"]["CommitFileDto"][];
         };
-        CommitFileDto: {
+        RepositoryDto: {
             id?: string;
             name?: string;
+            owner?: string;
+            /** Format: uri */
+            originalLink?: string;
             /** @enum {string} */
-            type?: "DIRECTORY" | "FILE";
-            hash?: string;
-            commit?: string;
-            parent?: string;
+            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
+            /** Format: date-time */
+            createdAt?: string;
         };
         RepositoryViewDto: {
             owner?: components["schemas"]["ShortUserDto"];

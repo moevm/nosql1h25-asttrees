@@ -10,6 +10,7 @@ import {
 import {History, Package, UserIcon} from "lucide-react";
 import {Label} from "@/components/ui/label.tsx";
 import CommitTable from "@/routes/user-panel/user/repo-panel/repo/commit-history-panel/components/CommitTable.tsx";
+import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 
 function CommitHistoryViewPage() {
     const repoId = useAtomValue($repoId)!
@@ -87,42 +88,45 @@ function CommitHistoryViewPage() {
     ]
 
     return (
-        <div className="p-10 flex flex-col gap-2">
-            <div className={"flex justify-between"}>
-                <Breadcrumb>
-                    <BreadcrumbList>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink href={`/users/${currentUser.data.id}`}>
-                                <div className="flex items-center justify-between gap-1">
-                                    <UserIcon/>
-                                    <Label>{currentUser.data.username}</Label>
-                                </div>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator/>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink href={`/users/${currentUser.data.id}/repo/${repoId}`}>
-                                <div className="flex items-center justify-between gap-1">
-                                    <Package/>
-                                    <Label>{repoId}</Label>
-                                </div>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator/>
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>
-                                <div className="flex items-center justify-between gap-1">
-                                    <History/>
-                                    <Label>История коммитов</Label>
-                                </div>
-                            </BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
-            </div>
+        <BatchLoader states={[currentUser]} loadingMessage={"Загрузка пользователя"} display={
+            () =>
+                <div className="p-10 flex flex-col gap-2">
+                    <div className={"flex justify-between"}>
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href={`/users/${currentUser.data.id}`}>
+                                        <div className="flex items-center justify-between gap-1">
+                                            <UserIcon/>
+                                            <Label>{currentUser.data.username}</Label>
+                                        </div>
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator/>
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href={`/users/${currentUser.data.id}/repo/${repoId}`}>
+                                        <div className="flex items-center justify-between gap-1">
+                                            <Package/>
+                                            <Label>{repoId}</Label>
+                                        </div>
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator/>
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage>
+                                        <div className="flex items-center justify-between gap-1">
+                                            <History/>
+                                            <Label>История коммитов</Label>
+                                        </div>
+                                    </BreadcrumbPage>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
+                    </div>
 
-            <CommitTable data={newCommits}/>
-        </div>
+                    <CommitTable data={newCommits}/>
+                </div>
+        }></BatchLoader>
     )
 }
 

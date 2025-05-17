@@ -2,7 +2,7 @@ import createFetchClient from "openapi-fetch";
 import createClient from "openapi-react-query";
 import type {paths} from "@/schema";
 import {useHydrateAtoms} from "jotai/react/utils";
-import {queryClientAtom} from 'jotai-tanstack-query'
+import {type AtomWithQueryResult, queryClientAtom} from 'jotai-tanstack-query'
 import type {ReactNode} from "react";
 import {type Atom} from "jotai";
 import {atomWithStorage, loadable} from "jotai/utils";
@@ -60,10 +60,10 @@ const fetchClient = createFetchClient<paths>({
 });
 export const $api = createClient(fetchClient);
 
-export function loadableQuery<T>(anAtom: Atom<any>): Atom<Loadable<T>> {
+export function loadableQuery<Value, Error>(anAtom: Atom<AtomWithQueryResult<Awaited<Value>, Error>>): Atom<Loadable<Value>> {
     return loadable(atom(async (get) => {
-        return await get(anAtom).promise;
-    }));
+        return await get(anAtom).promise
+    }))
 }
 
 export function loaded<T> (loadable: Loadable<T>) {
