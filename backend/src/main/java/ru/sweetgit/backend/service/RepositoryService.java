@@ -1,6 +1,5 @@
 package ru.sweetgit.backend.service;
 
-import com.arangodb.springframework.core.template.ArangoTemplate;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,19 +9,23 @@ import ru.sweetgit.backend.dto.request.CreateRepositoryRequest;
 import ru.sweetgit.backend.model.*;
 import ru.sweetgit.backend.repo.*;
 
-import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
 public class RepositoryService {
+    private final GitService gitService;
     private final RepositoryRepository repositoryRepository;
     private final BranchRepository branchRepository;
-    private final ArangoTemplate arangoTemplate;
     private final CommitRepository commitRepository;
     private final BranchCommitRepository branchCommitRepository;
     private final CommitFileRepository commitFileRepository;
+    private final UserService userService;
 
     public Optional<RepositoryModel> getById(String id) {
         return repositoryRepository.findById(id);
@@ -32,117 +35,128 @@ public class RepositoryService {
         return repositoryRepository.findAllByOwnerId(user.getId());
     }
 
-    public RepositoryModel createRepository(
+    public RepositoryViewModel createRepository(
             UserDetailsWithId currentUser,
             CreateRepositoryRequest request
     ) {
-        var repo = repositoryRepository.save(new RepositoryModel(
-                null,
-                null,
-                request.name(),
-                UserModel.builder().id(currentUser.getId()).build(),
-                request.originalLink().toString(),
-                RepositoryVisibilityModel.PUBLIC,
-                Instant.now()
-        ));
-        var commitInitial = commitRepository.save(new CommitModel(
-                null,
-                null,
-                "test-hash-initial",
-                "max",
-                "max@max.max",
-                "initial commit",
-                1,
-                1,
-                0,
-                List.of(),
-                Instant.now(),
-                null
-        ));
-        var commitUpdate = commitRepository.save(new CommitModel(
-                null,
-                null,
-                "test-hash-update",
-                "max",
-                "max@max.max",
-                "initial commit",
-                5,
-                2,
-                0,
-                List.of(),
-                Instant.now(),
-                null
-        ));
-        var branch1 = branchRepository.save(new BranchModel(
-                null,
-                null,
-                "master",
-                repo,
-                true,
-                Instant.now(),
-                null
-        ));
-        var branch2 = branchRepository.save(new BranchModel(
-                null,
-                null,
-                "dev",
-                repo,
-                false,
-                Instant.now(),
-                null
-        ));
+        var result = gitService.importRepository(request.name(), request.originalLink());
 
-        var fileReadme = commitFileRepository.save(new CommitFileModel(
-                null,
-                null,
-                "README.md",
-                "README.md",
-                FileTypeModel.FILE,
-                "readme-md-hash-1",
-                commitInitial,
-                null
-        ));
-        var fileReadmeInUpdate = commitFileRepository.save(new CommitFileModel(
-                null,
-                null,
-                "README.md",
-                "README.md",
-                FileTypeModel.FILE,
-                "readme-md-hash-2",
-                commitUpdate,
-                null
-        ));
-        var fileSrc = commitFileRepository.save(new CommitFileModel(
-                null,
-                null,
-                "src",
-                "src",
-                FileTypeModel.DIRECTORY,
-                null,
-                commitUpdate,
-                null
-        ));
-        var fileHelloWorld = commitFileRepository.save(new CommitFileModel(
-                null,
-                null,
-                "HelloWorld.java",
-                "src/HelloWorld.java",
-                FileTypeModel.FILE,
-                "hello-world-hash-1",
-                commitUpdate,
-                fileSrc
-        ));
+        var repository = repositoryRepository.save(
+                result.repositoryData()
+                        .owner(userService.getUserById(currentUser.getId()).get())
+                        .visibility(RepositoryVisibilityModel.valueOf(request.visibility().toString()))
+                        .build()
+        );
+        var branches = StreamSupport.stream(
+                branchRepository.saveAll(
+                        result
+                                .branchData()
+                                .values()
+                                .stream()
+                                .map(builder ->
+                                        builder
+                                                .repository(repository)
+                                                .build()
+                                )
+                                .toList()
+                ).spliterator(),
+                false
+        ).collect(Collectors.toMap(BranchModel::getName, Function.identity()));
+        var commits = StreamSupport.stream(
+                commitRepository.saveAll(
+                        result
+                                .commitData()
+                                .values()
+                                .stream()
+                                .map(data -> data
+                                        .commitModelBuilder()
+                                        .build()
+                                )
+                                .toList()
+                ).spliterator(),
+                false
+        ).collect(Collectors.toMap(CommitModel::getHash, Function.identity()));
 
-        commitRepository.save(commitInitial.toBuilder().rootFiles(List.of(fileReadme)).build());
-        commitRepository.save(commitUpdate.toBuilder().rootFiles(List.of(fileReadmeInUpdate, fileSrc)).build());
+        var branchCommits = StreamSupport.stream(
+                branchCommitRepository.saveAll(
+                        result
+                                .relations()
+                                .stream()
+                                .map(relation -> new BranchCommitModel(
+                                        BranchModel.builder().id(branches.get(relation.getFirst()).getId()).build(),
+                                        CommitModel.builder().id(commits.get(relation.getSecond()).getId()).build()
+                                ))
+                                .toList()
+                ).spliterator(),
+                false
+        );
 
-        branchCommitRepository.saveAll(List.of(
-                new BranchCommitModel(branch1, commitInitial),
-                new BranchCommitModel(branch2, commitInitial),
-                new BranchCommitModel(branch2, commitUpdate)
-        ));
+        var commitFiles = StreamSupport.stream(
+                commitFileRepository.saveAll(
+                        result
+                                .commitData()
+                                .entrySet()
+                                .stream()
+                                .flatMap(entry -> entry.getValue()
+                                        .files()
+                                        .stream()
+                                        .map(fileData -> fileData
+                                                .entityBuilder()
+                                                .commit(commits.get(entry.getKey()))
+                                                .build()))
+                                .toList()
+                ).spliterator(),
+                false
+        ).toList();
 
-        return repo;
+        var filesByCommit = commitFiles.stream()
+                .collect(Collectors.groupingBy(
+                        file -> file.getCommit().getHash(),
+                        Collectors.toList()
+                ));
+
+        var rootFilesByCommit = filesByCommit.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream().filter(file -> file.getFullPath().equals(file.getName())).toList()
+                ));
+
+        result.commitData().keySet().forEach(commitHash -> {
+            filesByCommit.putIfAbsent(commitHash, List.of());
+            rootFilesByCommit.putIfAbsent(commitHash, List.of());
+        });
+
+        commitRepository.saveAll(
+                commits
+                        .values()
+                        .stream()
+                        .map(commit -> commit
+                                .toBuilder()
+                                .rootFiles(rootFilesByCommit.get(commit.getHash()))
+                                .build())
+                        .toList()
+        );
+
+        return viewRepository(
+                repository.getId(),
+                "default",
+                "latest",
+                null
+        );
+    }
+
+    public RepositoryViewModel viewRepository(
+            String repositoryId,
+            String branchId,
+            String commitHash,
+            @Nullable String path
+    ) {
+        return repositoryRepository.viewRepository(
+                repositoryId,
+                branchId.equals("default") ? null : branchId,
+                commitHash.equals("latest") ? null : commitHash,
+                path
+        );
     }
 
     public boolean isRepositoryVisible(RepositoryModel repository, @Nullable UserDetailsWithId currentUser) {

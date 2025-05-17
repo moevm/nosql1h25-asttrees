@@ -25,6 +25,8 @@ public class CommitFileModel {
     FileTypeModel type;
     @Nullable
     String hash;
+    @Nullable
+    CommitFileMetadataModel metadata;
     @Ref(lazy = true)
     CommitModel commit;
     @Ref(lazy = true)

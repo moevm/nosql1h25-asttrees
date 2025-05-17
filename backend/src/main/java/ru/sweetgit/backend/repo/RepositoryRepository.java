@@ -81,7 +81,7 @@ public interface RepositoryRepository extends ArangoRepository<RepositoryModel, 
                 commitCount: LENGTH(branchCommitModels)
             }
             """)
-    RepositoryViewModel test(
+    RepositoryViewModel viewRepository(
             @Param("repositoryId") String repositoryId,
             @Param("branchId") @Nullable String branchId,
             @Param("commitHash") @Nullable String commitHash,

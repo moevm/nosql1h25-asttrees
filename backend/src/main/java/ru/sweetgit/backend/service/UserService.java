@@ -2,7 +2,6 @@ package ru.sweetgit.backend.service;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -12,8 +11,9 @@ import ru.sweetgit.backend.model.UserModel;
 import ru.sweetgit.backend.model.UserVisibilityModel;
 import ru.sweetgit.backend.repo.UserRepository;
 
-import java.util.ArrayList;
 import java.util.Optional;
+
+import static ru.sweetgit.backend.service.UserDetailsServiceImpl.ROLE_ADMIN;
 
 @Service
 @RequiredArgsConstructor
@@ -59,24 +59,8 @@ public class UserService {
         }
     }
 
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
-
     public static boolean isAdmin(UserDetails userDetails) {
         return userDetails.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_ADMIN));
-    }
-
-    public UserDetails buildUserDetails(UserModel user) {
-        var authorities = new ArrayList<GrantedAuthority>();
-        if (user.getIsAdmin()) {
-            authorities.add(new SimpleGrantedAuthority(ROLE_ADMIN));
-        }
-
-        return new UserDetailsWithId(
-                user.getId(),
-                user.getUsername(),
-                user.getPasswordHash(),
-                authorities
-        );
     }
 
     public UserModel createUser(UserModel request) {

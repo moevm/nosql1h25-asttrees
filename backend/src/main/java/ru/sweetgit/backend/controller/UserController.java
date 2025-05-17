@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetgit.backend.annotation.IsAuthenticated;
 import ru.sweetgit.backend.dto.ApiException;
@@ -72,7 +71,6 @@ public class UserController {
                 request.password()
         ));
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
         var token = jwtService.generateToken(auth);
         return ResponseEntity.ok(new LoginResponseDto(token));
     }
