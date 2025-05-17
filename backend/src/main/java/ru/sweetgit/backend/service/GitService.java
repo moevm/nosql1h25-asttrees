@@ -2,6 +2,7 @@ package ru.sweetgit.backend.service;
 
 import jakarta.annotation.Nullable;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.*;
 import org.eclipse.jgit.errors.LargeObjectException;
@@ -14,7 +15,6 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.model.*;
 import ru.sweetgit.backend.util.FileUtil;
@@ -199,11 +199,13 @@ public class GitService {
             for (DiffEntry diff : diffs) {
                 boolean isOldVersionBinary = false;
                 if (oldTree != null && diff.getOldId() != null && !diff.getOldId().toObjectId().equals(ObjectId.zeroId())) {
-                    isOldVersionBinary = isLikelyBinary(reader, diff.getOldId().toObjectId());
+                    var loader = reader.open(diff.getOldId().toObjectId(), Constants.OBJ_BLOB);
+                    isOldVersionBinary = RawText.isBinary(loader.getBytes());
                 }
                 boolean isNewVersionBinary = false;
                 if (diff.getNewId() != null && !diff.getNewId().toObjectId().equals(ObjectId.zeroId())) {
-                    isNewVersionBinary = isLikelyBinary(reader, diff.getNewId().toObjectId());
+                    var loader = reader.open(diff.getNewId().toObjectId(), Constants.OBJ_BLOB);
+                    isNewVersionBinary = RawText.isBinary(loader.getBytes());
                 }
 
                 boolean skipLineCountingForThisDiffEntry = false;
@@ -230,10 +232,10 @@ public class GitService {
 
                 switch (diff.getChangeType()) {
                     case ADD:
-                        stats.linesAdded += getBlobMetadata(reader, diff.getNewId().toObjectId()).getLines();
+                        stats.linesAdded += getBlobData(reader, diff.getNewId().toObjectId()).getKey().getLines();
                         break;
                     case DELETE:
-                        stats.linesRemoved += getBlobMetadata(reader, diff.getOldId().toObjectId()).getLines();
+                        stats.linesRemoved += getBlobData(reader, diff.getOldId().toObjectId()).getKey().getLines();
                         break;
                     case MODIFY:
                     case COPY:
@@ -255,19 +257,23 @@ public class GitService {
 
             while (treeWalk.next()) {
                 var fileMode = treeWalk.getFileMode(0);
+
                 CommitFileModel.CommitFileModelBuilder commitFileModelBuilder;
+                byte[] data = null;
+
                 if (fileMode.equals(FileMode.REGULAR_FILE) ||
                         fileMode.equals(FileMode.EXECUTABLE_FILE)) {
 
                     var blobId = treeWalk.getObjectId(0);
-                    var metadata = getBlobMetadata(reader, blobId);
+                    var metadata = getBlobData(reader, blobId);
 
                     commitFileModelBuilder = CommitFileModel.builder()
                             .name(treeWalk.getNameString())
                             .fullPath(treeWalk.getPathString())
                             .hash(blobId.name())
                             .type(FileTypeModel.FILE)
-                            .metadata(metadata);
+                            .metadata(metadata.getKey());
+                    data = metadata.getValue();
                 } else if (fileMode.equals(FileMode.TREE)) {
                     commitFileModelBuilder = CommitFileModel.builder()
                             .name(treeWalk.getNameString())
@@ -279,7 +285,7 @@ public class GitService {
 
                 stats.files.add(new FileData(
                         commitFileModelBuilder,
-                        null
+                        data
                 ));
             }
         }
@@ -288,43 +294,28 @@ public class GitService {
     }
 
     @SneakyThrows
-    private CommitFileMetadataModel getBlobMetadata(ObjectReader objectReader, ObjectId blobId) {
+    private Pair<CommitFileMetadataModel, byte[]> getBlobData(ObjectReader objectReader, ObjectId blobId) {
         if (blobId == null || blobId.equals(ObjectId.zeroId())) {
-            return new CommitFileMetadataModel(0, 0L, false);
+            return Pair.of(new CommitFileMetadataModel(0, 0L, false), null);
         }
-        var isFileBinary = isLikelyBinary(objectReader, blobId);
+
         var loader = objectReader.open(blobId, Constants.OBJ_BLOB);
+        var bytes = loader.getBytes();
+        var isFileBinary = RawText.isBinary(bytes);
+
         if (isFileBinary) {
-            return new CommitFileMetadataModel(1, loader.getSize(), true);
+            return Pair.of(new CommitFileMetadataModel(1, loader.getSize(), true), bytes);
         }
 
         try (var inputStream = loader.openStream();
              var bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            return new CommitFileMetadataModel(
+            return Pair.of(new CommitFileMetadataModel(
                     (int) bufferedReader.lines().count(),
                     loader.getSize(),
                     false
-            );
+            ), bytes);
         } catch (LargeObjectException | MissingObjectException e) {
-            return new CommitFileMetadataModel(0, 0L, false);
-        }
-    }
-
-    @SneakyThrows
-    private boolean isLikelyBinary(ObjectReader objectReader, AnyObjectId blobId) {
-        if (blobId == null || blobId.equals(ObjectId.zeroId())) {
-            return false;
-        }
-        try {
-            var loader = objectReader.open(blobId.toObjectId(), Constants.OBJ_BLOB);
-            if (loader.isLarge()) {
-                byte[] prefix = loader.getCachedBytes(8000);
-                return RawText.isBinary(prefix);
-            }
-            var bytes = loader.getBytes();
-            return RawText.isBinary(bytes);
-        } catch (MissingObjectException e) {
-            return false;
+            return Pair.of(new CommitFileMetadataModel(0, 0L, false), bytes);
         }
     }
 }

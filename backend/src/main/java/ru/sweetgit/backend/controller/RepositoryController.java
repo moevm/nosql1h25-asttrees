@@ -33,7 +33,7 @@ public class RepositoryController {
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
         var user = userService.getUserById(userId)
-                .orElseThrow(() -> ApiException.notFound("user", "id", userId).build());
+                .orElseThrow(() -> ApiException.notFound("Пользователь", "id", userId).build());
         userService.requireUserVisible(user, currentUser);
 
         return ResponseEntity.ok(
@@ -72,7 +72,7 @@ public class RepositoryController {
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
         var repo = repositoryService.getById(repoId)
-                .orElseThrow(() -> ApiException.notFound("repository", "id", repoId).build());
+                .orElseThrow(() -> ApiException.notFound("Репозиторий", "id", repoId).build());
 
         repositoryService.requireRepositoryVisible(repo, currentUser);
 

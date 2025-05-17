@@ -1,6 +1,6 @@
 import {Outlet, useParams} from "react-router-dom";
 import {useSetAtom} from "jotai/react";
-import {$userId} from "@/store.ts";
+import {$userId} from "@/store/store.ts";
 import {useEffect} from "react";
 
 

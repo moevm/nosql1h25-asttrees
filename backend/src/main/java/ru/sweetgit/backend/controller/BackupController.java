@@ -38,11 +38,11 @@ public class BackupController {
     @SneakyThrows
     public ResponseEntity<Void> importDatabase(@RequestPart("file") MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
-            throw ApiException.badRequest().message("Empty file").build();
+            throw ApiException.badRequest().message("Файл пуст").build();
         }
         var originalFilename = multipartFile.getOriginalFilename();
         if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".zip")) {
-            throw ApiException.badRequest().message("Invalid file type. Please upload a .zip file.").build();
+            throw ApiException.badRequest().message("Неверный тип файла. Загрузите .zip файл").build();
         }
 
         try (var inputStream = multipartFile.getInputStream()) {

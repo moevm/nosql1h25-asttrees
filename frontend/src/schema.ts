@@ -20,6 +20,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/db/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["importDatabase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/db/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["exportDatabase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/register": {
         parameters: {
             query?: never;
@@ -116,7 +148,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/repositories/{repoId}/branches/{branchId}/commits/{commitHash}/view": {
+    "/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view": {
         parameters: {
             query?: never;
             header?: never;
@@ -124,6 +156,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["viewRepository"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getUsers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -163,10 +211,9 @@ export interface components {
             id?: string;
             name?: string;
             owner?: string;
+            defaultBranch?: string;
             /** Format: uri */
             originalLink?: string;
-            /** @enum {string} */
-            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
             /** Format: date-time */
             createdAt?: string;
         };
@@ -185,12 +232,18 @@ export interface components {
             createdAt?: string;
             isAdmin?: boolean;
         };
-        AuthLoginRequest: {
-            username: string;
-            password: string;
+        GrantedAuthority: {
+            authority?: string;
         };
-        LoginResponseDto: {
-            token?: string;
+        UserDetailsWithId: {
+            password?: string;
+            username?: string;
+            authorities?: components["schemas"]["GrantedAuthority"][];
+            accountNonExpired?: boolean;
+            accountNonLocked?: boolean;
+            credentialsNonExpired?: boolean;
+            enabled?: boolean;
+            id?: string;
         };
         BranchDto: {
             id?: string;
@@ -213,6 +266,16 @@ export interface components {
             linesRemoved?: number;
             /** Format: date-time */
             createdAt?: string;
+            rootFiles?: components["schemas"]["CommitFileDto"][];
+        };
+        CommitFileDto: {
+            id?: string;
+            name?: string;
+            /** @enum {string} */
+            type?: "DIRECTORY" | "FILE";
+            hash?: string;
+            commit?: string;
+            parent?: string;
         };
         RepositoryViewDto: {
             owner?: components["schemas"]["ShortUserDto"];
@@ -238,6 +301,28 @@ export interface components {
         ShortUserDto: {
             id?: string;
             username?: string;
+        };
+        AuthRegisterRequest: {
+            username: string;
+            email?: string;
+            password: string;
+        };
+        UserDto: {
+            id?: string;
+            username?: string;
+            email?: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PRIVATE";
+            /** Format: date-time */
+            createdAt?: string;
+            isAdmin?: boolean;
+        };
+        AuthLoginRequest: {
+            username: string;
+            password: string;
+        };
+        LoginResponseDto: {
+            token?: string;
         };
     };
     responses: never;
@@ -267,7 +352,52 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["RepositoryDto"];
+                    "*/*": components["schemas"]["RepositoryViewDto"];
+                };
+            };
+        };
+    };
+    importDatabase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    exportDatabase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };
@@ -402,6 +532,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["UserDto"];
+                };
+            };
+        };
+    };
+    getBranchCommits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repoId: string;
+                branchId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CommitDto"][];
                 };
             };
         };
