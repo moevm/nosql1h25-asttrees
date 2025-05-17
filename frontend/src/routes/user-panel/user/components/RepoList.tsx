@@ -12,7 +12,7 @@ import RepoCard from "@/routes/user-panel/user/components/RepoCard.tsx";
 import {useMemo, useState} from "react";
 import UserSettingsDialog from "@/components/dialogs/UserSettingsDialog.tsx";
 import UserAddRepoDialog from "@/components/dialogs/UserAddRepoDialog.tsx";
-import type {ApiRepositoryModel} from "@/store.ts";
+import type {ApiRepositoryModel} from "@/store/store.ts";
 
 function RepoList({data}: { data: ApiRepositoryModel[] }) {
     const [page, setPage] = useState(1);

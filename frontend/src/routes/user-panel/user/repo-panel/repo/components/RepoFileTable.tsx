@@ -1,4 +1,4 @@
-import {type ApiCommitModel} from "@/store.ts";
+import {type ApiCommitModel} from "@/store/store.ts";
 import {Label} from "@/components/ui/label.tsx";
 import {File, Folder, History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";

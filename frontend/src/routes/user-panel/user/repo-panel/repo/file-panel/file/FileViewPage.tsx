@@ -9,7 +9,7 @@ import {File, Package, UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
 import {Label} from "@/components/ui/label.tsx";
 import FileTable from "@/routes/user-panel/user/repo-panel/repo/file-panel/file/components/FileTable.tsx";
-import {$currentUser, $fileId, $repoId, type ApiCommitModel} from "@/store.ts";
+import {$currentUser, $fileId, $repoId, type ApiCommitModel} from "@/store/store.ts";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 
 const mockCommits = [

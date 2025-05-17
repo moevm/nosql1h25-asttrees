@@ -1,6 +1,6 @@
 import {loaded} from "@/api";
 import UserTableView from "@/routes/admin-panel/users/components/UsersTableView.tsx";
-import {$users} from "@/store.ts";
+import {$users} from "@/store/store.ts";
 import {useAtomValue} from "jotai/react";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 

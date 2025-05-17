@@ -9,7 +9,7 @@ import {useAtomValue} from "jotai/react";
 import RepoList from "@/routes/user-panel/user/components/RepoList.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
-import {$currentUser, $currentUserRepos} from "@/store.ts";
+import {$currentUser, $currentUserRepos} from "@/store/store.ts";
 import {loaded} from "@/api";
 
 function UserPage() {

@@ -1,6 +1,6 @@
 
 import {Checkbox} from "@/components/ui/checkbox.tsx";
-import type {ApiUserModel} from "@/store.ts";
+import type {ApiUserModel} from "@/store/store.ts";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
 import {CheckboxRenderer, ListRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
 import type {ColumnDef, ColumnMeta, RowData} from "@tanstack/react-table";
