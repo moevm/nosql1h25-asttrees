@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/breadcrumb.tsx";
 import {Package, Settings, UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
-import {$currentUser, $repoId, type ApiCommitModel} from "@/store.ts";
+import {$currentUser, $repoId, type ApiCommitModel} from "@/store/store.ts";
 import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";

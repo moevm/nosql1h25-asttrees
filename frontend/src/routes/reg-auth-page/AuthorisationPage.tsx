@@ -31,7 +31,7 @@ import {Loader2} from "lucide-react";
 import {atom, useAtom} from "jotai";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useLoginMutation, useRegisterMutation} from "@/api/auth.ts";
-import {$currentUser, $currentUserQuery} from "@/store.ts";
+import {$currentUser, $currentUserQuery} from "@/store/store.ts";
 import {useNavigate, useParams} from "react-router-dom";
 import {loaded} from "@/api";
 

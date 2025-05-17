@@ -3,7 +3,7 @@ import {useAtom, useAtomValue} from 'jotai';
 import {useNavigate} from 'react-router-dom';
 import {useQueryClient} from '@tanstack/react-query';
 import {$authToken, errorMessage} from "@/api";
-import {$currentUser, $currentUserQueryOptions} from "@/store.ts";
+import {$currentUser, $currentUserQueryOptions} from "@/store/store.ts";
 import {toast} from "sonner"; // If you want to clear cache
 
 export function SessionManager() {

@@ -1,4 +1,4 @@
-import {$repoId, $userId, type ApiCommitModel} from "@/store.ts";
+import {$repoId, $userId, type ApiCommitModel} from "@/store/store.ts";
 import {Label} from "@/components/ui/label.tsx";
 import {History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
