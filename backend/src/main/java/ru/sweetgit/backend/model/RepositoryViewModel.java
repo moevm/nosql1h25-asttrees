@@ -18,4 +18,5 @@ public class RepositoryViewModel {
     BranchModel branch;
     CommitModel commit;
     List<CommitFileModel> files;
+    int commitCount;
 }

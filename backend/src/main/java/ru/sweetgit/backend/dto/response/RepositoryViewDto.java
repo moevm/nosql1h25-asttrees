@@ -8,6 +8,7 @@ public record RepositoryViewDto(
         List<ShortBranchDto> branches,
         BranchDto branch,
         CommitDto commit,
-        List<ShortCommitFileDto> files
+        List<ShortCommitFileDto> files,
+        int commitCount
 ) {
 }

@@ -60,7 +60,7 @@ public interface RepositoryRepository extends ArangoRepository<RepositoryModel, 
                         LIMIT 1
                         RETURN dirCf
                 )[0]
-
+            
             LET commitFileModels = (@path != "" AND @path != null AND parentDirModelForListing == null)
                 ? []
                 : (
@@ -77,7 +77,8 @@ public interface RepositoryRepository extends ArangoRepository<RepositoryModel, 
                 branches: allRepoBranchModels,
                 branch: targetBranchModel,
                 commit: targetCommitModel,
-                files: commitFileModels
+                files: commitFileModels,
+                commitCount: LENGTH(branchCommitModels)
             }
             """)
     RepositoryViewModel test(

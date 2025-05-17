@@ -33,11 +33,9 @@ public class UserController {
             @PathVariable("userId") String userId,
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
-        var maybeUser = userService.getUserById(userId);
-        if (maybeUser.isEmpty()) {
-            throw ApiException.notFound("user", "id", userId).build();
-        }
-        var user = maybeUser.get();
+        var user = userService.getUserById(userId)
+                .orElseThrow(() -> ApiException.notFound("user", "id", userId).build());
+
         userService.requireUserVisible(user, currentUser);
 
         return ResponseEntity.ok(userMapper.toUserDto(user));

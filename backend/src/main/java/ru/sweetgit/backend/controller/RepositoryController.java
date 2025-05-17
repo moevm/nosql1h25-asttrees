@@ -39,11 +39,8 @@ public class RepositoryController {
             @PathVariable("userId") String userId,
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
-        var maybeUser = userService.getUserById(userId);
-        if (maybeUser.isEmpty()) {
-            throw ApiException.notFound("user", "id", userId).build();
-        }
-        var user = maybeUser.get();
+        var user = userService.getUserById(userId)
+                .orElseThrow(() -> ApiException.notFound("user", "id", userId).build());
         userService.requireUserVisible(user, currentUser);
 
         return ResponseEntity.ok(
@@ -74,15 +71,10 @@ public class RepositoryController {
             @RequestParam(value = "path", required = false) @Nullable String path,
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
-        // TODO все это в теории можно переделать на отдельный запрос
-        var maybeRepo = repositoryService.getById(repoId);
-        if (maybeRepo.isEmpty()) {
-            throw ApiException.notFound("repository", "id", repoId).build();
-        }
+        var repo = repositoryService.getById(repoId)
+                .orElseThrow(() -> ApiException.notFound("repository", "id", repoId).build());
 
-        var repo = maybeRepo.get();
         repositoryService.requireRepositoryVisible(repo, currentUser);
-
 
         var res = repositoryRepository.test(
                 repoId,

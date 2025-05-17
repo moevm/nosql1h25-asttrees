@@ -45,12 +45,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             var userId = jwtService.extractUserId(jwt);
 
-            var maybeUser = userService.getUserById(userId);
-            if (maybeUser.isEmpty()) {
-                throw ApiException.notFound("user", "id", userId).build();
-            }
+            var user = userService.getUserById(userId)
+                    .orElseThrow(() -> ApiException.notFound("user", "id", userId).build());
 
-            var userDetails = userService.buildUserDetails(maybeUser.get());
+            var userDetails = userService.buildUserDetails(user);
 
             var authentication = new UsernamePasswordAuthenticationToken(
                     userDetails,
