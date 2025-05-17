@@ -6,22 +6,19 @@ import {
     ArrowBigRightDash,
     ArrowLeft,
     ArrowRight,
-    BoxIcon,
-    FilterIcon, Package,
-    SearchIcon,
-    SettingsIcon
+    FilterIcon, SearchIcon
 } from "lucide-react";
-import RepoCard from "@/routes/user-panel/user/RepoCard.tsx";
-import type {repoProps} from "@/routes/user-panel/user/RepoCard.tsx";
+import RepoCard from "@/routes/user-panel/user/components/RepoCard.tsx";
+import type {repoProps} from "@/routes/user-panel/user/components/RepoCard.tsx";
 import {useMemo, useState} from "react";
 import UserSettingsDialog from "@/components/dialogs/UserSettingsDialog.tsx";
 import UserAddRepoDialog from "@/components/dialogs/UserAddRepoDialog.tsx";
 
-function RepoList () {
+function RepoList() {
     const visibilityOptions = ["public", "protected", "private"];
 
     const reposArr = {
-        repos: Array.from({ length: 30 }, (_, i) => ({
+        repos: Array.from({length: 30}, (_, i) => ({
             id: `repo-${i + 1}`,
             name: `repo${i + 1}`,
             owner: `user${(i % 5) + 1}`,
