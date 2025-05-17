@@ -6,19 +6,10 @@ import {useNavigate} from "react-router-dom";
 import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
 import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
 import {useRef} from "react";
+import type {ApiRepositoryModel} from "@/store.ts";
 
-//TODO заменить на ApiRepositoryModel, когда починим на бэке
-export interface repoProps {
-    id: number,
-    name: string,
-    owner: string,
-    defaultBranch: string,
-    originalLink: string,
-    createdAt: string,
-    visibility: string,
-}
 
-function RepoCard({repo}: { repo: repoProps }) {
+function RepoCard({repo}: { repo: ApiRepositoryModel }) {
     const nav = useNavigate();
     const ignoreClick = useRef(false);
 

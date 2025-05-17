@@ -6,12 +6,12 @@ import {
 } from "@/components/ui/breadcrumb.tsx";
 import {UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
-import {$userId} from "@/store/store.ts";
+import {$currentUser} from "@/store.ts";
 import RepoList from "@/routes/user-panel/user/components/RepoList.tsx";
 import {Label} from "@/components/ui/label.tsx";
 
 function UserPage () {
-    const userId = useAtomValue($userId)!
+    const currentUser = useAtomValue($currentUser)!
 
     return (
         <div className="p-10">
@@ -21,7 +21,7 @@ function UserPage () {
                         <BreadcrumbPage>
                             <div className="flex items-center justify-between">
                                 <UserIcon/>
-                                <Label>{userId}</Label>
+                                <Label>{currentUser.data.username}</Label>
                             </div>
                         </BreadcrumbPage>
                     </BreadcrumbItem>
