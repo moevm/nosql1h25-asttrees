@@ -38,19 +38,19 @@ public class ApiException extends RuntimeException {
     public static ApiException.ApiExceptionBuilder notFound(String entity, String field, String value) {
         return new ApiException.ApiExceptionBuilder()
                 .status(HttpStatus.NOT_FOUND)
-                .message("%s not found by %s: %s".formatted(entity, field, value));
+                .message("Сущность \"%s\" не найдена по %s: %s".formatted(entity, field, value));
     }
 
     public static ApiException.ApiExceptionBuilder forbidden() {
         return new ApiException.ApiExceptionBuilder()
                 .status(HttpStatus.FORBIDDEN)
-                .message("Access denied");
+                .message("Доступ запрещён");
     }
 
     public static ApiException.ApiExceptionBuilder badRequest() {
         return new ApiException.ApiExceptionBuilder()
                 .status(HttpStatus.BAD_REQUEST)
-                .message("Bad request");
+                .message("Неверный запрос");
     }
 
     public static ApiException.ApiExceptionBuilder builder(HttpStatus status, String message) {

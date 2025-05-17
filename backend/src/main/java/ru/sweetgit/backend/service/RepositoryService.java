@@ -2,6 +2,7 @@ package ru.sweetgit.backend.service;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
@@ -26,6 +27,7 @@ public class RepositoryService {
     private final BranchCommitRepository branchCommitRepository;
     private final CommitFileRepository commitFileRepository;
     private final UserService userService;
+    private final FileStorageService fileStorageService;
 
     public Optional<RepositoryModel> getById(String id) {
         return repositoryRepository.findById(id);
@@ -83,8 +85,8 @@ public class RepositoryService {
                                 .relations()
                                 .stream()
                                 .map(relation -> new BranchCommitModel(
-                                        BranchModel.builder().id(branches.get(relation.getFirst()).getId()).build(),
-                                        CommitModel.builder().id(commits.get(relation.getSecond()).getId()).build()
+                                        BranchModel.builder().id(branches.get(relation.getKey()).getId()).build(),
+                                        CommitModel.builder().id(commits.get(relation.getValue()).getId()).build()
                                 ))
                                 .toList()
                 ).spliterator(),
@@ -137,6 +139,30 @@ public class RepositoryService {
                         .toList()
         );
 
+        var fileDatas = result
+                .commitData()
+                .entrySet()
+                .stream()
+                .flatMap(entry -> entry.getValue()
+                        .files()
+                        .stream()
+                        .flatMap(fileData -> {
+                            var model = fileData.entityBuilder().build();
+                            if (model.getType().equals(FileTypeModel.DIRECTORY)) {
+                                return Optional.<Pair<String, byte[]>>empty().stream();
+                            }
+                            if (fileData.data() == null) {
+                                return Optional.<Pair<String, byte[]>>empty().stream();
+                            }
+                            return Optional.of(Pair.of(model.getHash(), fileData.data())).stream();
+                        }))
+                .toList();
+
+        for (var fileData : fileDatas) {
+            fileStorageService.storeFile(fileData.getKey(), fileData.getValue());
+            // TODO ast analyze
+        }
+
         return viewRepository(
                 repository.getId(),
                 "default",
@@ -177,7 +203,7 @@ public class RepositoryService {
 
     public void requireRepositoryVisible(RepositoryModel repository, @Nullable UserDetailsWithId currentUser) {
         if (!isRepositoryVisible(repository, currentUser)) {
-            throw ApiException.forbidden().message("no permission to access repository %s".formatted(repository.getId())).build();
+            throw ApiException.forbidden().message("Нет прав для доступа к репозиторию %s".formatted(repository.getId())).build();
         }
     }
 }
