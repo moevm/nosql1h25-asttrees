@@ -15,7 +15,7 @@ import * as z from "zod";
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import type {ApiRepositoryModel} from "@/store.ts";
+import type {ApiRepositoryModel} from "@/store/store.ts";
 
 
 const formSchema = z.object({

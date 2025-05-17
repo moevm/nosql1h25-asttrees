@@ -10,7 +10,7 @@ import {atom} from "jotai";
 import {QueryClient} from '@tanstack/react-query'
 import {toast} from "sonner";
 import type {Loadable} from "jotai/utils";
-import {$currentUserQueryOptions, store} from "@/store.ts";
+import {$currentUserQueryOptions, store} from "@/store/store.ts";
 
 export const $authToken = atomWithStorage<string | null>('auth_token', null)
 

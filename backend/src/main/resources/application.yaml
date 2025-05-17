@@ -1,6 +1,11 @@
 spring:
   application:
     name: backend
+
+logging:
+  level:
+    com.arangodb.internal.net.Communication: DEBUG
+
 arangodb:
   spring:
     data:

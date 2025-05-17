@@ -3,6 +3,7 @@ package ru.sweetgit.backend.service;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
@@ -15,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +49,7 @@ public class RepositoryService {
                         .visibility(RepositoryVisibilityModel.valueOf(request.visibility().toString()))
                         .build()
         );
-        var branches = StreamSupport.stream(
+        var branches = StreamUtils.createStreamFromIterator(
                 branchRepository.saveAll(
                         result
                                 .branchData()
@@ -61,10 +61,9 @@ public class RepositoryService {
                                                 .build()
                                 )
                                 .toList()
-                ).spliterator(),
-                false
+                ).iterator()
         ).collect(Collectors.toMap(BranchModel::getName, Function.identity()));
-        var commits = StreamSupport.stream(
+        var commits = StreamUtils.createStreamFromIterator(
                 commitRepository.saveAll(
                         result
                                 .commitData()
@@ -75,11 +74,10 @@ public class RepositoryService {
                                         .build()
                                 )
                                 .toList()
-                ).spliterator(),
-                false
+                ).iterator()
         ).collect(Collectors.toMap(CommitModel::getHash, Function.identity()));
 
-        var branchCommits = StreamSupport.stream(
+        var branchCommits = StreamUtils.createStreamFromIterator(
                 branchCommitRepository.saveAll(
                         result
                                 .relations()
@@ -89,11 +87,10 @@ public class RepositoryService {
                                         CommitModel.builder().id(commits.get(relation.getValue()).getId()).build()
                                 ))
                                 .toList()
-                ).spliterator(),
-                false
+                ).iterator()
         );
 
-        var commitFiles = StreamSupport.stream(
+        var commitFiles = StreamUtils.createStreamFromIterator(
                 commitFileRepository.saveAll(
                         result
                                 .commitData()
@@ -107,8 +104,7 @@ public class RepositoryService {
                                                 .commit(commits.get(entry.getKey()))
                                                 .build()))
                                 .toList()
-                ).spliterator(),
-                false
+                ).iterator()
         ).toList();
 
         var filesByCommit = commitFiles.stream()

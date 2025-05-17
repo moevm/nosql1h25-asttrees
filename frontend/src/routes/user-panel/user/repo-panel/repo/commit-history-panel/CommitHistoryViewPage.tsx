@@ -1,5 +1,5 @@
 import {useAtomValue} from "jotai/react";
-import {$currentUser, $repoId} from "@/store.ts";
+import {$currentUser, $repoId} from "@/store/store.ts";
 import {
     Breadcrumb,
     BreadcrumbItem,
