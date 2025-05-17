@@ -14,31 +14,17 @@ import UserSettingsDialog from "@/components/dialogs/UserSettingsDialog.tsx";
 import UserAddRepoDialog from "@/components/dialogs/UserAddRepoDialog.tsx";
 import type {ApiRepositoryModel} from "@/store.ts";
 
-function RepoList() {
-    const visibilityOptions = ["public", "protected", "private"];
-
-    const reposArr = {
-        repos: Array.from({length: 30}, (_, i) => ({
-            id: `repo-${i + 1}`,
-            name: `repo${i + 1}`,
-            owner: `user${(i % 5) + 1}`,
-            defaultBranch: "main",
-            originalLink: `https://github.com/user${(i % 5) + 1}/repo${i + 1}`,
-            createdAt: new Date(Date.now() - i * 86400000).toISOString(),
-            visibility: visibilityOptions[i % visibilityOptions.length],
-        }) as ApiRepositoryModel),
-    };
-
+function RepoList({data}: { data: ApiRepositoryModel[] }) {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
 
     const reposPerPage = 10;
 
     const filteredRepos = useMemo(() => {
-        return reposArr.repos.filter((repo) =>
+        return data.filter((repo) =>
             repo.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [searchTerm, reposArr.repos]);
+    }, [searchTerm, data]);
 
     const totalPages = Math.ceil(filteredRepos.length / reposPerPage);
 
@@ -95,25 +81,29 @@ function RepoList() {
                     ))}
                 </div>
             ) : (
-                <Label className="text-xl font-bold">Грустно 😢</Label>
+                <Label className="text-lg font-medium text-gray-600">Отсутствуют репозитории</Label>
             )}
 
-            <div className="flex items-center justify-center gap-4 mt-4">
-                <Button onClick={handleDashLeft} disabled={page === 1} variant="outline">
-                    <ArrowBigLeftDash/>
-                </Button>
-                <Button onClick={handlePrev} disabled={page === 1} variant="outline">
-                    <ArrowLeft/>
-                </Button>
-                <span className="text-muted-foreground">Страница {page} из {totalPages}</span>
-                <Button onClick={handleNext} disabled={page === totalPages} variant="outline">
-                    <ArrowRight/>
-                </Button>
-                <Button onClick={handleDashRight} disabled={page === totalPages} variant="outline">
-                    <ArrowBigRightDash/>
-                </Button>
-            </div>
+            {paginatedRepos.length > 0 ? (
+                <div className="flex items-center justify-center gap-4 mt-4">
+                    <Button onClick={handleDashLeft} disabled={page === 1} variant="outline">
+                        <ArrowBigLeftDash/>
+                    </Button>
+                    <Button onClick={handlePrev} disabled={page === 1} variant="outline">
+                        <ArrowLeft/>
+                    </Button>
+                    <span className="text-muted-foreground">Страница {page} из {totalPages}</span>
+                    <Button onClick={handleNext} disabled={page === totalPages} variant="outline">
+                        <ArrowRight/>
+                    </Button>
+                    <Button onClick={handleDashRight} disabled={page === totalPages} variant="outline">
+                        <ArrowBigRightDash/>
+                    </Button>
+                </div>
 
+            ) : (
+                <></>
+            )}
         </div>
     )
 }

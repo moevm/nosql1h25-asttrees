@@ -1,6 +1,6 @@
 import {columnsUser} from "@/store/columns/columnsUsers.tsx";
 import {useNavigate} from "react-router-dom";
-import type {ApiUserModel} from "@/store/store.ts";
+import type {ApiUserModel} from "@/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 
 function UserTableView(props: {
