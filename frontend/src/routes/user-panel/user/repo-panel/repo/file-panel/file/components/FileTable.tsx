@@ -1,11 +1,15 @@
-import {type ApiCommitModel} from "@/store/store.ts";
+import {$currentUser, $repoId, type ApiCommitModel} from "@/store/store.ts";
 import {Label} from "@/components/ui/label.tsx";
 import {History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
 import {useState} from "react";
+import {Link} from "react-router-dom";
+import {useAtomValue} from "jotai/react";
 
 function RepoHeader({data}: { data: ApiCommitModel[] }) {
+    const repoId = useAtomValue($repoId)!
+    const currentUser = useAtomValue($currentUser)!
     const lastCommitN = data.length - 1;
     return (
         <div className="pb-5">
@@ -30,9 +34,11 @@ function RepoHeader({data}: { data: ApiCommitModel[] }) {
                             <Label className={"text-gray-400"}>
                                 {new Date(data[lastCommitN].createdAt)?.toLocaleDateString("ru-RU")}
                             </Label>
-                            <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
-                                <History/> {data.length} Коммит(ов)
-                            </Button>
+                            <Link to={`/users/${currentUser.data.id}/repo/${repoId}/history`}>
+                                <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
+                                    <History/> История коммитов
+                                </Button>
+                            </Link>
                         </div>
 
                     </th>

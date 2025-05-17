@@ -19,39 +19,48 @@ import {HydrateAtoms, queryClient} from "@/api";
 import {Toaster} from "sonner";
 import FileLayout from "@/routes/user-panel/user/repo-panel/repo/file-panel/FileLayout.tsx";
 import FileViewPage from "@/routes/user-panel/user/repo-panel/repo/file-panel/file/FileViewPage.tsx";
+import CommitHistoryViewPage
+    from "@/routes/user-panel/user/repo-panel/repo/commit-history-panel/CommitHistoryViewPage.tsx";
+import {Provider} from "jotai/react";
+import {SessionManager} from "@/components/SessionManager.tsx";
+import {store} from "@/store/store.ts";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
-        <HydrateAtoms>
-            <Toaster/>
-            <BrowserRouter>
-                <Routes>
-                    <Route element={<HeaderLayout/>}>
-                        <Route path="/auth" element={<AuthorisationPage/>}/>
+        <Provider store={store}>
+            <HydrateAtoms>
+                <Toaster/>
+                <BrowserRouter>
+                    <SessionManager />
+                    <Routes>
+                        <Route element={<HeaderLayout/>}>
+                            <Route path="/:tab" element={<AuthorisationPage />} />
+                            <Route path="/" element={<Navigate to="/login" />} />
 
-                        <Route path="users/:userId" element={<UserLayout/>}>
-                            <Route path="" element={<UserPage/>}/>
-                            <Route path="repo/:repoId" element={<RepoLayout/>}>
-                                <Route path="" element={<RepoViewPage/>}/>
-                                <Route path="file/:fileId" element={<FileLayout/>}>
-                                    <Route path="" element={<FileViewPage/>}/>
+                            <Route path="users/:userId" element={<UserLayout/>}>
+                                <Route path="" element={<UserPage/>}/>
+                                <Route path="repo/:repoId" element={<RepoLayout/>}>
+                                    <Route path="" element={<RepoViewPage/>}/>
+                                    <Route path="file/:fileId" element={<FileLayout/>}>
+                                        <Route path="" element={<FileViewPage/>}/>
+                                    </Route>
+                                    <Route path="history" element={<CommitHistoryViewPage/>}/>
                                 </Route>
                             </Route>
-                        </Route>
 
-                        <Route path="admin" element={<AdminPanelLayout/>}>
-                            <Route index element={<Navigate to="users" replace/>}/>
-                            <Route path="users" element={<UsersPage/>}/>
-                            <Route path="repos" element={<ReposAdminPage/>}/>
-                            <Route path="commits" element={<CommitsPage/>}/>
-                            <Route path="files" element={<FilesPage/>}/>
-                            <Route path="ast-trees" element={<AstTreesPage/>}/>
-                            <Route path="import-export" element={<ImportExportDBPage/>}/>
+                            <Route path="admin" element={<AdminPanelLayout/>}>
+                                <Route index element={<Navigate to="users" replace/>}/>
+                                <Route path="users" element={<UsersPage/>}/>
+                                <Route path="repos" element={<ReposAdminPage/>}/>
+                                <Route path="commits" element={<CommitsPage/>}/>
+                                <Route path="files" element={<FilesPage/>}/>
+                                <Route path="ast-trees" element={<AstTreesPage/>}/>
+                                <Route path="import-export" element={<ImportExportDBPage/>}/>
+                            </Route>
                         </Route>
-                    </Route>
-                </Routes>
-            </BrowserRouter>
-        </HydrateAtoms>
-
+                    </Routes>
+                </BrowserRouter>
+            </HydrateAtoms>
+        </Provider>
     </QueryClientProvider>
 )

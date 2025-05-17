@@ -11,12 +11,11 @@ import {Eye, EyeOff, Package, Shield} from "lucide-react";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {Label} from "@/components/ui/label.tsx";
-import {Dialog} from "@radix-ui/react-dialog";
 import * as z from "zod";
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import type {repoProps} from "@/routes/user-panel/user/components/RepoCard.tsx";
+import type {ApiRepositoryModel} from "@/store/store.ts";
 
 
 const formSchema = z.object({
@@ -24,7 +23,7 @@ const formSchema = z.object({
     name: z.string().min(3, "Минимум 3 символа"),
 });
 
-function UserRepoSettingsDialog ({repo} : {repo: repoProps}) {
+function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryModel}) {
 
     const [visibility, setVisibility] = useState<string>(repo.visibility);
 
