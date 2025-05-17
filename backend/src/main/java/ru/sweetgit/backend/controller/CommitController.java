@@ -36,7 +36,7 @@ public class CommitController {
 
         repositoryService.requireRepositoryVisible(repo, currentUser);
 
-        var branch = branchService.getByRepoAndId(repo, branchId)
+        var branch = branchService.getByRepoAndId(repo.getId(), branchId)
                 .orElseThrow(() -> ApiException.notFound("Ветка", "id", branchId).build());
 
         // TODO возможно отдельный запрос + пагинация

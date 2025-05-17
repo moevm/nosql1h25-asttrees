@@ -40,11 +40,11 @@ public interface RepositoryRepository extends ArangoRepository<RepositoryModel, 
                     RETURN commitNode
             )
             
-            LET targetCommitModel = @commitHash == null
+            LET targetCommitModel = @commitId == null
                 ? (branchCommitModels)[0]
                 : (
                     FOR c IN branchCommitModels
-                        FILTER c.hash == @commitHash
+                        FILTER c._id == @commitId
                         LIMIT 1
                         RETURN c
                   )[0]
@@ -84,7 +84,7 @@ public interface RepositoryRepository extends ArangoRepository<RepositoryModel, 
     RepositoryViewModel viewRepository(
             @Param("repositoryId") String repositoryId,
             @Param("branchId") @Nullable String branchId,
-            @Param("commitHash") @Nullable String commitHash,
+            @Param("commitId") @Nullable String commitId,
             @Param("path") String path
     );
 }

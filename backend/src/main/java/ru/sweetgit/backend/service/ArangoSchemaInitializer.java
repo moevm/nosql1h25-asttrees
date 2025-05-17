@@ -20,6 +20,9 @@ public class ArangoSchemaInitializer {
         arangoOperations.collection("branches");
         arangoOperations.collection("commits");
         arangoOperations.collection("commit_files");
+        arangoOperations.collection("ast_trees");
+        arangoOperations.collection("ast_nodes");
         arangoOperations.collection("branch_commits", new CollectionCreateOptions().type(CollectionType.EDGES));
+        arangoOperations.collection("ast_parents", new CollectionCreateOptions().type(CollectionType.EDGES));
     }
 }

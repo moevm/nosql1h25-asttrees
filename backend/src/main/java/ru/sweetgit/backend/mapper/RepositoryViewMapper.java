@@ -11,6 +11,7 @@ import ru.sweetgit.backend.model.RepositoryViewModel;
                 BranchMapper.class,
                 CommitMapper.class,
                 UserMapper.class,
+                CommitFileMapper.class
         }
 )
 public abstract class RepositoryViewMapper {

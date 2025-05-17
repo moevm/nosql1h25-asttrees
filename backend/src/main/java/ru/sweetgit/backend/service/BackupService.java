@@ -67,8 +67,14 @@ public class BackupService {
 
             return data;
         } finally {
-            FileUtil.deleteDirectoryRecursively(tempDir);
-            Files.deleteIfExists(zipFile);
+            try {
+                FileUtil.deleteDirectoryRecursively(tempDir);
+            } catch (Exception ignored) {
+            }
+            try {
+                Files.deleteIfExists(zipFile);
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -103,8 +109,14 @@ public class BackupService {
                 ).build();
             }
         } finally {
-            FileUtil.deleteDirectoryRecursively(extractDir);
-            Files.deleteIfExists(uploadFile);
+            try {
+                FileUtil.deleteDirectoryRecursively(extractDir);
+            } catch (Exception ignored) {
+            }
+            try {
+                Files.deleteIfExists(uploadFile);
+            } catch (Exception ignored) {
+            }
         }
     }
 }

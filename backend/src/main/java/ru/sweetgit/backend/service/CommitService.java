@@ -8,5 +8,4 @@ import ru.sweetgit.backend.repo.CommitRepository;
 @RequiredArgsConstructor
 public class CommitService {
     private final CommitRepository commitRepository;
-
 }

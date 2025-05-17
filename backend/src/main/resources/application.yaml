@@ -9,7 +9,7 @@ logging:
 arangodb:
   spring:
     data:
-      database: test-db
+      database: sweetgit-db
       user: root
       password: ''
       hosts: localhost:8529

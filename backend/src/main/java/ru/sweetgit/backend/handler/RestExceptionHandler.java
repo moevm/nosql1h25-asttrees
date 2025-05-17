@@ -43,27 +43,27 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
         log.warn("Access Denied: {} - Path: {}", ex.getMessage(), request.getDescription(false));
-        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Access Denied: You do not have permission to perform this action.");
+        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Доступ к ресурсу " + request.getDescription(false) + "запрещён");
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     protected ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex, WebRequest request) {
         log.warn("Invalid credentials: {} - Path: {}", ex.getMessage(), request.getDescription(false));
-        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Invalid credentials.");
+        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Неверные учетные данные");
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AuthenticationException.class)
     protected ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
         log.warn("Authentication Failed: {} - Path: {}", ex.getMessage(), request.getDescription(false));
-        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Authentication Failed: " + ex.getMessage());
+        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Ошибка авторизации");
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(ResponseStatusException.class)
     protected ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex, WebRequest request) {
-        String message = ex.getReason() != null ? ex.getReason() : "An error occurred with status " + ex.getStatusCode().value();
+        String message = ex.getReason() != null ? ex.getReason() : "Ошибка запроса";
         log.warn("ResponseStatusException: {} (Status: {}) - Path: {}", message, ex.getStatusCode(), request.getDescription(false));
         ErrorResponseDto ErrorResponseDto = new ErrorResponseDto(message);
         return new ResponseEntity<>(ErrorResponseDto, ex.getStatusCode());
@@ -75,7 +75,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         String errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> String.format("'%s': %s", error.getField(), error.getDefaultMessage()))
                 .collect(Collectors.joining(", "));
-        String errorMessage = "Validation failed: " + errors;
+        String errorMessage = "Ошибка валидации: " + errors;
         log.warn("Validation Exception: {} - Path: {}", errorMessage, request.getDescription(false));
         ErrorResponseDto ErrorResponseDto = new ErrorResponseDto(errorMessage);
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.BAD_REQUEST);
@@ -85,14 +85,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         log.warn("Malformed JSON request: {} - Path: {}", ex.getMessage(), request.getDescription(false));
-        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Malformed JSON request. Please check the request body format.");
+        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Ошибка запроса: " + ex.getMessage());
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.BAD_REQUEST);
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
             HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        String errorMessage = String.format("HTTP method '%s' is not supported for this request. Supported methods are %s.",
+        String errorMessage = String.format("HTTP метод '%s' не поддерживается дла данного запроса. Поддерживаемые методы: %s",
                 ex.getMethod(), ex.getSupportedHttpMethods());
         log.warn("Method Not Supported: {} - Path: {}", errorMessage, request.getDescription(false));
         ErrorResponseDto ErrorResponseDto = new ErrorResponseDto(errorMessage);
@@ -102,7 +102,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(
             MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        String errorMessage = String.format("Required request parameter '%s' of type %s is not present.", ex.getParameterName(), ex.getParameterType());
+        String errorMessage = String.format("Обязательный параметр '%s' типа %s не указан", ex.getParameterName(), ex.getParameterType());
         log.warn("Missing Parameter: {} - Path: {}", errorMessage, request.getDescription(false));
         ErrorResponseDto ErrorResponseDto = new ErrorResponseDto(errorMessage);
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.BAD_REQUEST);
@@ -111,7 +111,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, WebRequest request) {
         String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
-        String errorMessage = String.format("Parameter '%s' with value '%s' could not be converted to type '%s'.",
+        String errorMessage = String.format("Параметр '%s' со значением '%s' не может быть приведён к типу '%s'",
                 ex.getName(), ex.getValue(), requiredType);
         log.warn("Type Mismatch: {} - Path: {}", errorMessage, request.getDescription(false));
         ErrorResponseDto ErrorResponseDto = new ErrorResponseDto(errorMessage);
@@ -121,14 +121,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     protected ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex, WebRequest request) {
         log.warn("Data Integrity Violation: {} - Path: {}", ex.getMessage(), request.getDescription(false));
-        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("A data integrity issue occurred. This could be due to duplicate data or invalid references.");
+        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Ошибка целостности данных");
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleAllUncaughtException(Exception ex, WebRequest request) {
         log.error("Unhandled Exception - Path: {}", request.getDescription(false), ex);
-        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("An unexpected internal server error occurred. Please try again later.");
+        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Внутренняя ошибка");
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

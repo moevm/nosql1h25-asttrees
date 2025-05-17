@@ -10,10 +10,13 @@ import ru.sweetgit.backend.annotation.IsAuthenticated;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
 import ru.sweetgit.backend.dto.request.CreateRepositoryRequest;
+import ru.sweetgit.backend.dto.response.FileContentDto;
 import ru.sweetgit.backend.dto.response.RepositoryDto;
 import ru.sweetgit.backend.dto.response.RepositoryViewDto;
+import ru.sweetgit.backend.mapper.FileContentMapper;
 import ru.sweetgit.backend.mapper.RepositoryMapper;
 import ru.sweetgit.backend.mapper.RepositoryViewMapper;
+import ru.sweetgit.backend.service.ImportRepositoryOperation;
 import ru.sweetgit.backend.service.RepositoryService;
 import ru.sweetgit.backend.service.UserService;
 
@@ -26,6 +29,8 @@ public class RepositoryController {
     private final RepositoryService repositoryService;
     private final RepositoryMapper repositoryMapper;
     private final RepositoryViewMapper repositoryViewMapper;
+    private final ImportRepositoryOperation importRepositoryOperation;
+    private final FileContentMapper fileContentMapper;
 
     @GetMapping("/users/{userId}/repositories")
     ResponseEntity<List<RepositoryDto>> getRepositories(
@@ -48,9 +53,9 @@ public class RepositoryController {
     @IsAuthenticated
     ResponseEntity<RepositoryViewDto> createRepository(
             @Valid @RequestBody CreateRepositoryRequest request,
-            @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
+            @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
-        var result = repositoryService.createRepository(currentUser, request);
+        var result = importRepositoryOperation.importRepository(currentUser, request);
         return ResponseEntity.ok(repositoryViewMapper.toRepositoryViewModel(result));
     }
 
@@ -63,11 +68,11 @@ public class RepositoryController {
         throw ApiException.badRequest().message("unimplemented").build();
     }
 
-    @GetMapping("/repositories/{repoId}/branches/{branchId}/commits/{commitHash}/view")
+    @GetMapping("/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view")
     ResponseEntity<RepositoryViewDto> viewRepository(
             @PathVariable("repoId") String repoId,
             @PathVariable("branchId") String branchId,
-            @PathVariable("commitHash") String commitHash,
+            @PathVariable("commitId") String commitId,
             @RequestParam(value = "path", required = false) @Nullable String path,
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
@@ -76,15 +81,36 @@ public class RepositoryController {
 
         repositoryService.requireRepositoryVisible(repo, currentUser);
 
-
         var res = repositoryService.viewRepository(
                 repoId,
                 branchId,
-                commitHash,
+                commitId,
                 path
         );
 
         return ResponseEntity.ok(repositoryViewMapper.toRepositoryViewModel(res));
     }
 
+    @GetMapping("/repositories/{repoId}/branches/{branchId}/commits/{commitId}/files/{commitFileId}/content")
+    ResponseEntity<FileContentDto> viewRepositoryFile(
+            @PathVariable("repoId") String repoId,
+            @PathVariable("branchId") String branchId,
+            @PathVariable("commitId") String commitId,
+            @PathVariable("commitFileId") String commitFileId,
+            @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
+    ) {
+        var repo = repositoryService.getById(repoId)
+                .orElseThrow(() -> ApiException.notFound("Репозиторий", "id", repoId).build());
+
+        repositoryService.requireRepositoryVisible(repo, currentUser);
+
+        var res = repositoryService.viewFile(
+                repoId,
+                branchId,
+                commitId,
+                commitFileId
+        );
+
+        return ResponseEntity.ok(fileContentMapper.toFileContentResponseDto(res));
+    }
 }

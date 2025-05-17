@@ -38,6 +38,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 
     implementation 'org.eclipse.jgit:org.eclipse.jgit:7.2.1.202505142326-r'
+    implementation 'fr.inria.gforge.spoon.labs:gumtree-spoon-ast-diff:1.110'
 
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'

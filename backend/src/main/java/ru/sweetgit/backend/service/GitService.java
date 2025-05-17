@@ -160,7 +160,10 @@ public class GitService {
 
             }
         } finally {
-            FileUtil.deleteDirectoryRecursively(repoDir);
+            try {
+                FileUtil.deleteDirectoryRecursively(repoDir);
+            } catch (Exception ignored) {
+            }
         }
 
         return new ImportRepositoryResult(
