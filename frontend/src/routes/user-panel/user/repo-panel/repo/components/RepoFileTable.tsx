@@ -1,13 +1,12 @@
-import {useAtomValue} from "jotai/react";
-import {$userId} from "@/store.ts";
+import {type ApiCommitModel} from "@/store.ts";
 import {Label} from "@/components/ui/label.tsx";
-import type {RepoFileProps} from "@/types/RepoFileProps.ts";
 import {File, Folder, History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
+import {useLocation} from "react-router-dom";
 
-function RepoFileTable({data}: { data: RepoFileProps[] }) {
-    const userId = useAtomValue($userId)!
+function RepoFileTable({data}: { data: ApiCommitModel[] }) {
     const lastCommitN = data.length - 1;
+    const location = useLocation();
     console.log(data)
     //TODO add styles and info from back in header
     return (
@@ -19,10 +18,10 @@ function RepoFileTable({data}: { data: RepoFileProps[] }) {
                     <th className="flex justify-between text-left py-2 px-4 gap-2">
                         <div className={"flex justify-center gap-2"}>
                             <Label className={"font-bold"}>
-                                {userId}
+                                {data[lastCommitN].author}
                             </Label>
                             <Label className={"text-gray-400"}>
-                                {data[lastCommitN].hash}
+                                {data[lastCommitN].message}
                             </Label>
                         </div>
 
@@ -46,11 +45,17 @@ function RepoFileTable({data}: { data: RepoFileProps[] }) {
                     <tr key={item.Items.id} className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
                         <td className="py-2 px-4 border-b border-gray-200 flex items-center gap-2">
                             {item.Items.type === "FILE" ? (
-                                <File/>
+                                <a href={`${location.pathname}/file/${item.Items.name}`} className="flex items-center gap-2">
+                                    <File/>
+                                    {item.Items.name}
+                                </a>
                             ) : (
-                                <Folder/>
+                                <div className="flex items-center gap-2">
+                                    <Folder/>
+                                    {item.Items.name}
+                                </div>
+
                             )}
-                            {item.Items.name}
                         </td>
                     </tr>
                 ))}
