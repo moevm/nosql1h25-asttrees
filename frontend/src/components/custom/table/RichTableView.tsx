@@ -18,7 +18,7 @@ import {Label} from "@/components/ui/label.tsx";
 import {SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.tsx";
 import {DataTablePagination} from "@/components/custom/table/DataTablePagination.tsx";
-import {getColumnTypeRelations, relationFullName} from "@/store/columns/columnsUsers.tsx";
+import {getColumnTypeRelations, relationFullName} from "@/columns/columnsUsers.tsx";
 import {DataTableViewOptions} from "@/components/custom/table/DataTableViewOptions.tsx";
 
 export interface ContextMenuConfig<TData> {
@@ -104,7 +104,7 @@ function RichTableView<TData, TValue>({
 
 
     return (
-        <div className={"flex w-full max-w-screen-lg flex-col"}>
+        <div className={"flex w-full max-w-screen-lg flex-col p-8"}>
 
             <div className="flex flex-col gap-2 w-full py-2">
                 {!(settings) || settings.enableSearch && (
