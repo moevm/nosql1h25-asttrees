@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/breadcrumb.tsx";
 import {File, Package, UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
-import {$fileId, $repoId, $userId, type ApiCommitModel} from "@/store/store.ts";
+import {$currentUser, $fileId, $repoId, type ApiCommitModel} from "@/store.ts";
 import {Label} from "@/components/ui/label.tsx";
 import FileTable from "@/routes/user-panel/user/repo-panel/repo/file-panel/file/components/FileTable.tsx";
 
@@ -50,7 +50,7 @@ const mockCommits = [
 
 function FileViewPage() {
     const repoId = useAtomValue($repoId)!
-    const userId = useAtomValue($userId)!
+    const currentUser = useAtomValue($currentUser)!
     const fileId = useAtomValue($fileId)!
 
     return (
@@ -59,16 +59,16 @@ function FileViewPage() {
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/users/${userId}`}>
+                            <BreadcrumbLink href={`/users/${currentUser.data.id}`}>
                                 <div className="flex items-center justify-between gap-1">
                                     <UserIcon/>
-                                    <Label>{userId}</Label>
+                                    <Label>{currentUser.data.username}</Label>
                                 </div>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator/>
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/users/${userId}/repo/${repoId}`}>
+                            <BreadcrumbLink href={`/users/${currentUser.data.id}/repo/${repoId}`}>
                                 <div className="flex items-center justify-between gap-1">
                                     <Package/>
                                     <Label>{repoId}</Label>

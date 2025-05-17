@@ -1,5 +1,5 @@
 import {useAtomValue} from "jotai/react";
-import {$repoId, $userId, type ApiCommitModel} from "@/store.ts";
+import {$currentUser, $repoId} from "@/store.ts";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -13,7 +13,7 @@ import CommitTable from "@/routes/user-panel/user/repo-panel/repo/commit-history
 
 function CommitHistoryViewPage() {
     const repoId = useAtomValue($repoId)!
-    const userId = useAtomValue($userId)!
+    const currentUser = useAtomValue($currentUser)!
 
     const newCommits = [
         {
@@ -92,16 +92,16 @@ function CommitHistoryViewPage() {
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/users/${userId}`}>
+                            <BreadcrumbLink href={`/users/${currentUser.data.id}`}>
                                 <div className="flex items-center justify-between gap-1">
                                     <UserIcon/>
-                                    <Label>{userId}</Label>
+                                    <Label>{currentUser.data.username}</Label>
                                 </div>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator/>
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/users/${userId}/repo/${repoId}`}>
+                            <BreadcrumbLink href={`/users/${currentUser.data.id}/repo/${repoId}`}>
                                 <div className="flex items-center justify-between gap-1">
                                     <Package/>
                                     <Label>{repoId}</Label>

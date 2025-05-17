@@ -7,14 +7,14 @@ import {
 } from "@/components/ui/breadcrumb.tsx";
 import {Package, Settings, UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
-import {$repoId, $userId, type ApiCommitModel} from "@/store/store.ts";
+import {$currentUser, $repoId, type ApiCommitModel} from "@/store.ts";
 import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 
 function RepoViewPage() {
     const repoId = useAtomValue($repoId)!
-    const userId = useAtomValue($userId)!
+    const currentUser = useAtomValue($currentUser)!
 
     const mockCommits = [
         {
@@ -59,10 +59,10 @@ function RepoViewPage() {
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
-                            <BreadcrumbLink href={`/users/${userId}`}>
+                            <BreadcrumbLink href={`/users/${currentUser.data.id}`}>
                                 <div className="flex items-center justify-between gap-1">
                                     <UserIcon/>
-                                    <Label>{userId}</Label>
+                                    <Label>{currentUser.data.username}</Label>
                                 </div>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
