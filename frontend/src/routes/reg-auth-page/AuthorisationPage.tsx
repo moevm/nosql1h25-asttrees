@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useCallback, useEffect} from "react";
 
 import {
     Tabs,
@@ -24,13 +24,14 @@ import {
 } from "@/components/ui/form";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
-import {useQueryClient} from "@tanstack/react-query";
-import {$api, createMutationOptions} from "@/api";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
 import {useForm} from "react-hook-form";
-import {toast} from "sonner";
 import {Loader2} from "lucide-react";
+import {atom, useAtom} from "jotai";
+import {useAtomValue, useSetAtom} from "jotai/react";
+import {useLoginMutation, useRegisterMutation} from "@/api/auth.ts";
+import {$currentUser, $currentUserQuery} from "@/store.ts";
 import {useNavigate} from "react-router-dom";
 
 // Схемы валидации
@@ -45,61 +46,14 @@ const registrationSchema = z.object({
     password: z.string().min(5, {message: "Минимум 5 символов"}),
 });
 
-function AuthorisationPage() {
-    const [tab, setTab] = useState("authorisation");
-    const navigate = useNavigate()
+const $tab = atom<string>('authorisation')
 
-    const queryClient = useQueryClient()
-
-    const {mutate: mutateRegister, isPending: isPendingRegister} = $api.useMutation('post', '/auth/register', createMutationOptions({
-        onSuccess: async (data: any) => {
-            console.log("success", data);
-            navigate(`/users/${data.username}`)
-        },
-        onError: async (data: any) => {
-            if (data.error == "username already exists") {
-                toast.error("Пользователь с таким логином уже существует");
-            } else {
-                toast.error(data);
-            }
-            console.log("error", data);
-        }
-    }))
-
-    const {mutate: mutateLogin, isPending: isPendingLogin} = $api.useMutation('post', '/auth/login', createMutationOptions({
-        onSuccess: async (data: any) => {
-            console.log(data);
-            navigate(`/users/${data.username}`)
-        },
-        onError: async (data: any) => {
-            if (data.error == "username already exists") {
-                toast.error("Пользователь с таким логином уже существует");
-            } else {
-                toast.error(data);
-            }
-            console.log(data);
-        }
-    }))
-
-    // Авторизация
-    const loginForm = useForm<z.infer<typeof loginSchema>>({
-        resolver: zodResolver(loginSchema),
-        defaultValues: {
-            login: "",
-            password: "",
-        },
-        disabled: isPendingLogin
-    });
-
-    const handleLogin = (values: z.infer<typeof loginSchema>) => {
-        mutateRegister({
-            body: {
-                username: values.login,
-                password: values.password
-            }
-        });
-        console.log("Логин:", values);
-    };
+function RegisterPage() {
+    const setTab = useSetAtom($tab)
+    const {
+        mutate,
+        isPending
+    } = useRegisterMutation()
 
     // Регистрация
     const registerForm = useForm<z.infer<typeof registrationSchema>>({
@@ -109,11 +63,11 @@ function AuthorisationPage() {
             email: "",
             password: "",
         },
-        disabled: isPendingRegister
+        disabled: isPending
     });
 
-    const handleRegister = (values: z.infer<typeof registrationSchema>) => {
-        mutateRegister({
+    const handleRegister = useCallback((values: z.infer<typeof registrationSchema>) => {
+        mutate({
             body: {
                 username: values.login,
                 email: values.email,
@@ -121,7 +75,190 @@ function AuthorisationPage() {
             }
         });
         console.log("Регистрация:", values);
-    };
+    }, []);
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Регистрация</CardTitle>
+                <CardDescription>
+                    Создайте новый аккаунт.
+                </CardDescription>
+            </CardHeader>
+            <Form {...registerForm}>
+                <form onSubmit={registerForm.handleSubmit(handleRegister)}>
+                    <CardContent className="space-y-2 py-4">
+                        <FormField
+                            control={registerForm.control}
+                            name="login"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Логин</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Введите ваш логин" {...field} />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={registerForm.control}
+                            name="email"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Введите ваш email" {...field} />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={registerForm.control}
+                            name="password"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Пароль</FormLabel>
+                                    <FormControl>
+                                        <Input type="password"
+                                               placeholder="Введите ваш пароль" {...field} />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                    <CardFooter>
+                        <div className="flex w-full items-center">
+                            <Button type="submit" disabled={isPending}>
+                                {isPending
+                                    ? <>
+                                        <Loader2 className="animate-spin"/>
+                                        Загрузка</>
+                                    : <>
+                                        Зарегестрироваться
+                                    </>
+                                }
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => setTab("authorisation")}
+                                variant="link"
+                                className="ml-auto text-sm text-muted-foreground hover:underline"
+                            >
+                                Уже есть аккаунт?
+                            </Button>
+                        </div>
+                    </CardFooter>
+                </form>
+            </Form>
+        </Card>
+    )
+}
+
+function LoginPage() {
+    const setTab = useSetAtom($tab)
+    const {
+        mutate,
+        isPending
+    } = useLoginMutation()
+
+    const loginForm = useForm<z.infer<typeof loginSchema>>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            login: "",
+            password: "",
+        },
+        disabled: isPending
+    });
+
+    const handleLogin = useCallback((values: z.infer<typeof loginSchema>) => {
+        mutate({
+            body: {
+                username: values.login,
+                password: values.password
+            }
+        });
+    }, [mutate]);
+
+    return (
+        <Card className={""}>
+            <CardHeader>
+                <CardTitle>Добро пожаловать!</CardTitle>
+                <CardDescription>
+                    Войдите или зарегистрируйтесь.
+                </CardDescription>
+            </CardHeader>
+            <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(handleLogin)}>
+                    <CardContent className="space-y-2 py-4">
+                        <FormField
+                            control={loginForm.control}
+                            name="login"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Логин</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Введите ваш логин" {...field} />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={loginForm.control}
+                            name="password"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Пароль</FormLabel>
+                                    <FormControl>
+                                        <Input type="password"
+                                               placeholder="Введите ваш пароль" {...field} />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                    <CardFooter>
+                        <div className="flex w-full items-center">
+                            <Button type="submit" disabled={isPending}>
+                                {isPending
+                                    ? <>
+                                        <Loader2 className="animate-spin"/>
+                                        Загрузка</>
+                                    : <>
+                                        Войти
+                                    </>
+                                }
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => setTab("registration")}
+                                variant="link"
+                                className="ml-auto text-sm text-muted-foreground hover:underline"
+                            >
+                                Еще нет аккаунта?
+                            </Button>
+                        </div>
+                    </CardFooter>
+                </form>
+            </Form>
+        </Card>
+    )
+}
+
+function AuthorisationPage() {
+    const [tab, setTab] = useAtom($tab)
+    const currentUser = useAtomValue($currentUser)
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (currentUser.state === 'hasData') {
+            navigate('/profile', { replace: true });
+        }
+    }, [currentUser, navigate]);
 
     return (
         <div className="flex justify-center items-center min-h-screen">
@@ -132,148 +269,11 @@ function AuthorisationPage() {
                 </TabsList>
 
                 <TabsContent value="authorisation">
-                    <Card className={""}>
-                        <CardHeader>
-                            <CardTitle>Добро пожаловать!</CardTitle>
-                            <CardDescription>
-                                Войдите или зарегистрируйтесь.
-                            </CardDescription>
-                        </CardHeader>
-                        <Form {...loginForm}>
-                            <form onSubmit={loginForm.handleSubmit(handleLogin)}>
-                                <CardContent className="space-y-2 py-4">
-                                    <FormField
-                                        control={loginForm.control}
-                                        name="login"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>Логин</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Введите ваш логин" {...field} />
-                                                </FormControl>
-                                                <FormMessage/>
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={loginForm.control}
-                                        name="password"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>Пароль</FormLabel>
-                                                <FormControl>
-                                                    <Input type="password"
-                                                           placeholder="Введите ваш пароль" {...field} />
-                                                </FormControl>
-                                                <FormMessage/>
-                                            </FormItem>
-                                        )}
-                                    />
-                                </CardContent>
-                                <CardFooter>
-                                    <div className="flex w-full items-center">
-                                        <Button type="submit" disabled={isPendingLogin}>
-                                            {isPendingLogin
-                                                ? <>
-                                                    <Loader2 className="animate-spin"/>
-                                                    Загрузка</>
-                                                : <>
-                                                    Войти
-                                                </>
-                                            }
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            onClick={() => setTab("registration")}
-                                            variant="link"
-                                            className="ml-auto text-sm text-muted-foreground hover:underline"
-                                        >
-                                            Еще нет аккаунта?
-                                        </Button>
-                                    </div>
-                                </CardFooter>
-                            </form>
-                        </Form>
-                    </Card>
+                    <LoginPage />
                 </TabsContent>
 
                 <TabsContent value="registration">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Регистрация</CardTitle>
-                            <CardDescription>
-                                Создайте новый аккаунт.
-                            </CardDescription>
-                        </CardHeader>
-                        <Form {...registerForm}>
-                            <form onSubmit={registerForm.handleSubmit(handleRegister)}>
-                                <CardContent className="space-y-2 py-4">
-                                    <FormField
-                                        control={registerForm.control}
-                                        name="login"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>Логин</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Введите ваш логин" {...field} />
-                                                </FormControl>
-                                                <FormMessage/>
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={registerForm.control}
-                                        name="email"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>Email</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Введите ваш email" {...field} />
-                                                </FormControl>
-                                                <FormMessage/>
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={registerForm.control}
-                                        name="password"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>Пароль</FormLabel>
-                                                <FormControl>
-                                                    <Input type="password"
-                                                           placeholder="Введите ваш пароль" {...field} />
-                                                </FormControl>
-                                                <FormMessage/>
-                                            </FormItem>
-                                        )}
-                                    />
-                                </CardContent>
-                                <CardFooter>
-                                    <div className="flex w-full items-center">
-                                        <Button type="submit" disabled={isPendingRegister}>
-                                            {isPendingRegister
-                                                ? <>
-                                                    <Loader2 className="animate-spin"/>
-                                                    Загрузка</>
-                                                : <>
-                                                    Зарегестрироваться
-                                                </>
-                                            }
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            onClick={() => setTab("authorisation")}
-                                            variant="link"
-                                            className="ml-auto text-sm text-muted-foreground hover:underline"
-                                        >
-                                            Уже есть аккаунт?
-                                        </Button>
-                                    </div>
-                                </CardFooter>
-                            </form>
-                        </Form>
-                    </Card>
+                    <RegisterPage />
                 </TabsContent>
             </Tabs>
         </div>
