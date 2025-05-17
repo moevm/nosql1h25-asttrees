@@ -10,7 +10,7 @@ import {atom} from "jotai";
 import {QueryClient} from '@tanstack/react-query'
 import {toast} from "sonner";
 import type {Loadable} from "jotai/utils";
-import {store} from "@/store.ts";
+import {$currentUserQueryOptions, store} from "@/store.ts";
 
 export const $authToken = atomWithStorage<string | null>('auth_token', null)
 
@@ -30,7 +30,7 @@ export const HydrateAtoms = ({ children }: { children: ReactNode }) => {
 
 const fetchClient = createFetchClient<paths>({
     baseUrl: "http://localhost:8080",
-    fetch(request) {
+    async fetch(request) {
         const token = store.get($authToken)
         console.info('Adding token to request', {
             token
@@ -38,7 +38,24 @@ const fetchClient = createFetchClient<paths>({
         if (token !== null) {
             request.headers.set('Authorization', 'Bearer ' + token)
         }
-        return globalThis.fetch(request)
+        const originalResponse = await globalThis.fetch(request);
+
+        if (originalResponse.status === 401 || originalResponse.status === 403) {
+            const url = new URL(request.url);
+            if (!url.pathname.includes('/users/me') && !url.pathname.includes('/auth/login')) {
+                const currentToken = store.get($authToken);
+                if (currentToken) {
+                    console.log(
+                        `Fetch interceptor: Received ${originalResponse.status} for ${request.url}. ` +
+                        `Invalidating and refetching ['currentUser'] query.`
+                    );
+
+                    await queryClient.invalidateQueries({ queryKey: $currentUserQueryOptions(true).queryKey });
+                }
+            }
+        }
+
+        return originalResponse;
     }
 });
 export const $api = createClient(fetchClient);
