@@ -13,11 +13,13 @@ import {Input} from "@/components/ui/input.tsx";
 import {MultiSelect} from "@/components/custom/multi-select/MultiSelect.tsx";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {Filter, SettingsIcon} from "lucide-react";
+import {CheckIcon, FileDown, FileUp, Filter, SettingsIcon} from "lucide-react";
 import {Label} from "@/components/ui/label.tsx";
 import {SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
-import {TableBody, TableCell, TableRow} from "@/components/ui/table.tsx";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.tsx";
 import {DataTablePagination} from "@/components/custom/table/DataTablePagination.tsx";
+import {getColumnTypeRelations, relationFullName} from "@/store/columns/columnsUsers.tsx";
+import {DataTableViewOptions} from "@/components/custom/table/DataTableViewOptions.tsx";
 
 export interface ContextMenuConfig<TData> {
     getLabel?: (rows: Row<TData>[]) => string;
@@ -30,7 +32,6 @@ interface RichTableViewProps<TData, TValue> {
         columns: ColumnDef<TData, TValue>[];
         globalFilterFn?: any; // кастомный фильтр
     };
-    contextMenuConfig: ContextMenuConfig<TData>
     settings?: {
         enableSearch?: boolean;
         enableExport?: boolean;
@@ -49,7 +50,6 @@ function Select(props: { children: ReactNode }) {
 function RichTableView<TData, TValue>({
                                           entries,
                                           tableConfig,
-                                          contextMenuConfig,
                                           settings = {},
                                           onSelectionUpdated
                                       }: RichTableViewProps<TData, TValue>) {
@@ -135,7 +135,7 @@ function RichTableView<TData, TValue>({
                                 }))}
                             onValueChange={setSearchPosition}
                         >
-                            <Button variant={"outline"}>
+                            <Button variant="outline">
                                 <SettingsIcon/>
                             </Button>
                         </MultiSelect>
