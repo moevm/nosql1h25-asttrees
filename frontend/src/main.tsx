@@ -19,6 +19,8 @@ import {queryClient} from "@/api";
 import {Toaster} from "sonner";
 import FileLayout from "@/routes/user-panel/user/repo-panel/repo/file-panel/FileLayout.tsx";
 import FileViewPage from "@/routes/user-panel/user/repo-panel/repo/file-panel/file/FileViewPage.tsx";
+import CommitHistoryViewPage
+    from "@/routes/user-panel/user/repo-panel/repo/commit-history-panel/CommitHistoryViewPage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
@@ -35,6 +37,7 @@ createRoot(document.getElementById('root')!).render(
                             <Route path="file/:fileId" element={<FileLayout/>}>
                                 <Route path="" element={<FileViewPage/>}/>
                             </Route>
+                            <Route path="history" element={<CommitHistoryViewPage/>}/>
                         </Route>
                     </Route>
 
@@ -51,4 +54,5 @@ createRoot(document.getElementById('root')!).render(
             </Routes>
         </BrowserRouter>
     </QueryClientProvider>
+
 )

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState} from "react";
 
 import {
     Tabs,
@@ -22,41 +22,59 @@ import {
     FormLabel,
     FormMessage
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
 import {useQueryClient} from "@tanstack/react-query";
 import {$api, createMutationOptions} from "@/api";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {toast} from "sonner";
+import {Loader2} from "lucide-react";
+import {useNavigate} from "react-router-dom";
 
 // Схемы валидации
 const loginSchema = z.object({
     login: z.string().min(3, {message: "Минимум 3 символа"}),
-    password: z.string().min(6, {message: "Минимум 6 символов"}),
+    password: z.string().min(5, {message: "Минимум 5 символов"}),
 });
 
 const registrationSchema = z.object({
     login: z.string().min(3, {message: "Минимум 3 символа"}),
     email: z.string().email("Неверный email"),
-    password: z.string().min(6, {message: "Минимум 6 символов"}),
+    password: z.string().min(5, {message: "Минимум 5 символов"}),
 });
-
 
 function AuthorisationPage() {
     const [tab, setTab] = useState("authorisation");
+    const navigate = useNavigate()
 
     const queryClient = useQueryClient()
-    const {mutate, isPending} = $api.useMutation('post', '/auth/register', createMutationOptions({
+
+    const {mutate: mutateRegister, isPending: isPendingRegister} = $api.useMutation('post', '/auth/register', createMutationOptions({
         onSuccess: async (data: any) => {
-            console.log(data);
+            console.log("success", data);
+            navigate(`/users/${data.username}`)
         },
         onError: async (data: any) => {
             if (data.error == "username already exists") {
                 toast.error("Пользователь с таким логином уже существует");
+            } else {
+                toast.error(data);
             }
-            else {
+            console.log("error", data);
+        }
+    }))
+
+    const {mutate: mutateLogin, isPending: isPendingLogin} = $api.useMutation('post', '/auth/login', createMutationOptions({
+        onSuccess: async (data: any) => {
+            console.log(data);
+            navigate(`/users/${data.username}`)
+        },
+        onError: async (data: any) => {
+            if (data.error == "username already exists") {
+                toast.error("Пользователь с таким логином уже существует");
+            } else {
                 toast.error(data);
             }
             console.log(data);
@@ -70,10 +88,17 @@ function AuthorisationPage() {
             login: "",
             password: "",
         },
+        disabled: isPendingLogin
     });
 
     const handleLogin = (values: z.infer<typeof loginSchema>) => {
-        console.log("Вход:", values);
+        mutateRegister({
+            body: {
+                username: values.login,
+                password: values.password
+            }
+        });
+        console.log("Логин:", values);
     };
 
     // Регистрация
@@ -84,11 +109,11 @@ function AuthorisationPage() {
             email: "",
             password: "",
         },
+        disabled: isPendingRegister
     });
 
     const handleRegister = (values: z.infer<typeof registrationSchema>) => {
-        console.log("йоу?")
-        mutate({
+        mutateRegister({
             body: {
                 username: values.login,
                 email: values.email,
@@ -106,7 +131,6 @@ function AuthorisationPage() {
                     <TabsTrigger value="registration">Регистрация</TabsTrigger>
                 </TabsList>
 
-                {/* Авторизация */}
                 <TabsContent value="authorisation">
                     <Card className={""}>
                         <CardHeader>
@@ -121,33 +145,43 @@ function AuthorisationPage() {
                                     <FormField
                                         control={loginForm.control}
                                         name="login"
-                                        render={({ field }) => (
+                                        render={({field}) => (
                                             <FormItem>
                                                 <FormLabel>Логин</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Введите ваш логин" {...field} />
                                                 </FormControl>
-                                                <FormMessage />
+                                                <FormMessage/>
                                             </FormItem>
                                         )}
                                     />
                                     <FormField
                                         control={loginForm.control}
                                         name="password"
-                                        render={({ field }) => (
+                                        render={({field}) => (
                                             <FormItem>
                                                 <FormLabel>Пароль</FormLabel>
                                                 <FormControl>
-                                                    <Input type="password" placeholder="Введите ваш пароль" {...field} />
+                                                    <Input type="password"
+                                                           placeholder="Введите ваш пароль" {...field} />
                                                 </FormControl>
-                                                <FormMessage />
+                                                <FormMessage/>
                                             </FormItem>
                                         )}
                                     />
                                 </CardContent>
                                 <CardFooter>
                                     <div className="flex w-full items-center">
-                                        <Button type="submit">Войти</Button>
+                                        <Button type="submit" disabled={isPendingLogin}>
+                                            {isPendingLogin
+                                                ? <>
+                                                    <Loader2 className="animate-spin"/>
+                                                    Загрузка</>
+                                                : <>
+                                                    Войти
+                                                </>
+                                            }
+                                        </Button>
                                         <Button
                                             type="button"
                                             onClick={() => setTab("registration")}
@@ -163,7 +197,6 @@ function AuthorisationPage() {
                     </Card>
                 </TabsContent>
 
-                {/* Регистрация */}
                 <TabsContent value="registration">
                     <Card>
                         <CardHeader>
@@ -178,46 +211,56 @@ function AuthorisationPage() {
                                     <FormField
                                         control={registerForm.control}
                                         name="login"
-                                        render={({ field }) => (
+                                        render={({field}) => (
                                             <FormItem>
                                                 <FormLabel>Логин</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Введите ваш логин" {...field} />
                                                 </FormControl>
-                                                <FormMessage />
+                                                <FormMessage/>
                                             </FormItem>
                                         )}
                                     />
                                     <FormField
                                         control={registerForm.control}
                                         name="email"
-                                        render={({ field }) => (
+                                        render={({field}) => (
                                             <FormItem>
                                                 <FormLabel>Email</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Введите ваш email" {...field} />
                                                 </FormControl>
-                                                <FormMessage />
+                                                <FormMessage/>
                                             </FormItem>
                                         )}
                                     />
                                     <FormField
                                         control={registerForm.control}
                                         name="password"
-                                        render={({ field }) => (
+                                        render={({field}) => (
                                             <FormItem>
                                                 <FormLabel>Пароль</FormLabel>
                                                 <FormControl>
-                                                    <Input type="password" placeholder="Введите ваш пароль" {...field} />
+                                                    <Input type="password"
+                                                           placeholder="Введите ваш пароль" {...field} />
                                                 </FormControl>
-                                                <FormMessage />
+                                                <FormMessage/>
                                             </FormItem>
                                         )}
                                     />
                                 </CardContent>
                                 <CardFooter>
                                     <div className="flex w-full items-center">
-                                        <Button type="submit">Зарегистрироваться</Button>
+                                        <Button type="submit" disabled={isPendingRegister}>
+                                            {isPendingRegister
+                                                ? <>
+                                                    <Loader2 className="animate-spin"/>
+                                                    Загрузка</>
+                                                : <>
+                                                    Зарегестрироваться
+                                                </>
+                                            }
+                                        </Button>
                                         <Button
                                             type="button"
                                             onClick={() => setTab("authorisation")}

@@ -1,6 +1,9 @@
 import {atom} from "jotai";
 import type {components} from "@/schema.ts";
 
+export const $authToken = atom<string | null>(null)
+
+
 export const $userId = atom<string | null>(null)
 
 export const $repoId = atom<string | null>(null)

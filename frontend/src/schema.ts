@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["authLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/repositories/{repoId}": {
         parameters: {
             query?: never;
@@ -100,7 +116,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view": {
+    "/repositories/{repoId}/branches/{branchId}/commits/{commitHash}/view": {
         parameters: {
             query?: never;
             header?: never;
@@ -108,6 +124,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["viewRepository"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getUsers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -131,9 +163,10 @@ export interface components {
             id?: string;
             name?: string;
             owner?: string;
-            defaultBranch?: string;
             /** Format: uri */
             originalLink?: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
             /** Format: date-time */
             createdAt?: string;
         };
@@ -152,30 +185,22 @@ export interface components {
             createdAt?: string;
             isAdmin?: boolean;
         };
-        GrantedAuthority: {
-            authority?: string;
+        AuthLoginRequest: {
+            username: string;
+            password: string;
         };
-        UserDetailsWithId: {
-            password?: string;
-            username?: string;
-            authorities?: components["schemas"]["GrantedAuthority"][];
-            accountNonExpired?: boolean;
-            accountNonLocked?: boolean;
-            credentialsNonExpired?: boolean;
-            enabled?: boolean;
-            id?: string;
+        LoginResponseDto: {
+            token?: string;
         };
         BranchDto: {
             id?: string;
             name?: string;
-            repo?: string;
             isDefault?: boolean;
             /** Format: date-time */
             createdAt?: string;
         };
         CommitDto: {
             id?: string;
-            branch?: string;
             hash?: string;
             author?: string;
             email?: string;
@@ -188,23 +213,27 @@ export interface components {
             linesRemoved?: number;
             /** Format: date-time */
             createdAt?: string;
-            rootFiles?: components["schemas"]["CommitFileDto"][];
-        };
-        CommitFileDto: {
-            id?: string;
-            name?: string;
-            /** @enum {string} */
-            type?: "DIRECTORY" | "FILE";
-            hash?: string;
-            commit?: string;
-            parent?: string;
         };
         RepositoryViewDto: {
             owner?: components["schemas"]["ShortUserDto"];
             repository?: components["schemas"]["RepositoryDto"];
-            branches?: string[];
+            branches?: components["schemas"]["ShortBranchDto"][];
             branch?: components["schemas"]["BranchDto"];
             commit?: components["schemas"]["CommitDto"];
+            files?: components["schemas"]["ShortCommitFileDto"][];
+            /** Format: int32 */
+            commitCount?: number;
+        };
+        ShortBranchDto: {
+            id?: string;
+            name?: string;
+            isDefault?: boolean;
+        };
+        ShortCommitFileDto: {
+            id?: string;
+            name?: string;
+            /** @enum {string} */
+            type?: "DIRECTORY" | "FILE";
         };
         ShortUserDto: {
             id?: string;
@@ -267,6 +296,30 @@ export interface operations {
             };
         };
     };
+    authLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuthLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LoginResponseDto"];
+                };
+            };
+        };
+    };
     updateRepository: {
         parameters: {
             query?: never;
@@ -313,9 +366,7 @@ export interface operations {
     };
     getRepositories: {
         parameters: {
-            query?: {
-                currentUser?: components["schemas"]["UserDetailsWithId"];
-            };
+            query?: never;
             header?: never;
             path: {
                 userId: string;
@@ -357,12 +408,14 @@ export interface operations {
     };
     viewRepository: {
         parameters: {
-            query?: never;
+            query?: {
+                path?: string;
+            };
             header?: never;
             path: {
                 repoId: string;
                 branchId: string;
-                commitId: string;
+                commitHash: string;
             };
             cookie?: never;
         };
@@ -375,6 +428,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RepositoryViewDto"];
+                };
+            };
+        };
+    };
+    getUsers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserDto"][];
                 };
             };
         };
