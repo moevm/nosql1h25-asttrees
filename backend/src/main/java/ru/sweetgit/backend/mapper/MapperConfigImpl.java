@@ -4,7 +4,7 @@ import org.mapstruct.MapperConfig;
 import org.mapstruct.NullValueCheckStrategy;
 
 @MapperConfig(
-        uses = {DateTimeMapper.class},
+        uses = {BaseMapper.class},
         componentModel = "spring",
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS
 )

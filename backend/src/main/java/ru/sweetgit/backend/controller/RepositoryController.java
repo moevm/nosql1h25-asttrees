@@ -1,83 +1,90 @@
 package ru.sweetgit.backend.controller;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetgit.backend.annotation.IsAuthenticated;
 import ru.sweetgit.backend.dto.ApiException;
+import ru.sweetgit.backend.dto.UserDetailsWithId;
 import ru.sweetgit.backend.dto.request.CreateRepositoryRequest;
-import ru.sweetgit.backend.dto.response.*;
+import ru.sweetgit.backend.dto.response.RepositoryDto;
+import ru.sweetgit.backend.dto.response.RepositoryViewDto;
+import ru.sweetgit.backend.mapper.RepositoryMapper;
+import ru.sweetgit.backend.mapper.RepositoryViewMapper;
+import ru.sweetgit.backend.service.RepositoryService;
+import ru.sweetgit.backend.service.UserService;
 
-import java.net.URI;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class RepositoryController {
+    private final UserService userService;
+    private final RepositoryService repositoryService;
+    private final RepositoryMapper repositoryMapper;
+    private final RepositoryViewMapper repositoryViewMapper;
+
+    @GetMapping("/users/{userId}/repositories")
+    ResponseEntity<List<RepositoryDto>> getRepositories(
+            @PathVariable("userId") String userId,
+            @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
+    ) {
+        var user = userService.getUserById(userId)
+                .orElseThrow(() -> ApiException.notFound("user", "id", userId).build());
+        userService.requireUserVisible(user, currentUser);
+
+        return ResponseEntity.ok(
+                repositoryService.getRepositoriesForUser(user)
+                        .stream()
+                        .map(repositoryMapper::toRepositoryDto)
+                        .toList()
+        );
+    }
+
     @PostMapping("/repositories")
-    ResponseEntity<RepositoryDto> createRepository(@Valid @RequestBody CreateRepositoryRequest request) {
-        throw ApiException.badRequest().message("unimplemented").build();
+    @IsAuthenticated
+    ResponseEntity<RepositoryViewDto> createRepository(
+            @Valid @RequestBody CreateRepositoryRequest request,
+            @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
+    ) {
+        var result = repositoryService.createRepository(currentUser, request);
+        return ResponseEntity.ok(repositoryViewMapper.toRepositoryViewModel(result));
     }
 
     @PatchMapping("/repositories/{repoId}")
-    ResponseEntity<RepositoryDto> updateRepository(@PathVariable("repoId") String repoId) {
+    @IsAuthenticated
+    ResponseEntity<RepositoryDto> updateRepository(
+            @PathVariable("repoId") String repoId,
+            @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
+    ) {
         throw ApiException.badRequest().message("unimplemented").build();
     }
 
-    @GetMapping("/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view")
+    @GetMapping("/repositories/{repoId}/branches/{branchId}/commits/{commitHash}/view")
     ResponseEntity<RepositoryViewDto> viewRepository(
             @PathVariable("repoId") String repoId,
             @PathVariable("branchId") String branchId,
-            @PathVariable("commitId") String commitId
+            @PathVariable("commitHash") String commitHash,
+            @RequestParam(value = "path", required = false) @Nullable String path,
+            @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
-        return ResponseEntity.ok(new RepositoryViewDto(
-                new ShortUserDto("1", "user1"),
-                new RepositoryDto(
-                        repoId,
-                        "repo",
-                        "1",
-                        "main",
-                        URI.create("https://hello.world"),
-                        OffsetDateTime.now()
-                ),
-                List.of("main", "dev"),
-                new BranchDto(
-                        branchId,
-                        "main",
-                        repoId,
-                        true,
-                        OffsetDateTime.now()
-                ),
-                new CommitDto(
-                        commitId,
-                        branchId,
-                        "test hash",
-                        "max",
-                        "max@email.com",
-                        "initial commit",
-                        3,
-                        10,
-                        0,
-                        OffsetDateTime.now(),
-                        List.of(
-                                new CommitFileDto(
-                                        "1",
-                                        "README.md",
-                                        FileTypeDto.FILE,
-                                        "test hash",
-                                        commitId,
-                                        null
-                                ),
-                                new CommitFileDto(
-                                        "1",
-                                        "README.md",
-                                        FileTypeDto.DIRECTORY,
-                                        "test hash",
-                                        commitId,
-                                        null
-                                )
-                        )
-                )
-        ));
+        var repo = repositoryService.getById(repoId)
+                .orElseThrow(() -> ApiException.notFound("repository", "id", repoId).build());
+
+        repositoryService.requireRepositoryVisible(repo, currentUser);
+
+
+        var res = repositoryService.viewRepository(
+                repoId,
+                branchId,
+                commitHash,
+                path
+        );
+
+        return ResponseEntity.ok(repositoryViewMapper.toRepositoryViewModel(res));
     }
 
 }

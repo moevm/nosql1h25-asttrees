@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetgit.backend.annotation.IsAuthenticated;
 import ru.sweetgit.backend.dto.ApiException;
@@ -33,14 +32,12 @@ public class UserController {
             @PathVariable("userId") String userId,
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
-        var maybeUser = userService.getUserById(userId);
-        if (maybeUser.isEmpty()) {
-            throw ApiException.notFound("user", "id", userId).build();
-        }
-        var user = maybeUser.get();
+        var user = userService.getUserById(userId)
+                .orElseThrow(() -> ApiException.notFound("user", "id", userId).build());
+
         userService.requireUserVisible(user, currentUser);
 
-        return ResponseEntity.ok(userMapper.map(user));
+        return ResponseEntity.ok(userMapper.toUserDto(user));
     }
 
     @GetMapping("/users/me")
@@ -51,7 +48,7 @@ public class UserController {
         @SuppressWarnings("OptionalGetWithoutIsPresent")
         var user = userService.getUserById(currentUser.getId()).get();
 
-        return ResponseEntity.ok(userMapper.map(user));
+        return ResponseEntity.ok(userMapper.toUserDto(user));
     }
 
     @PostMapping("/auth/register")
@@ -63,18 +60,17 @@ public class UserController {
             throw ApiException.badRequest().message("email already exists").build();
         }
 
-        var userModel = userService.createUser(userMapper.map(request));
-        return ResponseEntity.ok(userMapper.map(userModel));
+        var userModel = userService.createUser(userMapper.toUserModel(request));
+        return ResponseEntity.ok(userMapper.toUserDto(userModel));
     }
 
     @PostMapping("/auth/login")
     ResponseEntity<LoginResponseDto> authLogin(@Valid @RequestBody AuthLoginRequest request) {
         var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.username(),
-                request.password())
-        );
+                request.password()
+        ));
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
         var token = jwtService.generateToken(auth);
         return ResponseEntity.ok(new LoginResponseDto(token));
     }

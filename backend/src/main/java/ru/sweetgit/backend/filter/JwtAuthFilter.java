@@ -1,4 +1,4 @@
-package ru.sweetgit.backend.service;
+package ru.sweetgit.backend.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -7,11 +7,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.sweetgit.backend.dto.ApiException;
+import ru.sweetgit.backend.service.JwtService;
 
 import java.io.IOException;
 
@@ -19,7 +21,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -43,14 +45,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 throw ApiException.badRequest().message("Invalid jwt token").build();
             }
 
-            var userId = jwtService.extractUserId(jwt);
+            var userId = jwtService.extractUsername(jwt);
 
-            var maybeUser = userService.getUserById(userId);
-            if (maybeUser.isEmpty()) {
-                throw ApiException.notFound("user", "id", userId).build();
-            }
-
-            var userDetails = userService.buildUserDetails(maybeUser.get());
+            var userDetails = userDetailsService.loadUserByUsername(userId);
 
             var authentication = new UsernamePasswordAuthenticationToken(
                     userDetails,
@@ -59,7 +56,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (ApiException e) {
             throw e;

@@ -7,8 +7,8 @@ public record RepositoryDto(
         String id,
         String name,
         String owner,
-        String defaultBranch,
         URI originalLink,
+        RepositoryVisibilityDto visibility,
         OffsetDateTime createdAt
 ) {
 }

@@ -9,6 +9,8 @@ import com.arangodb.springframework.core.convert.ArangoTypeMapper;
 import com.arangodb.springframework.core.convert.resolver.ResolverFactory;
 import com.arangodb.springframework.core.mapping.ArangoMappingContext;
 import com.arangodb.springframework.core.template.ArangoTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -21,6 +23,8 @@ import java.util.Set;
 
 @Configuration
 public class ArangoCustomizer {
+    private final Logger logger = LoggerFactory.getLogger(ArangoCustomizer.class);
+
     @Bean
     @Primary
     public ArangoConfiguration primaryArangoConfiguration(

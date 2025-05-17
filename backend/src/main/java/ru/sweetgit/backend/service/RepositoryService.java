@@ -1,0 +1,183 @@
+package ru.sweetgit.backend.service;
+
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import ru.sweetgit.backend.dto.ApiException;
+import ru.sweetgit.backend.dto.UserDetailsWithId;
+import ru.sweetgit.backend.dto.request.CreateRepositoryRequest;
+import ru.sweetgit.backend.model.*;
+import ru.sweetgit.backend.repo.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+@Service
+@RequiredArgsConstructor
+public class RepositoryService {
+    private final GitService gitService;
+    private final RepositoryRepository repositoryRepository;
+    private final BranchRepository branchRepository;
+    private final CommitRepository commitRepository;
+    private final BranchCommitRepository branchCommitRepository;
+    private final CommitFileRepository commitFileRepository;
+    private final UserService userService;
+
+    public Optional<RepositoryModel> getById(String id) {
+        return repositoryRepository.findById(id);
+    }
+
+    public List<RepositoryModel> getRepositoriesForUser(UserModel user) {
+        return repositoryRepository.findAllByOwnerId(user.getId());
+    }
+
+    public RepositoryViewModel createRepository(
+            UserDetailsWithId currentUser,
+            CreateRepositoryRequest request
+    ) {
+        var result = gitService.importRepository(request.name(), request.originalLink());
+
+        var repository = repositoryRepository.save(
+                result.repositoryData()
+                        .owner(userService.getUserById(currentUser.getId()).get())
+                        .visibility(RepositoryVisibilityModel.valueOf(request.visibility().toString()))
+                        .build()
+        );
+        var branches = StreamSupport.stream(
+                branchRepository.saveAll(
+                        result
+                                .branchData()
+                                .values()
+                                .stream()
+                                .map(builder ->
+                                        builder
+                                                .repository(repository)
+                                                .build()
+                                )
+                                .toList()
+                ).spliterator(),
+                false
+        ).collect(Collectors.toMap(BranchModel::getName, Function.identity()));
+        var commits = StreamSupport.stream(
+                commitRepository.saveAll(
+                        result
+                                .commitData()
+                                .values()
+                                .stream()
+                                .map(data -> data
+                                        .commitModelBuilder()
+                                        .build()
+                                )
+                                .toList()
+                ).spliterator(),
+                false
+        ).collect(Collectors.toMap(CommitModel::getHash, Function.identity()));
+
+        var branchCommits = StreamSupport.stream(
+                branchCommitRepository.saveAll(
+                        result
+                                .relations()
+                                .stream()
+                                .map(relation -> new BranchCommitModel(
+                                        BranchModel.builder().id(branches.get(relation.getFirst()).getId()).build(),
+                                        CommitModel.builder().id(commits.get(relation.getSecond()).getId()).build()
+                                ))
+                                .toList()
+                ).spliterator(),
+                false
+        );
+
+        var commitFiles = StreamSupport.stream(
+                commitFileRepository.saveAll(
+                        result
+                                .commitData()
+                                .entrySet()
+                                .stream()
+                                .flatMap(entry -> entry.getValue()
+                                        .files()
+                                        .stream()
+                                        .map(fileData -> fileData
+                                                .entityBuilder()
+                                                .commit(commits.get(entry.getKey()))
+                                                .build()))
+                                .toList()
+                ).spliterator(),
+                false
+        ).toList();
+
+        var filesByCommit = commitFiles.stream()
+                .collect(Collectors.groupingBy(
+                        file -> file.getCommit().getHash(),
+                        Collectors.toList()
+                ));
+
+        var rootFilesByCommit = filesByCommit.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream().filter(file -> file.getFullPath().equals(file.getName())).toList()
+                ));
+
+        result.commitData().keySet().forEach(commitHash -> {
+            filesByCommit.putIfAbsent(commitHash, List.of());
+            rootFilesByCommit.putIfAbsent(commitHash, List.of());
+        });
+
+        commitRepository.saveAll(
+                commits
+                        .values()
+                        .stream()
+                        .map(commit -> commit
+                                .toBuilder()
+                                .rootFiles(rootFilesByCommit.get(commit.getHash()))
+                                .build())
+                        .toList()
+        );
+
+        return viewRepository(
+                repository.getId(),
+                "default",
+                "latest",
+                null
+        );
+    }
+
+    public RepositoryViewModel viewRepository(
+            String repositoryId,
+            String branchId,
+            String commitHash,
+            @Nullable String path
+    ) {
+        return repositoryRepository.viewRepository(
+                repositoryId,
+                branchId.equals("default") ? null : branchId,
+                commitHash.equals("latest") ? null : commitHash,
+                path
+        );
+    }
+
+    public boolean isRepositoryVisible(RepositoryModel repository, @Nullable UserDetailsWithId currentUser) {
+        if (repository.getVisibility().equals(RepositoryVisibilityModel.PUBLIC)) {
+            return true;
+        }
+
+        if (currentUser == null) {
+            return false;
+        }
+
+        if (repository.getVisibility().equals(RepositoryVisibilityModel.PROTECTED)) {
+            return true;
+        }
+
+        return repository.getOwner().getId().equals(currentUser.getId());
+    }
+
+    public void requireRepositoryVisible(RepositoryModel repository, @Nullable UserDetailsWithId currentUser) {
+        if (!isRepositoryVisible(repository, currentUser)) {
+            throw ApiException.forbidden().message("no permission to access repository %s".formatted(repository.getId())).build();
+        }
+    }
+}

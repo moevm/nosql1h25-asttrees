@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.sweetgit.backend.dto.request.AuthRegisterRequest;
+import ru.sweetgit.backend.dto.response.ShortUserDto;
 import ru.sweetgit.backend.dto.response.UserDto;
 import ru.sweetgit.backend.model.UserModel;
 import ru.sweetgit.backend.model.UserVisibilityModel;
@@ -15,9 +16,11 @@ public abstract class UserMapper {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    public abstract UserDto map(UserModel user);
+    public abstract ShortUserDto toShortUserDto(UserModel user);
 
-    public UserModel map(AuthRegisterRequest request) {
+    public abstract UserDto toUserDto(UserModel user);
+
+    public UserModel toUserModel(AuthRegisterRequest request) {
         return new UserModel(
                 null,
                 null,
