@@ -3,6 +3,8 @@ package ru.sweetgit.backend.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -14,6 +16,19 @@ import java.util.Optional;
 public class FileStorageService {
     @Value("${app.file-storage.path}")
     private Path fileStoragePath;
+
+    @EventListener(ApplicationReadyEvent.class)
+    @SneakyThrows
+    public void initialize() {
+        fileStoragePath = fileStoragePath.toAbsolutePath();
+        if (Files.exists(fileStoragePath)) {
+            if (!Files.isDirectory(fileStoragePath)) {
+                throw new IllegalStateException("fileStoragePath exists and is not a directory: " + fileStoragePath);
+            }
+        } else {
+            Files.createDirectory(fileStoragePath);
+        }
+    }
 
     @SneakyThrows
     public void storeFile(String hash, byte[] data) {
