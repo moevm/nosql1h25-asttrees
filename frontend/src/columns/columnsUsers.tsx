@@ -87,7 +87,7 @@ export const columnsUser = [
         }
     },
     {
-        accessorKey: "_id",
+        accessorKey: "id",
         header: ({column}) => {
             return (
                 <DataTableColumnHeader column={column} title="id"/>
@@ -117,28 +117,7 @@ export const columnsUser = [
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
     {
-        accessorKey: 'name',
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Имя"/>
-            )
-        },
-        meta: {
-            title: "Имя",
-            type: 'string',
-            selectFromFile: true,
-        },
-        sortingFn: customSortingFn,
-        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
-    },
-    {
-        id: "emails",
-        accessorFn: (row) => {
-            if (Array.isArray(row.emails) && row.emails.length > 0) {
-                return row.emails[0].address; // Возвращаем адрес первого email
-            }
-            return "–";
-        },
+        accessorKey: "email",
         header: ({column}) => {
             return (
                 <DataTableColumnHeader column={column} title="Email"/>
@@ -151,59 +130,31 @@ export const columnsUser = [
         sortingFn: customSortingFn,
     },
     {
-        accessorKey: "status",
+        accessorKey: "visibility",
         header: ({column}) => {
             return (
-                <DataTableColumnHeader column={column} title="Статус"/>
+                <DataTableColumnHeader column={column} title="Публичность"/>
             )
         },
         meta: {
-            title: "Статус",
-            type: 'list'
+            title: "Публичность",
+            type: 'string',
         },
         sortingFn: customSortingFn,
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
     {
-        accessorKey: "roles",
+        accessorKey: "repositoryCount",
         header: ({column}) => {
             return (
-                <DataTableColumnHeader column={column} title="Роли"/>
+                <DataTableColumnHeader column={column} title="Кол-во репозиториев"/>
             )
         },
         meta: {
-            title: "Роли",
-            type: 'list'
+            title: "Кол-во репозиториев",
+            type: 'string'
         },
         sortingFn: customSortingFn,
         cell: ({cell}) => <ListRenderer value={cell.getValue()} />
-    },
-    {
-        accessorKey: "active",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Активен"/>
-            )
-        },
-        meta: {
-            title: "Активен",
-            type: 'boolean'
-        },
-        cell: ({cell}) => <CheckboxRenderer value={cell.getValue()} />
-    },
-    {
-        id: "type",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Тип"/>
-            )
-        },
-        accessorFn: (row) => {
-            return typesUserType[row.type] ?? row.type
-        },
-        meta: {
-            title: "Тип",
-            type: 'string'
-        },
     },
 ] as TypedColumnDef<ApiUserModel>[]
