@@ -7,7 +7,7 @@ import {
 import {UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
 import {$userId} from "@/store.ts";
-import RepoList from "@/routes/user-panel/user/RepoList.tsx";
+import RepoList from "@/routes/user-panel/user/components/RepoList.tsx";
 import {Label} from "@/components/ui/label.tsx";
 
 function UserPage () {

@@ -5,15 +5,12 @@ import {
     BreadcrumbList, BreadcrumbPage,
     BreadcrumbSeparator
 } from "@/components/ui/breadcrumb.tsx";
-import {BoxIcon, Package, Settings, UserIcon} from "lucide-react";
+import {Package, Settings, UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
-import {$repoId, $userId} from "@/store.ts";
+import {$repoId, $userId, type ApiCommitModel} from "@/store.ts";
 import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 import {Label} from "@/components/ui/label.tsx";
-import type {RepoFileProps} from "@/types/RepoFileProps.ts";
 import {Button} from "@/components/ui/button.tsx";
-import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
-import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
 
 function RepoViewPage() {
     const repoId = useAtomValue($repoId)!
@@ -67,7 +64,6 @@ function RepoViewPage() {
                                     <UserIcon/>
                                     <Label>{userId}</Label>
                                 </div>
-
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator/>
@@ -102,7 +98,7 @@ function RepoViewPage() {
             </div>
 
 
-            <RepoFileTable data={mockCommits as RepoFileProps}/>
+            <RepoFileTable data={mockCommits as ApiCommitModel}/>
 
 
         </div>

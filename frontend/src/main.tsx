@@ -1,4 +1,3 @@
-import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
 import './index.css'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
@@ -18,6 +17,8 @@ import RepoLayout from "@/routes/user-panel/user/repo-panel/RepoLayout.tsx";
 import {QueryClientProvider} from "@tanstack/react-query";
 import {queryClient} from "@/api";
 import {Toaster} from "sonner";
+import FileLayout from "@/routes/user-panel/user/repo-panel/repo/file-panel/FileLayout.tsx";
+import FileViewPage from "@/routes/user-panel/user/repo-panel/repo/file-panel/file/FileViewPage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
@@ -31,21 +32,23 @@ createRoot(document.getElementById('root')!).render(
                         <Route path="" element={<UserPage/>}/>
                         <Route path="repo/:repoId" element={<RepoLayout/>}>
                             <Route path="" element={<RepoViewPage/>}/>
+                            <Route path="file/:fileId" element={<FileLayout/>}>
+                                <Route path="" element={<FileViewPage/>}/>
+                            </Route>
                         </Route>
                     </Route>
 
-                    <Route path="admin" element={<AdminPanelLayout />}>
-                        <Route index element={<Navigate to="users" replace />} />
-                        <Route path="users" element={<UsersPage />} />
-                        <Route path="repos" element={<ReposAdminPage />} />
-                        <Route path="commits" element={<CommitsPage />} />
-                        <Route path="files" element={<FilesPage />} />
-                        <Route path="ast-trees" element={<AstTreesPage />} />
-                        <Route path="import-export" element={<ImportExportDBPage />} />
+                    <Route path="admin" element={<AdminPanelLayout/>}>
+                        <Route index element={<Navigate to="users" replace/>}/>
+                        <Route path="users" element={<UsersPage/>}/>
+                        <Route path="repos" element={<ReposAdminPage/>}/>
+                        <Route path="commits" element={<CommitsPage/>}/>
+                        <Route path="files" element={<FilesPage/>}/>
+                        <Route path="ast-trees" element={<AstTreesPage/>}/>
+                        <Route path="import-export" element={<ImportExportDBPage/>}/>
                     </Route>
                 </Route>
             </Routes>
         </BrowserRouter>
     </QueryClientProvider>
-
 )

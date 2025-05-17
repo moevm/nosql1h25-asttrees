@@ -1,12 +1,13 @@
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import {Card, CardContent, CardDescription, CardTitle} from "@/components/ui/card.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Badge} from "@/components/ui/badge.tsx";
 import {useNavigate} from "react-router-dom";
 import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
 import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
-import {useRef, useState} from "react";
+import {useRef} from "react";
 
+//TODO заменить на ApiRepositoryModel, когда починим на бэке
 export interface repoProps {
     id: number,
     name: string,
@@ -15,7 +16,6 @@ export interface repoProps {
     originalLink: string,
     createdAt: string,
     visibility: string,
-
 }
 
 function RepoCard({repo}: { repo: repoProps }) {

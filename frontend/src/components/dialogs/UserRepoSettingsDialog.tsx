@@ -16,7 +16,7 @@ import * as z from "zod";
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import type {repoProps} from "@/routes/user-panel/user/RepoCard.tsx";
+import type {repoProps} from "@/routes/user-panel/user/components/RepoCard.tsx";
 
 
 const formSchema = z.object({
