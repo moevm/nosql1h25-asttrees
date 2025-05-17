@@ -1,7 +1,7 @@
 import {Outlet, useParams} from "react-router-dom";
 import {useSetAtom} from "jotai/react";
 import {useEffect} from "react";
-import {$fileId} from "@/store.ts";
+import {$fileId} from "@/store/store.ts";
 
 function FileLayout() {
     const fileId = useParams()['fileId']

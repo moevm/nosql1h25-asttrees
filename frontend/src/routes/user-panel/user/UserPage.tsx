@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/breadcrumb.tsx";
 import {UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
-import {$userId} from "@/store.ts";
+import {$userId} from "@/store/store.ts";
 import RepoList from "@/routes/user-panel/user/components/RepoList.tsx";
 import {Label} from "@/components/ui/label.tsx";
 
