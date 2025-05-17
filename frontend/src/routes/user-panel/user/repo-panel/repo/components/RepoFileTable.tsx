@@ -1,8 +1,9 @@
-import {type ApiCommitModel} from "@/store.ts";
+import {$repoId, $userId, type ApiCommitModel} from "@/store.ts";
 import {Label} from "@/components/ui/label.tsx";
 import {File, Folder, History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Link, useLocation} from "react-router-dom";
+import {useAtomValue} from "jotai/react";
 
 const getCommitLabel = (count) => {
     if (count % 10 === 1 && count % 100 !== 11) {
@@ -42,7 +43,7 @@ function RepoFileTable({data}: { data: ApiCommitModel[] }) {
                             <Label className={"text-gray-400"}>
                                 {new Date(data[lastCommitN].createdAt)?.toLocaleDateString("ru-RU")}
                             </Label>
-                            <Link to="history">
+                            <Link to='history'>
                                 <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
                                     <History/> {getCommitLabel(data.length)}
                                 </Button>

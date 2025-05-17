@@ -9,10 +9,10 @@ import {
     FilterIcon, SearchIcon
 } from "lucide-react";
 import RepoCard from "@/routes/user-panel/user/components/RepoCard.tsx";
-import type {repoProps} from "@/routes/user-panel/user/components/RepoCard.tsx";
 import {useMemo, useState} from "react";
 import UserSettingsDialog from "@/components/dialogs/UserSettingsDialog.tsx";
 import UserAddRepoDialog from "@/components/dialogs/UserAddRepoDialog.tsx";
+import type {ApiRepositoryModel} from "@/store.ts";
 
 function RepoList() {
     const visibilityOptions = ["public", "protected", "private"];
@@ -26,7 +26,7 @@ function RepoList() {
             originalLink: `https://github.com/user${(i % 5) + 1}/repo${i + 1}`,
             createdAt: new Date(Date.now() - i * 86400000).toISOString(),
             visibility: visibilityOptions[i % visibilityOptions.length],
-        }) as repoProps),
+        }) as ApiRepositoryModel),
     };
 
     const [page, setPage] = useState(1);

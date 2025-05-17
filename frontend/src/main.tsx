@@ -34,7 +34,8 @@ createRoot(document.getElementById('root')!).render(
                     <SessionManager />
                     <Routes>
                         <Route element={<HeaderLayout/>}>
-                            <Route path="/auth" element={<AuthorisationPage/>}/>
+                            <Route path="/:tab" element={<AuthorisationPage />} />
+                            <Route path="/" element={<Navigate to="/login" />} />
 
                             <Route path="users/:userId" element={<UserLayout/>}>
                                 <Route path="" element={<UserPage/>}/>

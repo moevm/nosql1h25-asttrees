@@ -32,7 +32,8 @@ import {atom, useAtom} from "jotai";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useLoginMutation, useRegisterMutation} from "@/api/auth.ts";
 import {$currentUser, $currentUserQuery} from "@/store.ts";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+import {loaded} from "@/api";
 
 // Схемы валидации
 const loginSchema = z.object({
@@ -46,7 +47,7 @@ const registrationSchema = z.object({
     password: z.string().min(5, {message: "Минимум 5 символов"}),
 });
 
-const $tab = atom<string>('authorisation')
+const $tab = atom<string>('login')
 
 function RegisterPage() {
     const setTab = useSetAtom($tab)
@@ -143,7 +144,7 @@ function RegisterPage() {
                             </Button>
                             <Button
                                 type="button"
-                                onClick={() => setTab("authorisation")}
+                                onClick={() => setTab("login")}
                                 variant="link"
                                 className="ml-auto text-sm text-muted-foreground hover:underline"
                             >
@@ -253,22 +254,33 @@ function AuthorisationPage() {
     const [tab, setTab] = useAtom($tab)
     const currentUser = useAtomValue($currentUser)
     const navigate = useNavigate()
+    const { tabParam } = useParams();
 
     useEffect(() => {
         if (currentUser.state === 'hasData') {
-            navigate('/profile', { replace: true });
+            navigate('/users/' + loaded(currentUser).data.id, { replace: true });
         }
     }, [currentUser, navigate]);
+
+    useEffect(() => {
+        if (tabParam) {
+            setTab(tabParam);
+        }
+    }, [tabParam, setTab]);
+
+    useEffect(() => {
+        navigate(`/${tab}`);
+    }, [tab, navigate]);
 
     return (
         <div className="flex justify-center items-center min-h-screen">
             <Tabs value={tab} onValueChange={setTab} className="w-[400px]">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="authorisation">Авторизация</TabsTrigger>
+                    <TabsTrigger value="login">Авторизация</TabsTrigger>
                     <TabsTrigger value="registration">Регистрация</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="authorisation">
+                <TabsContent value="login">
                     <LoginPage />
                 </TabsContent>
 
