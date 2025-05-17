@@ -32,12 +32,12 @@ public class CommitController {
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
         var repo = repositoryService.getById(repoId)
-                .orElseThrow(() -> ApiException.notFound("repository", "id", repoId).build());
+                .orElseThrow(() -> ApiException.notFound("Репозиторий", "id", repoId).build());
 
         repositoryService.requireRepositoryVisible(repo, currentUser);
 
         var branch = branchService.getByRepoAndId(repo, branchId)
-                .orElseThrow(() -> ApiException.notFound("branch", "id", branchId).build());
+                .orElseThrow(() -> ApiException.notFound("Ветка", "id", branchId).build());
 
         // TODO возможно отдельный запрос + пагинация
         return ResponseEntity.ok(

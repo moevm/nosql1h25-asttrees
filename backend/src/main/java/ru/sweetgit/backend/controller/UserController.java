@@ -33,7 +33,7 @@ public class UserController {
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
         var user = userService.getUserById(userId)
-                .orElseThrow(() -> ApiException.notFound("user", "id", userId).build());
+                .orElseThrow(() -> ApiException.notFound("Пользователь", "id", userId).build());
 
         userService.requireUserVisible(user, currentUser);
 
@@ -54,10 +54,10 @@ public class UserController {
     @PostMapping("/auth/register")
     ResponseEntity<UserDto> authRegister(@Valid @RequestBody AuthRegisterRequest request) {
         if (userService.getUserByUsername(request.username()).isPresent()) {
-            throw ApiException.badRequest().message("username already exists").build();
+            throw ApiException.badRequest().message("Пользователь с таким именем уже существует").build();
         }
         if (userService.getUserByEmail(request.email()).isPresent()) {
-            throw ApiException.badRequest().message("email already exists").build();
+            throw ApiException.badRequest().message("Пользователь с таким адресом почти уже существует").build();
         }
 
         var userModel = userService.createUser(userMapper.toUserModel(request));

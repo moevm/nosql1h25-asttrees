@@ -203,7 +203,7 @@ public class RepositoryService {
 
     public void requireRepositoryVisible(RepositoryModel repository, @Nullable UserDetailsWithId currentUser) {
         if (!isRepositoryVisible(repository, currentUser)) {
-            throw ApiException.forbidden().message("no permission to access repository %s".formatted(repository.getId())).build();
+            throw ApiException.forbidden().message("Нет прав для доступа к репозиторию %s".formatted(repository.getId())).build();
         }
     }
 }

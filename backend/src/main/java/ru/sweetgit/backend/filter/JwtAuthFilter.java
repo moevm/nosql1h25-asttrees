@@ -42,7 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
 
             if (!StringUtils.hasText(jwt) || !jwtService.validateToken(jwt)) {
-                throw ApiException.badRequest().message("Invalid jwt token").build();
+                throw ApiException.badRequest().message("Неверный JWT-токен").build();
             }
 
             var userId = jwtService.extractUsername(jwt);

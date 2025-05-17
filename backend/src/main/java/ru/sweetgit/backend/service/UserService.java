@@ -55,7 +55,7 @@ public class UserService {
 
     public void requireUserVisible(UserModel user, @Nullable UserDetailsWithId currentUser) {
         if (!isUserVisible(user, currentUser)) {
-            throw ApiException.forbidden().message("no permission to access user %s".formatted(user.getId())).build();
+            throw ApiException.forbidden().message("Нет прав для доступа к пользователю %s".formatted(user.getId())).build();
         }
     }
 
