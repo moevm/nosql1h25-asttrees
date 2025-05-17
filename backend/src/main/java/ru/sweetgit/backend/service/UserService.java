@@ -32,21 +32,31 @@ public class UserService {
         return userRepository.findByEmail(id);
     }
 
+    public Iterable<UserModel> getAllUsers() {
+        return userRepository.findAll();
+    }
+
     public boolean isUserVisible(UserModel user, @Nullable UserDetailsWithId currentUser) {
-        if (user.visibility().equals(UserVisibilityModel.PUBLIC)) {
+        if (user.getVisibility().equals(UserVisibilityModel.PUBLIC)) {
             return true;
         }
 
         if (currentUser == null) {
             return false;
         }
-        if (currentUser.getId().equals(user.id())) {
+        if (currentUser.getId().equals(user.getId())) {
             return true;
         }
         if (isAdmin(currentUser)) {
             return true;
         }
         return false;
+    }
+
+    public void requireUserVisible(UserModel user, @Nullable UserDetailsWithId currentUser) {
+        if (!isUserVisible(user, currentUser)) {
+            throw ApiException.forbidden().message("no permission to access user %s".formatted(user.getId())).build();
+        }
     }
 
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
@@ -57,22 +67,16 @@ public class UserService {
 
     public UserDetails buildUserDetails(UserModel user) {
         var authorities = new ArrayList<GrantedAuthority>();
-        if (user.isAdmin()) {
+        if (user.getIsAdmin()) {
             authorities.add(new SimpleGrantedAuthority(ROLE_ADMIN));
         }
 
         return new UserDetailsWithId(
-                user.id(),
-                user.username(),
-                user.passwordHash(),
+                user.getId(),
+                user.getUsername(),
+                user.getPasswordHash(),
                 authorities
         );
-    }
-
-    public void requireUserVisible(UserModel user, @Nullable UserDetailsWithId currentUser) {
-        if (!isUserVisible(user, currentUser)) {
-            throw ApiException.forbidden().message("no permission to access user %s".formatted(user.id())).build();
-        }
     }
 
     public UserModel createUser(UserModel request) {

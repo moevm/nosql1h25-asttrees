@@ -40,7 +40,7 @@ public class UserController {
         var user = maybeUser.get();
         userService.requireUserVisible(user, currentUser);
 
-        return ResponseEntity.ok(userMapper.map(user));
+        return ResponseEntity.ok(userMapper.toUserDto(user));
     }
 
     @GetMapping("/users/me")
@@ -51,7 +51,7 @@ public class UserController {
         @SuppressWarnings("OptionalGetWithoutIsPresent")
         var user = userService.getUserById(currentUser.getId()).get();
 
-        return ResponseEntity.ok(userMapper.map(user));
+        return ResponseEntity.ok(userMapper.toUserDto(user));
     }
 
     @PostMapping("/auth/register")
@@ -63,16 +63,16 @@ public class UserController {
             throw ApiException.badRequest().message("email already exists").build();
         }
 
-        var userModel = userService.createUser(userMapper.map(request));
-        return ResponseEntity.ok(userMapper.map(userModel));
+        var userModel = userService.createUser(userMapper.toUserModel(request));
+        return ResponseEntity.ok(userMapper.toUserDto(userModel));
     }
 
     @PostMapping("/auth/login")
     ResponseEntity<LoginResponseDto> authLogin(@Valid @RequestBody AuthLoginRequest request) {
         var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.username(),
-                request.password())
-        );
+                request.password()
+        ));
 
         SecurityContextHolder.getContext().setAuthentication(auth);
         var token = jwtService.generateToken(auth);

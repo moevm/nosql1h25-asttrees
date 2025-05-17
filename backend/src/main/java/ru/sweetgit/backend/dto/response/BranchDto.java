@@ -5,7 +5,6 @@ import java.time.OffsetDateTime;
 public record BranchDto(
         String id,
         String name,
-        String repo,
         boolean isDefault,
         OffsetDateTime createdAt
 ) {

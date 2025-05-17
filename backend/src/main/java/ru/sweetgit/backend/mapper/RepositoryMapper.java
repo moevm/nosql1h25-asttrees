@@ -1,0 +1,12 @@
+package ru.sweetgit.backend.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import ru.sweetgit.backend.dto.response.RepositoryDto;
+import ru.sweetgit.backend.model.RepositoryModel;
+
+@Mapper(config = MapperConfigImpl.class)
+public abstract class RepositoryMapper {
+    @Mapping(source = "owner.id", target = "owner")
+    public abstract RepositoryDto toRepositoryDto(RepositoryModel repository);
+}
