@@ -28,7 +28,7 @@ public abstract class AstMapper {
 
         for (AstNodeViewModel viewModel : models) {
             AstNodeModel nodeModel = viewModel.getNode();
-            if (nodeModel == null) continue; // Skip if node data is missing
+            if (nodeModel == null) continue;
 
             AstNodeDto dto = new AstNodeDto(
                     nodeModel.getLabel(),

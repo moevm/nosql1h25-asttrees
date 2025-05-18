@@ -2,6 +2,8 @@ package ru.sweetgit.backend.service;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +23,9 @@ import static ru.sweetgit.backend.service.UserDetailsServiceImpl.ROLE_ADMIN;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Lazy
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public Optional<UserModel> getUserByUsername(String username) {
         return userRepository.findByUsername(username);

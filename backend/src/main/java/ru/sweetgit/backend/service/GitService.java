@@ -189,8 +189,9 @@ public class GitService {
             RevTree newTree
     ) {
         var stats = new RepoFileStats();
+        var collectedDirectoryPaths = new HashSet<String>();
 
-        try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+        try (var diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
             diffFormatter.setRepository(repository);
             diffFormatter.setReader(reader, new Config());
             diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
@@ -261,36 +262,50 @@ public class GitService {
             while (treeWalk.next()) {
                 var fileMode = treeWalk.getFileMode(0);
 
-                CommitFileModel.CommitFileModelBuilder commitFileModelBuilder;
-                byte[] data = null;
-
                 if (fileMode.equals(FileMode.REGULAR_FILE) ||
                         fileMode.equals(FileMode.EXECUTABLE_FILE)) {
+
+                    String filePathString = treeWalk.getPathString();
+
+                    java.nio.file.Path nioPath = java.nio.file.Paths.get(filePathString);
+                    java.nio.file.Path parentPath = nioPath.getParent();
+                    while (parentPath != null) {
+                        collectedDirectoryPaths.add(parentPath.toString().replace('\\', '/'));
+                        parentPath = parentPath.getParent();
+                    }
 
                     var blobId = treeWalk.getObjectId(0);
                     var metadata = getBlobData(reader, blobId);
 
-                    commitFileModelBuilder = CommitFileModel.builder()
+                    CommitFileModel.CommitFileModelBuilder commitFileModelBuilder = CommitFileModel.builder()
                             .name(treeWalk.getNameString())
-                            .fullPath(treeWalk.getPathString())
+                            .fullPath(filePathString)
                             .hash(blobId.name())
                             .type(FileTypeModel.FILE)
                             .metadata(metadata.getKey());
-                    data = metadata.getValue();
-                } else if (fileMode.equals(FileMode.TREE)) {
-                    commitFileModelBuilder = CommitFileModel.builder()
-                            .name(treeWalk.getNameString())
-                            .fullPath(treeWalk.getPathString())
-                            .type(FileTypeModel.DIRECTORY);
-                } else {
-                    continue;
-                }
+                    byte[] data = metadata.getValue();
 
-                stats.files.add(new FileData(
-                        commitFileModelBuilder,
-                        data
-                ));
+                    stats.files.add(new FileData(
+                            commitFileModelBuilder,
+                            data
+                    ));
+                }
             }
+        }
+
+        for (String dirFullPath : collectedDirectoryPaths) {
+            java.nio.file.Path nioDirPath = java.nio.file.Paths.get(dirFullPath);
+            String dirName = nioDirPath.getFileName() != null ? nioDirPath.getFileName().toString() : dirFullPath;
+
+            CommitFileModel.CommitFileModelBuilder dirModelBuilder = CommitFileModel.builder()
+                    .name(dirName)
+                    .fullPath(dirFullPath)
+                    .type(FileTypeModel.DIRECTORY);
+
+            stats.files.add(new FileData(
+                    dirModelBuilder,
+                    null
+            ));
         }
 
         return stats;

@@ -9,10 +9,7 @@ import ru.sweetgit.backend.dto.request.CreateRepositoryRequest;
 import ru.sweetgit.backend.model.*;
 import ru.sweetgit.backend.repo.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -91,22 +88,74 @@ public class ImportRepositoryOperation {
                 ).iterator()
         );
 
-        var commitFiles = StreamUtils.createStreamFromIterator(
-                commitFileRepository.saveAll(
-                        result
-                                .commitData()
-                                .entrySet()
-                                .stream()
-                                .flatMap(entry -> entry.getValue()
-                                        .files()
-                                        .stream()
-                                        .map(fileData -> fileData
-                                                .entityBuilder()
-                                                .commit(commits.get(entry.getKey()))
-                                                .build()))
-                                .toList()
-                ).iterator()
+        var initialModelsToSave = new ArrayList<CommitFileModel>();
+        result.commitData().entrySet().forEach(commitEntry -> {
+            String commitHash = commitEntry.getKey();
+            CommitModel currentCommit = commits.get(commitHash);
+
+            commitEntry.getValue().files().forEach(fileData -> {
+                CommitFileModel model = fileData.entityBuilder()
+                        .commit(currentCommit)
+                        .build();
+                initialModelsToSave.add(model);
+            });
+        });
+
+        var savedModelsPass1 = StreamUtils.createStreamFromIterator(
+                commitFileRepository.saveAll(initialModelsToSave).iterator()
         ).toList();
+
+        var persistedModelsMap = new HashMap<String, Map<String, CommitFileModel>>();
+        for (var savedModel : savedModelsPass1) {
+            if (savedModel.getCommit() != null && savedModel.getCommit().getHash() != null && savedModel.getFullPath() != null) {
+                persistedModelsMap
+                        .computeIfAbsent(savedModel.getCommit().getHash(), k -> new HashMap<>())
+                        .put(savedModel.getFullPath(), savedModel);
+            }
+        }
+
+        var modelsToUpdateWithParents = new ArrayList<CommitFileModel>();
+        for (CommitFileModel modelFromPass1 : savedModelsPass1) {
+            var fullPath = modelFromPass1.getFullPath();
+            var name = modelFromPass1.getName();
+            CommitFileModel parentEntity = null;
+
+            if (fullPath != null && name != null && !fullPath.equals(name)) {
+                if (fullPath.length() > name.length() && fullPath.endsWith(name)) {
+                    var parentDirFullPath = fullPath.substring(0, fullPath.length() - name.length() - 1);
+
+                    if (modelFromPass1.getCommit() != null && modelFromPass1.getCommit().getHash() != null) {
+                        var potentialParentsInSameCommit = persistedModelsMap.get(modelFromPass1.getCommit().getHash());
+                        if (potentialParentsInSameCommit != null) {
+                            var foundParent = potentialParentsInSameCommit.get(parentDirFullPath);
+                            if (foundParent != null && foundParent.getType() == FileTypeModel.DIRECTORY) {
+                                parentEntity = foundParent;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (parentEntity != null) {
+                modelsToUpdateWithParents.add(modelFromPass1.toBuilder().parent(parentEntity).build());
+            }
+        }
+
+        var savedModelsPass2 =StreamUtils.createStreamFromIterator(
+                commitFileRepository.saveAll(modelsToUpdateWithParents).iterator()
+        ).toList();
+
+        var finalModelsById = savedModelsPass1.stream()
+                .filter(m -> m.getId() != null)
+                .collect(Collectors.toMap(CommitFileModel::getId, Function.identity(), (existing, replacement) -> replacement));
+
+        for (var updatedModel : savedModelsPass2) {
+            if (updatedModel.getId() != null) {
+                finalModelsById.put(updatedModel.getId(), updatedModel);
+            }
+        }
+
+        var commitFiles = new ArrayList<>(finalModelsById.values());
 
         var filesByCommit = commitFiles.stream()
                 .collect(Collectors.groupingBy(
