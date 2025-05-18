@@ -84,6 +84,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getCurrentUserInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateRepository"];
+        trace?: never;
+    };
     "/repositories/{repoId}": {
         parameters: {
             query?: never;
@@ -97,7 +113,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["updateRepository"];
+        patch: operations["updateRepository_1"];
         trace?: never;
     };
     "/users/{userId}": {
@@ -132,22 +148,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getCurrentUserInfo"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/repositories/{repoId}/branches/{branchId}/commits": {
         parameters: {
             query?: never;
@@ -164,7 +164,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/repositories/{repoId}/branches/{branchId}/commits/{commitHash}/view": {
+    "/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view": {
         parameters: {
             query?: never;
             header?: never;
@@ -172,6 +172,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["viewRepository"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/repositories/{repoId}/branches/{branchId}/commits/{commitId}/files/{commitFileId}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["viewRepositoryFileContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/repositories/{repoId}/branches/{branchId}/commits/{commitId}/files/{commitFileId}/ast": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["viewRepositoryFileAst"];
         put?: never;
         post?: never;
         delete?: never;
@@ -260,6 +292,7 @@ export interface components {
             name?: string;
             /** @enum {string} */
             type?: "DIRECTORY" | "FILE";
+            hash?: string;
         };
         ShortUserDto: {
             id?: string;
@@ -286,6 +319,52 @@ export interface components {
         };
         LoginResponseDto: {
             token?: string;
+        };
+        UpdateCurrentUserRequest: {
+            oldPassword?: string;
+            newPassword?: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PRIVATE";
+        };
+        UpdateRepositoryRequest: {
+            name: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
+        };
+        FileContentDto: {
+            commitFile?: components["schemas"]["ShortCommitFileDto"];
+            isBinary?: boolean;
+            content?: string;
+            /** Format: int32 */
+            lines?: number;
+            /** Format: int64 */
+            bytes?: number;
+            hasAst?: boolean;
+        };
+        AstNodeDto: {
+            label?: string;
+            type?: string;
+        };
+        AstTreeViewDto: {
+            /** Format: int32 */
+            depth?: number;
+            nodes?: components["schemas"]["AstNodeDto"][];
+        };
+        FileAstDto: {
+            commitFile?: components["schemas"]["ShortCommitFileDto"];
+            astTree?: components["schemas"]["AstTreeViewDto"];
+        };
+        FullUserDto: {
+            id?: string;
+            username?: string;
+            email?: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PRIVATE";
+            /** Format: date-time */
+            createdAt?: string;
+            isAdmin?: boolean;
+            /** Format: int32 */
+            repositoryCount?: number;
         };
     };
     responses: never;
@@ -413,7 +492,51 @@ export interface operations {
             };
         };
     };
+    getCurrentUserInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserDto"];
+                };
+            };
+        };
+    };
     updateRepository: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCurrentUserRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserDto"];
+                };
+            };
+        };
+    };
+    updateRepository_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -422,7 +545,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRepositoryRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -479,26 +606,6 @@ export interface operations {
             };
         };
     };
-    getCurrentUserInfo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UserDto"];
-                };
-            };
-        };
-    };
     getBranchCommits: {
         parameters: {
             query?: never;
@@ -531,7 +638,7 @@ export interface operations {
             path: {
                 repoId: string;
                 branchId: string;
-                commitHash: string;
+                commitId: string;
             };
             cookie?: never;
         };
@@ -544,6 +651,56 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RepositoryViewDto"];
+                };
+            };
+        };
+    };
+    viewRepositoryFileContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repoId: string;
+                branchId: string;
+                commitId: string;
+                commitFileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FileContentDto"];
+                };
+            };
+        };
+    };
+    viewRepositoryFileAst: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repoId: string;
+                branchId: string;
+                commitId: string;
+                commitFileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FileAstDto"];
                 };
             };
         };
@@ -563,7 +720,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["UserDto"][];
+                    "*/*": components["schemas"]["FullUserDto"][];
                 };
             };
         };

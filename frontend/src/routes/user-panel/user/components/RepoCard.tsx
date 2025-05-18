@@ -21,7 +21,7 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
                     ignoreClick.current = false;
                     return;
                 }
-                nav(`repo/${repo.id}`);
+                nav(`repo/${repo.id}/branch/default/commit/latest`);
             }}
         >
             <Card>
@@ -50,7 +50,7 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
                                         Редактировать
                                     </Button>
                                 </DialogTrigger>
-                                <UserRepoSettingsDialog repo={repo} />
+                                <UserRepoSettingsDialog repo={repo}/>
                             </Dialog>
                         </div>
                     </div>
