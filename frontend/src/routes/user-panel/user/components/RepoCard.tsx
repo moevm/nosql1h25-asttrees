@@ -21,7 +21,7 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
                     ignoreClick.current = false;
                     return;
                 }
-                nav(`repo/${repo.name}`);
+                nav(`repo/${repo.id}`);
             }}
         >
             <Card>
