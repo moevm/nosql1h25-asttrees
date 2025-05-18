@@ -44,7 +44,7 @@ public interface RepositoryRepository extends ArangoRepository<RepositoryModel, 
                 ? (branchCommitModels)[0]
                 : (
                     FOR c IN branchCommitModels
-                        FILTER c._id == @commitId
+                        FILTER c._key == @commitId
                         LIMIT 1
                         RETURN c
                   )[0]
