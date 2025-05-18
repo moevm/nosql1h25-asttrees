@@ -1,8 +1,8 @@
-import {type ApiCommitModel} from "@/store/store.ts";
 import {Label} from "@/components/ui/label.tsx";
 import {File, Folder, History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Link, useLocation} from "react-router-dom";
+import type {ApiRepositoryViewModel} from "@/store/store.ts";
 
 const getCommitLabel = (count) => {
     if (count % 10 === 1 && count % 100 !== 11) {
@@ -14,8 +14,7 @@ const getCommitLabel = (count) => {
     }
 };
 
-function RepoFileTable({data}: { data: ApiCommitModel[] }) {
-    const lastCommitN = data.length - 1;
+function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
     const location = useLocation();
     console.log(data)
     //TODO add styles and info from back in header
@@ -28,23 +27,23 @@ function RepoFileTable({data}: { data: ApiCommitModel[] }) {
                     <th className="flex justify-between text-left py-2 px-4 gap-2">
                         <div className={"flex justify-center gap-2"}>
                             <Label className={"font-bold"}>
-                                {data[lastCommitN].author}
+                                {data.commit?.author}
                             </Label>
                             <Label className={"text-gray-400"}>
-                                {data[lastCommitN].message}
+                                {data.commit?.message}
                             </Label>
                         </div>
 
                         <div className={"flex justify-center gap-2"}>
                             <Label className={"text-gray-400"}>
-                                {data[lastCommitN].hash}
+                                {data.commit?.hash}
                             </Label>
                             <Label className={"text-gray-400"}>
-                                {new Date(data[lastCommitN].createdAt)?.toLocaleDateString("ru-RU")}
+                                {new Date(data.commit?.createdAt)?.toLocaleDateString("ru-RU")}
                             </Label>
                             <Link to='history'>
                                 <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
-                                    <History/> {getCommitLabel(data.length)}
+                                    <History/> {getCommitLabel(data.commitCount)}
                                 </Button>
                             </Link>
                         </div>
@@ -53,19 +52,19 @@ function RepoFileTable({data}: { data: ApiCommitModel[] }) {
                 </tr>
                 </thead>
                 <tbody>
-                {data[lastCommitN]?.rootFiles?.map((item) => (
-                    <tr key={item.Items.id} className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
+                {data.files?.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
                         <td className="py-2 px-4 border-b border-gray-200 flex items-center gap-2">
-                            {item.Items.type === "FILE" ? (
-                                <a href={`${location.pathname}/file/${item.Items.name}`}
+                            {item.type === "FILE" ? (
+                                <a href={`${location.pathname}/file/${item.name}`}
                                    className="flex items-center gap-2">
                                     <File/>
-                                    {item.Items.name}
+                                    {item.name}
                                 </a>
                             ) : (
                                 <div className="flex items-center gap-2">
                                     <Folder/>
-                                    {item.Items.name}
+                                    {item.name}
                                 </div>
 
                             )}

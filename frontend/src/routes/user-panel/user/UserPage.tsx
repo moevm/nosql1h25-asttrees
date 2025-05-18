@@ -19,7 +19,7 @@ function UserPage() {
     return (
         <BatchLoader states={[currentUser, currentUserRepos]} loadingMessage={"Загрузка пользователя"} display={
             () =>
-                <div className="p-10">
+                (<div className="p-10">
                     <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem>
@@ -34,7 +34,7 @@ function UserPage() {
                     </Breadcrumb>
 
                     <RepoList data={loaded(currentUserRepos).data}/>
-                </div>
+                </div>)
         }/>
     )
 }
