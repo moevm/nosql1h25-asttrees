@@ -10,10 +10,11 @@ import ru.sweetgit.backend.annotation.IsAuthenticated;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
 import ru.sweetgit.backend.dto.request.CreateRepositoryRequest;
+import ru.sweetgit.backend.dto.response.FileAstDto;
 import ru.sweetgit.backend.dto.response.FileContentDto;
 import ru.sweetgit.backend.dto.response.RepositoryDto;
 import ru.sweetgit.backend.dto.response.RepositoryViewDto;
-import ru.sweetgit.backend.mapper.FileContentMapper;
+import ru.sweetgit.backend.mapper.FileViewMapper;
 import ru.sweetgit.backend.mapper.RepositoryMapper;
 import ru.sweetgit.backend.mapper.RepositoryViewMapper;
 import ru.sweetgit.backend.service.ImportRepositoryOperation;
@@ -30,7 +31,7 @@ public class RepositoryController {
     private final RepositoryMapper repositoryMapper;
     private final RepositoryViewMapper repositoryViewMapper;
     private final ImportRepositoryOperation importRepositoryOperation;
-    private final FileContentMapper fileContentMapper;
+    private final FileViewMapper fileViewMapper;
 
     @GetMapping("/users/{userId}/repositories")
     ResponseEntity<List<RepositoryDto>> getRepositories(
@@ -92,7 +93,7 @@ public class RepositoryController {
     }
 
     @GetMapping("/repositories/{repoId}/branches/{branchId}/commits/{commitId}/files/{commitFileId}/content")
-    ResponseEntity<FileContentDto> viewRepositoryFile(
+    ResponseEntity<FileContentDto> viewRepositoryFileContent(
             @PathVariable("repoId") String repoId,
             @PathVariable("branchId") String branchId,
             @PathVariable("commitId") String commitId,
@@ -104,13 +105,36 @@ public class RepositoryController {
 
         repositoryService.requireRepositoryVisible(repo, currentUser);
 
-        var res = repositoryService.viewFile(
+        var res = repositoryService.viewFileContent(
                 repoId,
                 branchId,
                 commitId,
                 commitFileId
         );
 
-        return ResponseEntity.ok(fileContentMapper.toFileContentResponseDto(res));
+        return ResponseEntity.ok(fileViewMapper.toFileContentResponseDto(res));
+    }
+
+    @GetMapping("/repositories/{repoId}/branches/{branchId}/commits/{commitId}/files/{commitFileId}/ast")
+    ResponseEntity<FileAstDto> viewRepositoryFileAst(
+            @PathVariable("repoId") String repoId,
+            @PathVariable("branchId") String branchId,
+            @PathVariable("commitId") String commitId,
+            @PathVariable("commitFileId") String commitFileId,
+            @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
+    ) {
+        var repo = repositoryService.getById(repoId)
+                .orElseThrow(() -> ApiException.notFound("Репозиторий", "id", repoId).build());
+
+        repositoryService.requireRepositoryVisible(repo, currentUser);
+
+        var res = repositoryService.viewFileAst(
+                repoId,
+                branchId,
+                commitId,
+                commitFileId
+        );
+
+        return ResponseEntity.ok(fileViewMapper.toFileAstDto(res));
     }
 }

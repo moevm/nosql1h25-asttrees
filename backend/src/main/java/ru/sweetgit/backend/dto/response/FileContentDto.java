@@ -7,6 +7,7 @@ public record FileContentDto(
         boolean isBinary,
         @Nullable String content,
         int lines,
-        long bytes
+        long bytes,
+        boolean hasAst
 ) {
 }

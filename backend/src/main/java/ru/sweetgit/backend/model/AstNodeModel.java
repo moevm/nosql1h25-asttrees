@@ -15,7 +15,7 @@ import org.springframework.data.annotation.Id;
 @NonFinal
 public class AstNodeModel {
     @Id
-    String fileHash;
+    String id;
     @ArangoId
     String arangoId;
     String label;

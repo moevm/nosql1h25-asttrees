@@ -9,9 +9,7 @@ import lombok.experimental.NonFinal;
 @Value
 @Builder(toBuilder = true)
 @NonFinal
-public class FileContentModel {
+public class FileAstModel {
     CommitFileModel commitFile;
-    CommitFileMetadataModel metadata;
-    byte[] content;
-    boolean hasAst;
+    AstTreeViewModel astTree;
 }

@@ -2,12 +2,12 @@ package ru.sweetgit.backend.repo;
 
 import com.arangodb.springframework.annotation.Query;
 import com.arangodb.springframework.repository.ArangoRepository;
+import jakarta.annotation.Nullable;
 import org.springframework.data.repository.query.Param;
 import ru.sweetgit.backend.model.AstTreeModel;
 import ru.sweetgit.backend.model.AstTreeViewModel;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public interface AstTreeRepository extends ArangoRepository<AstTreeModel, String> {
     @Query("""
@@ -41,5 +41,6 @@ public interface AstTreeRepository extends ArangoRepository<AstTreeModel, String
                  nodes: traversalResults[*].nodeOutput
              }
             """)
-    Optional<AstTreeViewModel> viewAstTree(@Param("hash") String hash);
+    @Nullable AstTreeViewModel
+    viewAstTree(@Param("hash") String hash);
 }

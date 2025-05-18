@@ -6,15 +6,13 @@ import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.model.AstNodeModel;
 import ru.sweetgit.backend.model.AstParentModel;
 import ru.sweetgit.backend.model.AstTreeModel;
+import ru.sweetgit.backend.model.AstTreeViewModel;
 import ru.sweetgit.backend.repo.AstNodeRepository;
 import ru.sweetgit.backend.repo.AstParentRepository;
 import ru.sweetgit.backend.repo.AstTreeRepository;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +43,14 @@ public class AstTreeService {
             savedTrees.add(savedTree);
         }
         return savedTrees;
+    }
+
+    public Optional<AstTreeViewModel> getFileAstTree(String hash) {
+        return Optional.ofNullable(astTreeRepository.viewAstTree(hash));
+    }
+
+    public boolean hasAstTree(String hash) {
+        return astTreeRepository.existsById(hash);
     }
 
     private AstNodeModel saveNodeAndItsChildrenRecursive(JsonNode currentJsonNode, AstNodeModel parentDbNode) {
