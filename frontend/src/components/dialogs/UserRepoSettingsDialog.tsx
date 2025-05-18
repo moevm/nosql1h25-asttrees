@@ -15,7 +15,7 @@ import * as z from "zod";
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import type {ApiRepositoryModel} from "@/store/store.ts";
+import type {ApiRepositoryModel, ApiRepositoryViewModel} from "@/store/store.ts";
 
 
 const formSchema = z.object({
@@ -23,15 +23,15 @@ const formSchema = z.object({
     name: z.string().min(3, "Минимум 3 символа"),
 });
 
-function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryModel}) {
+function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
 
-    const [visibility, setVisibility] = useState<string>(repo.visibility);
+    const [visibility, setVisibility] = useState<string>(repo.repository?.visibility);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            url: repo.originalLink,
-            name: repo.name
+            url: repo.repository?.originalLink,
+            name: repo.repository?.name
         },
     });
 
@@ -81,10 +81,10 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryModel}) {
 
                         <Button
                             type={"button"}
-                            variant={`${visibility === "public" ? "" : "ghost"}`}
+                            variant={`${visibility === "PUBLIC" ? "" : "ghost"}`}
                             className={`flex gap-2 justify-start text-left p-6  w-full`}
                             onClick={() => {
-                                setVisibility("public");
+                                setVisibility("PUBLIC");
                                 console.log(visibility)}}>
 
                             <div className={"flex justify-between items-center gap-2"}>
@@ -100,10 +100,10 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryModel}) {
 
                         <Button
                             type={"button"}
-                            variant={`${visibility === "protected" ? "" : "ghost"}`}
+                            variant={`${visibility === "PROTECTED" ? "" : "ghost"}`}
                             className={`flex gap-2 justify-start text-left p-6 w-full`}
                             onClick={() => {
-                                setVisibility("protected");
+                                setVisibility("PROTECTED");
                                 console.log(visibility)}}>
 
                             <div className={"flex justify-between items-center gap-2"}>
@@ -118,10 +118,10 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryModel}) {
 
                         <Button
                             type={"button"}
-                            variant={`${visibility === "private" ? "" : "ghost"}`}
+                            variant={`${visibility === "PRIVATE" ? "" : "ghost"}`}
                             className={`flex gap-2 justify-start text-left p-6 w-full`}
                             onClick={() => {
-                                setVisibility("private");
+                                setVisibility("PRIVATE");
                                 console.log(visibility)}}>
 
                             <div className={"flex justify-between items-center gap-2"}>

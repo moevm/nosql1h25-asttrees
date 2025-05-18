@@ -7,16 +7,25 @@ import {
 } from "@/components/ui/breadcrumb.tsx";
 import {Package, Settings, UserIcon} from "lucide-react";
 import {useAtomValue} from "jotai/react";
-import {$currentUser, $currentUserRepos, $repoId, type ApiCommitModel} from "@/store/store.ts";
+import {
+    $currentUser,
+    $currentUserRepos,
+    $repoId,
+    $userCurrentRepo, type ApiRepositoryViewModel,
+} from "@/store/store.ts";
 import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
+import React from "react";
+import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
+import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
 
 function RepoViewPage() {
     const repoId = useAtomValue($repoId)!
     const currentUser = useAtomValue($currentUser)!
     const currentUserRepos = useAtomValue($currentUserRepos)!
+    const curRepo = useAtomValue($userCurrentRepo)!
 
     const mockCommits = [
         {
@@ -56,7 +65,7 @@ function RepoViewPage() {
     ]
 
     return (
-        <BatchLoader states={[currentUser, currentUserRepos]} loadingMessage={"Загрузка репозиториев"} display={
+        <BatchLoader states={[currentUser, currentUserRepos, curRepo]} loadingMessage={"Загрузка репозитория"} display={
             () =>
                 <div className="p-10 flex flex-col gap-2">
                     <div className={"flex justify-between"}>
@@ -82,28 +91,20 @@ function RepoViewPage() {
                             </BreadcrumbList>
                         </Breadcrumb>
 
-                        {/*TODO: получаем по id репо и передаем в диалог*/}
-                        {/*<div>*/}
-                        {/*    <Dialog>*/}
-                        {/*        <DialogTrigger asChild>*/}
-                        {/*            <Button variant="ghost">*/}
-                        {/*                Редактировать*/}
-                        {/*            </Button>*/}
-                        {/*        </DialogTrigger>*/}
-                        {/*        <UserRepoSettingsDialog repo={repo}/>*/}
-                        {/*    </Dialog>*/}
-                        {/*</div>*/}
                         <div>
-                            <Button onClick={() => {
-                                console.log("Потом)")
-                            }}>
-                                <Settings/> Настройки
-                            </Button>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button>
+                                        <Settings/> Настройки
+                                    </Button>
+                                </DialogTrigger>
+                                <UserRepoSettingsDialog repo={curRepo?.data as ApiRepositoryViewModel}/>
+                            </Dialog>
                         </div>
                     </div>
 
 
-                    <RepoFileTable data={currentUserRepos as ApiCommitModel}/>
+                    <RepoFileTable data={curRepo?.data as ApiRepositoryViewModel}/>
 
 
                 </div>

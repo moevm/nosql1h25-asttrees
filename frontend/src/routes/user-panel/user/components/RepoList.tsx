@@ -22,7 +22,7 @@ function RepoList({data}: { data: ApiRepositoryModel[] }) {
 
     const filteredRepos = useMemo(() => {
         return data.filter((repo) =>
-            repo.name.toLowerCase().includes(searchTerm.toLowerCase())
+            repo.name?.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [searchTerm, data]);
 

@@ -1,7 +1,9 @@
 import {atom, createStore} from "jotai";
 import type {components} from "@/schema.ts";
-import {$api, $authToken, loadableQuery} from "@/api";
+import {$api, $authToken, defaultOnErrorHandler, loadableQuery} from "@/api";
 import {atomWithQuery} from "jotai-tanstack-query";
+import {useNavigate} from "react-router-dom";
+import {toast} from "sonner";
 
 export const store = createStore()
 
@@ -58,3 +60,30 @@ export const $currentUserReposQuery = atomWithQuery((get) => {
 })
 
 export const $currentUserRepos = loadableQuery($currentUserReposQuery)
+
+export const $userGetRepoView = (enabled: boolean, repoId: string, branchId: string, commitHash: string) => $api.queryOptions(
+    'get',
+    '/repositories/{repoId}/branches/{branchId}/commits/{commitHash}/view',
+    {
+        params: {
+            path: {
+                repoId: repoId,
+                branchId: branchId,
+                commitHash: commitHash
+            },
+            query: {
+                path: null
+            }
+        },
+    },
+    {enabled}
+)
+
+export const $userGetRepoViewQuery = atomWithQuery((get) => {
+    const currentUser = get($currentUser)
+    const enabled = currentUser.state === 'hasData'
+    const userId = enabled ? currentUser.data.id! : ''
+    return $userGetRepoView(enabled, get($repoId), "default", "latest")
+})
+
+export const $userCurrentRepo = loadableQuery($userGetRepoViewQuery)
