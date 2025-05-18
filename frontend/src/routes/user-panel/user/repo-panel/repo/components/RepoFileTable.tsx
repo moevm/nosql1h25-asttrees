@@ -3,6 +3,7 @@ import {File, Folder, History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Link, useLocation} from "react-router-dom";
 import type {ApiRepositoryViewModel} from "@/store/store.ts";
+import {loaded} from "@/api";
 
 const getCommitLabel = (count) => {
     if (count % 10 === 1 && count % 100 !== 11) {
@@ -41,7 +42,7 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                             <Label className={"text-gray-400"}>
                                 {new Date(data.commit?.createdAt)?.toLocaleDateString("ru-RU")}
                             </Label>
-                            <Link to='history'>
+                            <Link to={`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commits`}>
                                 <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
                                     <History/> {getCommitLabel(data.commitCount)}
                                 </Button>
@@ -56,7 +57,7 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                     <tr key={item.id} className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
                         <td className="py-2 px-4 border-b border-gray-200 flex items-center gap-2">
                             {item.type === "FILE" ? (
-                                <a href={`${location.pathname}/file/${item.name}`}
+                                <a href={`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commit/${data.commit?.id}/file/${item.id}`}
                                    className="flex items-center gap-2">
                                     <File/>
                                     {item.name}

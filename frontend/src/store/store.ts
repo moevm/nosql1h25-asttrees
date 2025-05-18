@@ -1,9 +1,7 @@
 import {atom, createStore} from "jotai";
 import type {components} from "@/schema.ts";
-import {$api, $authToken, defaultOnErrorHandler, loadableQuery} from "@/api";
+import {$api, $authToken, loadableQuery} from "@/api";
 import {atomWithQuery} from "jotai-tanstack-query";
-import {useNavigate} from "react-router-dom";
-import {toast} from "sonner";
 
 export const store = createStore()
 
@@ -22,9 +20,12 @@ export type ApiRepositoryModel = components['schemas']['RepositoryDto']
 
 export type ApiRepositoryViewModel = components['schemas']['RepositoryViewDto']
 export type ApiUserModel = components['schemas']['UserDto']
+export type ApiFileContentModel = components['schemas']["FileContentDto"]
 
 export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
+export const $branchId = atom<string | null>(null)
+export const $commitId = atom<string | null>(null)
 
 export const $currentUserQueryOptions = (enabled: boolean) => $api.queryOptions(
     'get',
@@ -61,29 +62,110 @@ export const $currentUserReposQuery = atomWithQuery((get) => {
 
 export const $currentUserRepos = loadableQuery($currentUserReposQuery)
 
-export const $userGetRepoView = (enabled: boolean, repoId: string, branchId: string, commitHash: string) => $api.queryOptions(
+export const $currentRepoView = (enabled: boolean, repoId: string, branchId: string, commitId: string) => $api.queryOptions(
     'get',
-    '/repositories/{repoId}/branches/{branchId}/commits/{commitHash}/view',
+    '/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view',
     {
         params: {
             path: {
                 repoId: repoId,
                 branchId: branchId,
-                commitHash: commitHash
+                commitId: commitId
             },
             query: {
-                path: null
+                path: ''
             }
         },
     },
     {enabled}
 )
 
-export const $userGetRepoViewQuery = atomWithQuery((get) => {
-    const currentUser = get($currentUser)
-    const enabled = currentUser.state === 'hasData'
-    const userId = enabled ? currentUser.data.id! : ''
-    return $userGetRepoView(enabled, get($repoId), "default", "latest")
+export const $currentRepoViewQuery = atomWithQuery((get) => {
+    const repoId = get($repoId)
+    const enabled = repoId !== null
+    const branchId = get($branchId) ?? "default"
+    const commitId = get($commitId) ?? "latest"
+    return $currentRepoView(enabled, repoId ?? '', branchId, commitId)
 })
 
-export const $userCurrentRepo = loadableQuery($userGetRepoViewQuery)
+export const $currentRepo = loadableQuery($currentRepoViewQuery)
+
+export const $fileContentView = (enabled: boolean, repoId: string, branchId: string, commitId: string, commitFileId: string) => $api.queryOptions(
+    'get',
+    '/repositories/{repoId}/branches/{branchId}/commits/{commitId}/files/{commitFileId}/content',
+    {
+        params: {
+            path: {
+                repoId: repoId,
+                branchId: branchId,
+                commitId: commitId,
+                commitFileId: commitFileId
+            },
+        },
+    },
+    {enabled}
+)
+
+export const $fileContentQuery = atomWithQuery((get) => {
+    const currentUser = get($currentUser)
+    const enabled = currentUser.state === 'hasData'
+    const repoId = get($repoId)!
+    const branchId = get($branchId) ? get($branchId)! : "default"
+    const commitId = get($commitId) ? get($commitId)! : "latest"
+    const fileId = get($fileId)!
+    return $fileContentView(enabled, repoId, branchId, commitId, fileId)
+})
+
+export const $fileContent = loadableQuery($fileContentQuery)
+
+export const $branchCommitsView = (enabled: boolean, repoId: string, branchId: string) => $api.queryOptions(
+    'get',
+    '/repositories/{repoId}/branches/{branchId}/commits',
+    {
+        params: {
+            path: {
+                repoId: repoId,
+                branchId: branchId,
+            },
+        },
+    },
+    {enabled}
+)
+
+export const $branchCommitsQuery = atomWithQuery((get) => {
+    const currentUser = get($currentUser)
+    const enabled = currentUser.state === 'hasData'
+    const repoId = get($repoId)!
+    const branchId = get($branchId) ? get($branchId)! : "default"
+    return $branchCommitsView(enabled, repoId, branchId)
+})
+
+export const $branchCommits = loadableQuery($branchCommitsQuery)
+
+export const $fileAstView = (enabled: boolean, repoId: string, branchId: string, commitId: string, commitFileId: string) => $api.queryOptions(
+    'get',
+    '/repositories/{repoId}/branches/{branchId}/commits/{commitId}/files/{commitFileId}/ast',
+    {
+        params: {
+            path: {
+                repoId: repoId,
+                branchId: branchId,
+                commitId: commitId,
+                commitFileId: commitFileId
+            },
+        },
+    },
+    {enabled}
+)
+
+export const $fileAstQuery = atomWithQuery((get) => {
+    const currentUser = get($currentUser)
+    const enabled = currentUser.state === 'hasData'
+    const repoId = get($repoId)!
+    const branchId = get($branchId) ? get($branchId)! : "default"
+    const commitId = get($commitId) ? get($commitId)! : "latest"
+    const fileId = get($fileId)!
+    return $fileAstView(enabled, repoId, branchId, commitId, fileId)
+})
+
+export const $fileAst = loadableQuery($fileAstQuery)

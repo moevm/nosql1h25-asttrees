@@ -11,7 +11,7 @@ import {
     $currentUser,
     $currentUserRepos,
     $repoId,
-    $userCurrentRepo, type ApiRepositoryViewModel,
+    $currentRepo, type ApiRepositoryViewModel,
 } from "@/store/store.ts";
 import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 import {Label} from "@/components/ui/label.tsx";
@@ -25,47 +25,11 @@ function RepoViewPage() {
     const repoId = useAtomValue($repoId)!
     const currentUser = useAtomValue($currentUser)!
     const currentUserRepos = useAtomValue($currentUserRepos)!
-    const curRepo = useAtomValue($userCurrentRepo)!
 
-    const mockCommits = [
-        {
-            id: "cmt-001",
-            branch: "main",
-            hash: "abc123def456",
-            author: "Иван Иванов",
-            email: "ivan@example.com",
-            message: "Initial commit",
-            filesChanged: 3,
-            linesAdded: 120,
-            linesRemoved: 10,
-            createdAt: "2025-05-13T18:30:00.000Z",
-            rootFiles: [
-                {
-                    Items: {
-                        id: "file-001",
-                        name: "src",
-                        type: "DIRECTORY",
-                        hash: "dir123",
-                        commit: "abc123def456",
-                        parent: null,
-                    }
-                },
-                {
-                    Items: {
-                        id: "file-002",
-                        name: "index.tsx",
-                        type: "FILE",
-                        hash: "filehash001",
-                        commit: "abc123def456",
-                        parent: "file-001",
-                    }
-                }
-            ],
-        }
-    ]
+    const currentRepo = useAtomValue($currentRepo)!
 
     return (
-        <BatchLoader states={[currentUser, currentUserRepos, curRepo]} loadingMessage={"Загрузка репозитория"} display={
+        <BatchLoader states={[currentUser, currentUserRepos, currentRepo]} loadingMessage={"Загрузка репозитория"} display={
             () =>
                 <div className="p-10 flex flex-col gap-2">
                     <div className={"flex justify-between"}>
@@ -98,13 +62,13 @@ function RepoViewPage() {
                                         <Settings/> Настройки
                                     </Button>
                                 </DialogTrigger>
-                                <UserRepoSettingsDialog repo={curRepo?.data as ApiRepositoryViewModel}/>
+                                <UserRepoSettingsDialog repo={currentRepo?.data as ApiRepositoryViewModel}/>
                             </Dialog>
                         </div>
                     </div>
 
 
-                    <RepoFileTable data={curRepo?.data as ApiRepositoryViewModel}/>
+                    <RepoFileTable data={currentRepo?.data as ApiRepositoryViewModel}/>
 
 
                 </div>

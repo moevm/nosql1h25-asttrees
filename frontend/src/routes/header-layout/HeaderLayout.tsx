@@ -1,6 +1,6 @@
 
 import {Outlet} from "react-router-dom";
-import Header from "@/components/custom/header/Header.tsx";
+import Header from "@/routes/header-layout/components/Header.tsx";
 
 function HeaderLayout() {
     return (

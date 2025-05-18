@@ -17,13 +17,15 @@ import RepoLayout from "@/routes/user-panel/user/repo-panel/RepoLayout.tsx";
 import {QueryClientProvider} from "@tanstack/react-query";
 import {HydrateAtoms, queryClient} from "@/api";
 import {Toaster} from "sonner";
-import FileLayout from "@/routes/user-panel/user/repo-panel/repo/file-panel/FileLayout.tsx";
-import FileViewPage from "@/routes/user-panel/user/repo-panel/repo/file-panel/file/FileViewPage.tsx";
 import CommitHistoryViewPage
     from "@/routes/user-panel/user/repo-panel/repo/commit-history-panel/CommitHistoryViewPage.tsx";
 import {Provider} from "jotai/react";
 import {SessionManager} from "@/components/SessionManager.tsx";
 import {store} from "@/store/store.ts";
+import CommitLayout from "@/routes/user-panel/user/repo-panel/repo/commit-panel/CommitLayout.tsx";
+import FileLayout from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/FileLayout.tsx";
+import FileViewPage
+    from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/FileViewPage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
@@ -31,20 +33,22 @@ createRoot(document.getElementById('root')!).render(
             <HydrateAtoms>
                 <Toaster/>
                 <BrowserRouter>
-                    <SessionManager />
+                    <SessionManager/>
                     <Routes>
                         <Route element={<HeaderLayout/>}>
-                            <Route path="/:tab" element={<AuthorisationPage />} />
-                            <Route path="/" element={<Navigate to="/login" />} />
+                            <Route path="/:tab" element={<AuthorisationPage/>}/>
+                            <Route path="/" element={<Navigate to="/login"/>}/>
 
-                            <Route path="users/:userId" element={<UserLayout/>}>
-                                <Route path="" element={<UserPage/>}/>
-                                <Route path="repo/:repoId" element={<RepoLayout/>}>
-                                    <Route path="" element={<RepoViewPage/>}/>
-                                    <Route path="file/:fileId" element={<FileLayout/>}>
-                                        <Route path="" element={<FileViewPage/>}/>
+                            <Route path="users/:userId" element={<UserLayout />}>
+                                <Route path="" element={<UserPage />} />
+                                <Route path="repo/:repoId/branch/:branchId" element={<RepoLayout />}>
+                                    <Route path="commits" element={<CommitHistoryViewPage />} />
+                                    <Route path="commit/:commitId" element={<CommitLayout />}>
+                                        <Route path="file/:fileId" element={<FileLayout />}>
+                                            <Route path="" element={<FileViewPage />} />
+                                        </Route>
+                                        <Route path="" element={<RepoViewPage />} />
                                     </Route>
-                                    <Route path="history" element={<CommitHistoryViewPage/>}/>
                                 </Route>
                             </Route>
 

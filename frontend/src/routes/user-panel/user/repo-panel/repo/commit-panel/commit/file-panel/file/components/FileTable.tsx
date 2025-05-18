@@ -1,16 +1,16 @@
-import {$currentUser, $repoId, type ApiCommitModel} from "@/store/store.ts";
+import {
+    type ApiFileContentModel,
+    type ApiRepositoryViewModel
+} from "@/store/store.ts";
 import {Label} from "@/components/ui/label.tsx";
 import {History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
 import {useState} from "react";
 import {Link} from "react-router-dom";
-import {useAtomValue} from "jotai/react";
+import React from "react";
 
-function RepoHeader({data}: { data: ApiCommitModel[] }) {
-    const repoId = useAtomValue($repoId)!
-    const currentUser = useAtomValue($currentUser)!
-    const lastCommitN = data.length - 1;
+function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     return (
         <div className="pb-5">
             <table
@@ -20,27 +20,27 @@ function RepoHeader({data}: { data: ApiCommitModel[] }) {
                     <th className="flex justify-between text-left py-2 px-4 gap-2">
                         <div className={"flex justify-center gap-2"}>
                             <Label className={"font-bold"}>
-                                {data[lastCommitN].author}
+                                {repo.commit?.author}
                             </Label>
                             <Label className={"text-gray-400"}>
-                                {data[lastCommitN].message}
+                                {repo.commit?.message}
                             </Label>
                         </div>
 
                         <div className={"flex justify-center gap-2"}>
                             <Label className={"text-gray-400"}>
-                                {data[lastCommitN].hash}
+                                {repo.commit?.hash}
                             </Label>
                             <Label className={"text-gray-400"}>
-                                {new Date(data[lastCommitN].createdAt)?.toLocaleDateString("ru-RU")}
+                                {new Date(repo.commit?.createdAt)?.toLocaleDateString("ru-RU")}
                             </Label>
-                            <Link to={`/users/${currentUser.data.id}/repo/${repoId}/history`}>
+                            <Link
+                                to={`/users/${repo.owner?.id}/repo/${repo.repository?.id}/branch/${repo.branch?.id}/commits`}>
                                 <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
                                     <History/> История коммитов
                                 </Button>
                             </Link>
                         </div>
-
                     </th>
                 </tr>
                 </thead>
@@ -49,7 +49,11 @@ function RepoHeader({data}: { data: ApiCommitModel[] }) {
     )
 }
 
-function FileTable({data}: { data: ApiCommitModel[] }) {
+function FileTable({repo, fileContent}: {
+    repo: ApiRepositoryViewModel,
+    fileContent: ApiFileContentModel
+}) {
+    console.log(fileContent)
     const [selectedTab, setSelectedTab] = useState("code")
 
     const handleTabChange = (value) => {
@@ -59,7 +63,7 @@ function FileTable({data}: { data: ApiCommitModel[] }) {
 
     return (
         <div>
-            <RepoHeader data={data}/>
+            <RepoHeader repo={repo}/>
             <table
                 className="min-w-full table-fixed border-separate border-spacing-0 border rounded-2xl overflow-hidden border-gray-200">
                 <thead>
@@ -74,27 +78,30 @@ function FileTable({data}: { data: ApiCommitModel[] }) {
                                                  className="hover:bg-gray-200 transition-colors duration-200">AST</TabsTrigger>
                                 </TabsList>
                             </Tabs>
-
-                            15 строк &middot; 213 байт
+                            <span>{fileContent.lines} строк &middot; {fileContent.bytes} байт</span>
                         </div>
                     </th>
                 </tr>
                 </thead>
                 <tbody>
                 {selectedTab === "code" ? (
-
                     <tr>
                         <td colSpan={2} className="py-4 px-4">
                             <div className="bg-gray-100 p-4 rounded-md overflow-auto">
-                    <pre className="whitespace-pre-wrap">
-                        <code>
-                            {`1. function helloWorld() {\n`}
-                            {`2.     console.log("Hello, world!");\n`}
-                            {`3. }\n`}
-                            {`4. \n`}
-                            {`5. helloWorld();`}
-                        </code>
-                    </pre>
+                                <pre className="whitespace-pre-wrap">
+                                    <code>
+                                        <div className="grid grid-cols-[auto_1fr] gap-1">
+                                            {fileContent?.content?.split('\n').map((line, index) => (
+                                                <React.Fragment key={index}>
+                                                    <span className="text-gray-500 text-right pr-8 font-mono">
+                                                        {index + 1}
+                                                    </span>
+                                                    <span>{line}</span>
+                                                </React.Fragment>
+                                            ))}
+                                        </div>
+                                    </code>
+                                </pre>
                             </div>
                         </td>
                     </tr>
