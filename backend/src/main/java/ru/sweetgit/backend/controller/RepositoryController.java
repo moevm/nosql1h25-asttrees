@@ -10,6 +10,7 @@ import ru.sweetgit.backend.annotation.IsAuthenticated;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
 import ru.sweetgit.backend.dto.request.CreateRepositoryRequest;
+import ru.sweetgit.backend.dto.request.UpdateRepositoryRequest;
 import ru.sweetgit.backend.dto.response.FileAstDto;
 import ru.sweetgit.backend.dto.response.FileContentDto;
 import ru.sweetgit.backend.dto.response.RepositoryDto;
@@ -64,9 +65,18 @@ public class RepositoryController {
     @IsAuthenticated
     ResponseEntity<RepositoryDto> updateRepository(
             @PathVariable("repoId") String repoId,
-            @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser
+            @RequestBody UpdateRepositoryRequest request,
+            @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
-        throw ApiException.badRequest().message("unimplemented").build();
+        var repo = repositoryService.getById(repoId)
+                .orElseThrow(() -> ApiException.notFound("Репозиторий", "id", repoId).build());
+
+        if (!repo.getOwner().getId().equals(currentUser.getId())) {
+            throw ApiException.forbidden().build();
+        }
+
+        var result = repositoryService.updateRepository(repo, request);
+        return ResponseEntity.ok(repositoryMapper.toRepositoryDto(result));
     }
 
     @GetMapping("/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view")

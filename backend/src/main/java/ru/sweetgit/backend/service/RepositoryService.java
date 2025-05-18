@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
+import ru.sweetgit.backend.dto.request.UpdateRepositoryRequest;
 import ru.sweetgit.backend.model.*;
 import ru.sweetgit.backend.repo.*;
 
@@ -127,5 +128,19 @@ public class RepositoryService {
         if (!isRepositoryVisible(repository, currentUser)) {
             throw ApiException.forbidden().message("Нет прав для доступа к репозиторию %s".formatted(repository.getId())).build();
         }
+    }
+
+    // TODO проверка уникальности имени в рамках пользователя (?)
+    public RepositoryModel updateRepository(RepositoryModel repo, UpdateRepositoryRequest request) {
+        var builder = repo.toBuilder();
+
+        if (request.name() != null) {
+            builder = builder.name(request.name());
+        }
+        if (request.visibility() != null) {
+            builder = builder.visibility(RepositoryVisibilityModel.valueOf(request.visibility().name()));
+        }
+
+        return repositoryRepository.save(builder.build());
     }
 }

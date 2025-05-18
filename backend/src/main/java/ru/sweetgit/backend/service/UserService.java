@@ -4,9 +4,11 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
+import ru.sweetgit.backend.dto.request.UpdateCurrentUserRequest;
 import ru.sweetgit.backend.model.UserModel;
 import ru.sweetgit.backend.model.UserVisibilityModel;
 import ru.sweetgit.backend.repo.UserRepository;
@@ -19,6 +21,7 @@ import static ru.sweetgit.backend.service.UserDetailsServiceImpl.ROLE_ADMIN;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Optional<UserModel> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
@@ -65,5 +68,22 @@ public class UserService {
 
     public UserModel createUser(UserModel request) {
         return userRepository.save(request);
+    }
+
+    public UserModel updateUser(UserModel user, UpdateCurrentUserRequest request) {
+        var builder = user.toBuilder();
+
+        if (request.newPassword() != null) {
+            if (!passwordEncoder.matches(request.oldPassword(), user.getPasswordHash())) {
+                throw ApiException.badRequest().message("Неверный пароль").build();
+            }
+
+            builder = builder.passwordHash(passwordEncoder.encode(request.newPassword()));
+        }
+        if (request.visibility() != null) {
+            builder = builder.visibility(UserVisibilityModel.valueOf(request.visibility().name()));
+        }
+
+        return userRepository.save(builder.build());
     }
 }

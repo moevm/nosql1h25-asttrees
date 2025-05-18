@@ -13,6 +13,7 @@ import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
 import ru.sweetgit.backend.dto.request.AuthLoginRequest;
 import ru.sweetgit.backend.dto.request.AuthRegisterRequest;
+import ru.sweetgit.backend.dto.request.UpdateCurrentUserRequest;
 import ru.sweetgit.backend.dto.response.LoginResponseDto;
 import ru.sweetgit.backend.dto.response.UserDto;
 import ru.sweetgit.backend.mapper.UserMapper;
@@ -49,6 +50,21 @@ public class UserController {
         var user = userService.getUserById(currentUser.getId()).get();
 
         return ResponseEntity.ok(userMapper.toUserDto(user));
+    }
+
+    @PatchMapping("/users/me")
+    @IsAuthenticated
+    ResponseEntity<UserDto> updateRepository(
+            @RequestBody UpdateCurrentUserRequest request,
+            @AuthenticationPrincipal UserDetailsWithId currentUser
+    ) {
+        if ((request.newPassword() == null) != (request.oldPassword() == null)) {
+            throw ApiException.badRequest().message("Новый и старый пароль должны либо присутствовать вместе, либо отсутствовать вообще").build();
+        }
+
+        var user = userService.getUserById(currentUser.getId()).get();
+        var result = userService.updateUser(user, request);
+        return ResponseEntity.ok(userMapper.toUserDto(result));
     }
 
     @PostMapping("/auth/register")
