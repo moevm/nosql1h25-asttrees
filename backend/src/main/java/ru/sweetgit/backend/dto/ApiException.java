@@ -35,6 +35,12 @@ public class ApiException extends RuntimeException {
         }
     }
 
+    public static ApiException.ApiExceptionBuilder notFound() {
+        return new ApiException.ApiExceptionBuilder()
+                .status(HttpStatus.NOT_FOUND)
+                .message("Сущность не найдена");
+    }
+
     public static ApiException.ApiExceptionBuilder notFound(String entity, String field, String value) {
         return new ApiException.ApiExceptionBuilder()
                 .status(HttpStatus.NOT_FOUND)

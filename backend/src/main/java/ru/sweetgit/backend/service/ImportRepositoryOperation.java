@@ -234,6 +234,6 @@ public class ImportRepositoryOperation {
                 "default",
                 "latest",
                 null
-        );
+        ).get();
     }
 }

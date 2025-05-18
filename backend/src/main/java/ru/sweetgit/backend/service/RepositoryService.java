@@ -31,18 +31,18 @@ public class RepositoryService {
     }
 
 
-    public RepositoryViewModel viewRepository(
+    public Optional<RepositoryViewModel> viewRepository(
             String repositoryId,
             String branchId,
             String commitId,
             @Nullable String path
     ) {
-        return repositoryRepository.viewRepository(
+        return Optional.ofNullable(repositoryRepository.viewRepository(
                 repositoryId,
                 branchId.equals("default") ? null : branchId,
                 commitId.equals("latest") ? null : commitId,
                 path
-        );
+        ));
     }
 
     public FileContentModel viewFileContent(

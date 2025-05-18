@@ -97,7 +97,7 @@ public class RepositoryController {
                 branchId,
                 commitId,
                 path
-        );
+        ).orElseThrow(() -> ApiException.notFound().build());
 
         return ResponseEntity.ok(repositoryViewMapper.toRepositoryViewModel(res));
     }
