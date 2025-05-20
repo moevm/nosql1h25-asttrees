@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.diff.*;
 import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -67,14 +68,13 @@ public class GitService {
         try (var git = Git.cloneRepository()
                 .setURI(link.toString())
                 .setDirectory(repoDir.toFile())
-                .setCloneAllBranches(true)
                 .setNoTags()
                 .call();
              var repo = git.getRepository();
              var reader = repo.newObjectReader()
         ) {
             var commitIds = new HashSet<ObjectId>();
-            var branches = git.branchList().setListMode(null).call();
+            var branches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
 
             try (var revWalk = new RevWalk(repo)) {
                 for (var ref : branches) {
@@ -127,8 +127,7 @@ public class GitService {
             var headObjectId = (headRef != null && headRef.isSymbolic()) ? headRef.getLeaf().getObjectId() : null;
 
             for (var branchRef : branches) {
-                var fullBranchName = branchRef.getName();
-                var shortBranchName = Repository.shortenRefName(fullBranchName);
+                var shortBranchName = getActualBranchName(branchRef);
 
                 var branchModelBuilder = BranchModel.builder()
                         .name(shortBranchName)
@@ -172,6 +171,10 @@ public class GitService {
                 commitData,
                 relations
         );
+    }
+
+    private String getActualBranchName(Ref ref) {
+        return ref.getName().substring(ref.getName().lastIndexOf("/") + 1);
     }
 
     private static class RepoFileStats {
