@@ -6,12 +6,12 @@ import {
     BreadcrumbSeparator
 } from "@/components/ui/breadcrumb.tsx";
 import {Package, Settings, UserIcon} from "lucide-react";
-import {useAtomValue} from "jotai/react";
+import {useAtomValue, useSetAtom} from "jotai/react";
 import {
     $currentUser,
     $currentUserRepos,
     $repoId,
-    $currentRepo, type ApiRepositoryViewModel,
+    $currentRepo, type ApiRepositoryViewModel, showRepoSettingsDialogAtom,
 } from "@/store/store.ts";
 import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 import {Label} from "@/components/ui/label.tsx";
@@ -25,6 +25,8 @@ function RepoViewPage() {
     const repoId = useAtomValue($repoId)!
     const currentUser = useAtomValue($currentUser)!
     const currentUserRepos = useAtomValue($currentUserRepos)!
+    const showRepoSettingsDialog = useAtomValue(showRepoSettingsDialogAtom);
+    const setShowRepoSettingsDialog = useSetAtom(showRepoSettingsDialogAtom);
 
     const currentRepo = useAtomValue($currentRepo)!
 
@@ -56,7 +58,7 @@ function RepoViewPage() {
                         </Breadcrumb>
 
                         <div>
-                            <Dialog>
+                            <Dialog open={showRepoSettingsDialog} onOpenChange={setShowRepoSettingsDialog}>
                                 <DialogTrigger asChild>
                                     <Button>
                                         <Settings/> Настройки

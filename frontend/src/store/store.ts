@@ -1,7 +1,8 @@
-import {atom, createStore} from "jotai";
+import {atom, createStore, useAtom} from "jotai";
 import type {components} from "@/schema.ts";
 import {$api, $authToken, loadableQuery} from "@/api";
 import {atomWithQuery} from "jotai-tanstack-query";
+import {useAtomValue, useSetAtom} from "jotai/react";
 
 export const store = createStore()
 
@@ -169,3 +170,5 @@ export const $fileAstQuery = atomWithQuery((get) => {
 })
 
 export const $fileAst = loadableQuery($fileAstQuery)
+
+export const showRepoSettingsDialogAtom = atom(false);

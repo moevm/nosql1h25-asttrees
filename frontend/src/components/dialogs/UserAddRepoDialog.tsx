@@ -26,7 +26,7 @@ import {
 import {Label} from "@/components/ui/label.tsx";
 import {useState} from "react";
 import {useRegisterMutation} from "@/api/auth.ts";
-import {useAddRepoMutation} from "@/components/dialogs/reposQuaries.ts";
+import {useAddRepoMutation} from "@/components/dialogs/reposQueries.ts";
 
 const formSchema = z.object({
     url: z.string().min(3, "Минимум 3 символа"),
