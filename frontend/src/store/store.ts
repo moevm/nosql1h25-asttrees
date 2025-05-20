@@ -2,7 +2,6 @@ import {atom, createStore} from "jotai";
 import type {components} from "@/schema.ts";
 import {$api, $authToken, loadableQuery} from "@/api";
 import {atomWithQuery} from "jotai-tanstack-query";
-import {useAtomValue, useSetAtom} from "jotai/react";
 
 export const store = createStore()
 
@@ -28,6 +27,7 @@ export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
 export const $branchId = atom<string | null>(null)
 export const $commitId = atom<string | null>(null)
+export const $path = atom("")
 
 export const $currentUserQueryOptions = (enabled: boolean) => $api.queryOptions(
     'get',
@@ -64,7 +64,7 @@ export const $currentUserReposQuery = atomWithQuery((get) => {
 
 export const $currentUserRepos = loadableQuery($currentUserReposQuery)
 
-export const $currentRepoView = (enabled: boolean, repoId: string, branchId: string, commitId: string) => $api.queryOptions(
+export const $currentRepoView = (enabled: boolean, repoId: string, branchId: string, commitId: string, path: string) => $api.queryOptions(
     'get',
     '/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view',
     {
@@ -75,7 +75,7 @@ export const $currentRepoView = (enabled: boolean, repoId: string, branchId: str
                 commitId: commitId
             },
             query: {
-                path: ''
+                path: path
             }
         },
     },
@@ -84,10 +84,13 @@ export const $currentRepoView = (enabled: boolean, repoId: string, branchId: str
 
 export const $currentRepoViewQuery = atomWithQuery((get) => {
     const repoId = get($repoId)
-    const enabled = repoId !== null
     const branchId = get($branchId) ?? "default"
     const commitId = get($commitId) ?? "latest"
-    return $currentRepoView(enabled, repoId ?? '', branchId, commitId)
+    const enabled = repoId !== null
+        && branchId !== null
+        && commitId !== null
+    const path = get($path)
+    return $currentRepoView(enabled, repoId ?? '', branchId, commitId, path)
 })
 
 export const $currentRepo = loadableQuery($currentRepoViewQuery)

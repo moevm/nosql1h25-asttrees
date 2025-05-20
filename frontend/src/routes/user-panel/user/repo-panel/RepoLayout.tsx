@@ -1,11 +1,12 @@
-import {Outlet, useParams} from "react-router-dom";
+import {Outlet, useParams, useSearchParams} from "react-router-dom";
 import {useSetAtom} from "jotai/react";
 import {useEffect} from "react";
-import {$branchId, $commitId, $repoId} from "@/store/store.ts";
+import {$branchId, $commitId, $path, $repoId} from "@/store/store.ts";
 
 function RepoLayout() {
     const repoId = useParams()['repoId']
     const setRepoId = useSetAtom($repoId)
+    const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
         setRepoId(repoId!)
@@ -24,6 +25,14 @@ function RepoLayout() {
     useEffect(() => {
         setCommitId(commitId!)
     }, [setCommitId, commitId]);
+
+    const path = searchParams.get('path') ?? ''
+    const setPath = useSetAtom($path)
+
+    useEffect(() => {
+        console.info('useEffect', path)
+        setPath(path)
+    }, [setPath, path]);
 
     return (
         <Outlet/>

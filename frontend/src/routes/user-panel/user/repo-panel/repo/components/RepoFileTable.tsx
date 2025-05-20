@@ -1,9 +1,10 @@
 import {Label} from "@/components/ui/label.tsx";
 import {File, Folder, History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
-import {Link, useLocation} from "react-router-dom";
-import type {ApiRepositoryViewModel} from "@/store/store.ts";
-import {loaded} from "@/api";
+import {Link, useNavigate} from "react-router-dom";
+import {$path, type ApiRepositoryViewModel} from "@/store/store.ts";
+import {useAtomValue} from "jotai/react";
+import {useCallback} from "react";
 
 const getCommitLabel = (count) => {
     if (count % 10 === 1 && count % 100 !== 11) {
@@ -16,9 +17,21 @@ const getCommitLabel = (count) => {
 };
 
 function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
-    const location = useLocation();
-    console.log(data)
-    //TODO add styles and info from back in header
+    const navigate = useNavigate()
+    const path = useAtomValue($path)
+
+    const handleDirectory = useCallback((name: string) => {
+        navigate(`?path=${(path === '' ? '' : (path + '/')) + name}`)
+    }, [path])
+
+    const handleReturn = useCallback(() => {
+        if (path) {
+            const lastSlashIndex = path.lastIndexOf('/');
+            const newPath = lastSlashIndex !== -1 ? path.substring(0, lastSlashIndex) : '';
+            navigate(`?path=${newPath}`)
+        }
+    }, [path])
+
     return (
         <div>
             <table
@@ -53,6 +66,14 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                 </tr>
                 </thead>
                 <tbody>
+                {path !== '' && (
+                    <tr className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
+                        <td className="py-2 px-4 border-b border-gray-200 flex items-center gap-2" onClick={handleReturn}>
+                            <Folder />
+                            ..
+                        </td>
+                    </tr>
+                )}
                 {data.files?.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
                         <td className="py-2 px-4 border-b border-gray-200 flex items-center gap-2">
@@ -63,11 +84,10 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                                     {item.name}
                                 </a>
                             ) : (
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2" onClick={() => handleDirectory(item.name)}>
                                     <Folder/>
                                     {item.name}
                                 </div>
-
                             )}
                         </td>
                     </tr>

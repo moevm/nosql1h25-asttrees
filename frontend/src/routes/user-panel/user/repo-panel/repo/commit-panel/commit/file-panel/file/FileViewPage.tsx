@@ -12,10 +12,8 @@ import {$currentRepo, $fileAst, $fileContent} from "@/store/store.ts";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import FileTable
     from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/components/FileTable.tsx";
-import {loaded} from "@/api";
 
 function FileViewPage() {
-
     const currentRepo = useAtomValue($currentRepo)!
     const fileContent = useAtomValue($fileContent)!
     const fileAst = useAtomValue($fileAst)!
