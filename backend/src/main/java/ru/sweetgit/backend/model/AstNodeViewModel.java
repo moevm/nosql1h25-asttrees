@@ -10,6 +10,7 @@ import lombok.experimental.NonFinal;
 @Builder(toBuilder = true)
 @NonFinal
 public class AstNodeViewModel {
+    String id;
     AstNodeModel node;
     String parentId;
 }
