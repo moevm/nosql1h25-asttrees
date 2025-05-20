@@ -30,3 +30,4 @@ services:
       - ./store:/data/store
     depends_on:
       - db
+  # TODO: frontend
