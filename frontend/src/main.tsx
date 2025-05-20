@@ -1,5 +1,6 @@
 import {createRoot} from 'react-dom/client'
 import './index.css'
+import 'highlight.js/styles/intellij-light.css'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import AuthorisationPage from "@/routes/reg-auth-page/AuthorisationPage.tsx";
 import AdminPanelLayout from "@/routes/admin-panel/AdminPanelLayout.tsx";

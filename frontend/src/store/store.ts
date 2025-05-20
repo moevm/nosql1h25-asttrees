@@ -108,12 +108,16 @@ export const $fileContentView = (enabled: boolean, repoId: string, branchId: str
 
 export const $fileContentQuery = atomWithQuery((get) => {
     const currentUser = get($currentUser)
-    const enabled = currentUser.state === 'hasData'
     const repoId = get($repoId)!
-    const branchId = get($branchId) ? get($branchId)! : "default"
-    const commitId = get($commitId) ? get($commitId)! : "latest"
+    const branchId = get($branchId)
+    const commitId = get($commitId)
     const fileId = get($fileId)!
-    return $fileContentView(enabled, repoId, branchId, commitId, fileId)
+    const enabled = currentUser.state === 'hasData'
+        && repoId !== null
+        && branchId !== null
+        && commitId !== null
+        && fileId !== null
+    return $fileContentView(enabled, repoId, branchId!, commitId!, fileId)
 })
 
 export const $fileContent = loadableQuery($fileContentQuery)
@@ -134,10 +138,12 @@ export const $branchCommitsView = (enabled: boolean, repoId: string, branchId: s
 
 export const $branchCommitsQuery = atomWithQuery((get) => {
     const currentUser = get($currentUser)
-    const enabled = currentUser.state === 'hasData'
-    const repoId = get($repoId)!
+    const repoId = get($repoId)
     const branchId = get($branchId) ? get($branchId)! : "default"
-    return $branchCommitsView(enabled, repoId, branchId)
+    const enabled = currentUser.state === 'hasData'
+        && repoId !== null
+        && branchId !== null
+    return $branchCommitsView(enabled, repoId!, branchId)
 })
 
 export const $branchCommits = loadableQuery($branchCommitsQuery)
@@ -160,12 +166,12 @@ export const $fileAstView = (enabled: boolean, repoId: string, branchId: string,
 
 export const $fileAstQuery = atomWithQuery((get) => {
     const currentUser = get($currentUser)
+    const fileContent = get($fileContent)
+
     const enabled = currentUser.state === 'hasData'
-    const repoId = get($repoId)!
-    const branchId = get($branchId) ? get($branchId)! : "default"
-    const commitId = get($commitId) ? get($commitId)! : "latest"
-    const fileId = get($fileId)!
-    return $fileAstView(enabled, repoId, branchId, commitId, fileId)
+        && fileContent.state === 'hasData'
+        && fileContent.hasAst === true
+    return $fileAstView(enabled, get($repoId)!, get($branchId)!, get($commitId)!, get($fileId)!)
 })
 
 export const $fileAst = loadableQuery($fileAstQuery)

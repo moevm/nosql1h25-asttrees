@@ -18,10 +18,11 @@ function FileViewPage() {
 
     const currentRepo = useAtomValue($currentRepo)!
     const fileContent = useAtomValue($fileContent)!
-    // const fileAst = useAtomValue($fileAst)!
+    const fileAst = useAtomValue($fileAst)!
+    console.log(fileAst)
 
     return (
-        <BatchLoader states={[currentRepo, fileContent]} loadingMessage={"Загрузка репозитория"} display={
+        <BatchLoader states={[currentRepo, fileContent, fileAst]} loadingMessage={"Загрузка репозитория"} display={
             () =>
                 <div className="p-10 flex flex-col gap-2">
                     <div className={"flex justify-between"}>
@@ -58,6 +59,7 @@ function FileViewPage() {
                     </div>
 
                     <FileTable repo={loaded(currentRepo).data!} fileContent={loaded(fileContent).data!}/>
+                    {fileAst}
                 </div>
         }></BatchLoader>
     )

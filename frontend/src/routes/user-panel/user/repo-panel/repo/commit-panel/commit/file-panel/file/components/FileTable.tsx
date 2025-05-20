@@ -1,4 +1,5 @@
 import {
+    $fileAst,
     type ApiFileContentModel,
     type ApiRepositoryViewModel
 } from "@/store/store.ts";
@@ -6,9 +7,12 @@ import {Label} from "@/components/ui/label.tsx";
 import {History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {Link} from "react-router-dom";
 import React from "react";
+import hljs from 'highlight.js';
+import {useAtomValue} from "jotai/react";
+
 
 function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     return (
@@ -53,13 +57,22 @@ function FileTable({repo, fileContent}: {
     repo: ApiRepositoryViewModel,
     fileContent: ApiFileContentModel
 }) {
-    console.log(fileContent)
     const [selectedTab, setSelectedTab] = useState("code")
+    const highlightedCode = useMemo(() => {
+        if (!fileContent.isBinary && fileContent.commitFile!.type !== 'DIRECTORY') {
+            return hljs.highlightAuto(
+                fileContent.content!
+            ).value
+        }
+        return null
+    }, [fileContent])
 
-    const handleTabChange = (value) => {
-        setSelectedTab(value);
-    };
-
+    const astTree = useMemo(() => {
+        if (fileContent.hasAst) {
+            return useAtomValue($fileAst)!
+        }
+        return null
+    }, [fileContent])
 
     return (
         <div>
@@ -70,7 +83,7 @@ function FileTable({repo, fileContent}: {
                 <tr className="bg-[#F1F5F9]">
                     <th className="flex justify-between text-left py-2 px-4 gap-2 items-center">
                         <div className={"flex justify-center gap-2 items-center"}>
-                            <Tabs defaultValue={selectedTab} onValueChange={handleTabChange} className="w-[300px]">
+                            <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-[300px]">
                                 <TabsList className="grid w-full grid-cols-2">
                                     <TabsTrigger value="code"
                                                  className="hover:bg-gray-200 transition-colors duration-200">Код</TabsTrigger>
@@ -91,12 +104,12 @@ function FileTable({repo, fileContent}: {
                                 <pre className="whitespace-pre-wrap">
                                     <code>
                                         <div className="grid grid-cols-[auto_1fr] gap-1">
-                                            {fileContent?.content?.split('\n').map((line, index) => (
+                                            {highlightedCode && highlightedCode.split('\n').map((line, index) => (
                                                 <React.Fragment key={index}>
                                                     <span className="text-gray-500 text-right pr-8 font-mono">
                                                         {index + 1}
                                                     </span>
-                                                    <span>{line}</span>
+                                                    <span dangerouslySetInnerHTML={{__html: line}} />
                                                 </React.Fragment>
                                             ))}
                                         </div>
