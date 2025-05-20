@@ -12,10 +12,11 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import {Input} from "@/components/ui/input.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import * as z from "zod";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import type {ApiRepositoryModel, ApiRepositoryViewModel} from "@/store/store.ts";
+import {useChangeRepoMutation} from "@/components/dialogs/reposQueries.ts";
 
 
 const formSchema = z.object({
@@ -25,19 +26,40 @@ const formSchema = z.object({
 
 function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
 
-    const [visibility, setVisibility] = useState<string>(repo.repository?.visibility);
+    const [visibility, setVisibility] = useState<string>("public")
+    console.log(repo)
+
+    useEffect(() => {
+        setVisibility(repo.visibility);
+        console.log(repo.visibility)
+    }, [repo]);
+
+
+    const {
+        mutate,
+        isPending
+    } = useChangeRepoMutation(repo.id);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            url: repo.repository?.originalLink,
-            name: repo.repository?.name
+            url: repo.originalLink,
+            name: repo.name
         },
     });
 
     function onSubmit(values: z.infer<typeof formSchema>) {
 
         console.log(values, visibility)
+
+        mutate({
+            body: {
+                name: values.name,
+                visibility: visibility.toUpperCase()
+            }
+        });
+
+        form.reset();
     }
 
     return (
@@ -55,7 +77,7 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
                             <FormItem>
                                 <FormLabel>URL</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Введите URL репозитория" {...field} />
+                                    <Input readOnly={true} className={"bg-muted"} placeholder="Введите URL репозитория" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -136,7 +158,7 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
                     </div>
 
                     <DialogFooter className={"flex w-full justify-between"}>
-                        <Button type="submit">Импортировать</Button>
+                        <Button type="submit">Изменить</Button>
                         <div className={"ml-auto"}>
                             <DialogClose asChild >
                                 <Button variant="outline" type={"button"}>Отмена</Button>
