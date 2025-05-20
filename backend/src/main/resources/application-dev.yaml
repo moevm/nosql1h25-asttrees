@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: backend
+
+logging:
+  level:
+    com.arangodb.internal.net.Communication: DEBUG
+
+arangodb:
+  spring:
+    data:
+      database: sweetgit-db
+      user: root
+      password: ''
+      hosts: localhost:8529
+
+springdoc:
+  api-docs:
+    path: /openapi.json
+  swagger-ui:
+    path: /docs
+
+jwt:
+  secret: dev-secret
+  expiration-ms: 86400000
+
+app:
+  file-storage:
+    path: /Users/swee/dev/etu/nosql1h25-asttrees/store
+  backup:
+    executable:
+      dump: /Users/swee/arangodb3-client-macos-3.11.13_arm64/bin/arangodump
+      restore: /Users/swee/arangodb3-client-macos-3.11.13_arm64/bin/arangorestore

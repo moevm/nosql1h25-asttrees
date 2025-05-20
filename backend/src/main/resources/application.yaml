@@ -9,10 +9,10 @@ logging:
 arangodb:
   spring:
     data:
-      database: sweetgit-db
-      user: root
-      password: ''
-      hosts: localhost:8529
+      database: ${ARANGO_DB:sweetgit-db}
+      user: ${ARANGO_USER:root}
+      password: ${ARANGO_PASSWORD:}
+      hosts: ${ARANGO_HOST:localhost:8529}
 
 springdoc:
   api-docs:
@@ -21,13 +21,13 @@ springdoc:
     path: /docs
 
 jwt:
-  secret: saaI9zMtell9xbas423Tm0AirflZjD5NDbSKut3O2RSKT3WX+B42/Rr+YGb8S4uXRf7wp8HWNMcy5TsLR+yV/mGqpaVP/mt0N/jShm4323Y= # todo change on prod
-  expiration-ms: 86400000
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
 
 app:
   file-storage:
-    path: /Users/swee/dev/etu/nosql1h25-asttrees/store
+    path: ${FILE_STORAGE_PATH:/app/store}
   backup:
     executable:
-      dump: /Users/swee/arangodb3-client-macos-3.11.13_arm64/bin/arangodump
-      restore: /Users/swee/arangodb3-client-macos-3.11.13_arm64/bin/arangorestore
+      dump: ${ARANGO_DUMP:/usr/bin/arangodump}
+      restore: ${ARANGO_RESTORE:/usr/bin/arangorestore}
