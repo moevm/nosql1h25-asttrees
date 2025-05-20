@@ -12,13 +12,11 @@ import {$currentRepo, $fileAst, $fileContent} from "@/store/store.ts";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import FileTable
     from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/components/FileTable.tsx";
-import {loaded} from "@/api";
 
 function FileViewPage() {
-
     const currentRepo = useAtomValue($currentRepo)!
     const fileContent = useAtomValue($fileContent)!
-    // const fileAst = useAtomValue($fileAst)!
+    const fileAst = useAtomValue($fileAst)!
 
     return (
         <BatchLoader states={[currentRepo, fileContent]} loadingMessage={"Загрузка репозитория"} display={
@@ -37,7 +35,8 @@ function FileViewPage() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator/>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
+                                    <BreadcrumbLink
+                                        href={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
                                         <div className="flex items-center justify-between gap-1">
                                             <Package/>
                                             <Label>{currentRepo.data.repository.name}</Label>
@@ -57,7 +56,11 @@ function FileViewPage() {
                         </Breadcrumb>
                     </div>
 
-                    <FileTable repo={loaded(currentRepo).data!} fileContent={loaded(fileContent).data!}/>
+                    <FileTable
+                        repo={currentRepo}
+                        fileContent={fileContent}
+                        fileAst={fileAst}
+                    />
                 </div>
         }></BatchLoader>
     )
