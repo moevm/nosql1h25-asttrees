@@ -20,49 +20,45 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
 
 
     return (
-        <div
-            className="transition-transform hover:scale-102 hover:cursor-pointer"
+        <Card
+            className="cursor-pointer"
             onClick={(e) => {
-
                 if (showRepoSettingsDialog) {
                     return;
                 }
                 nav(`repo/${repo.id}/branch/default/commit/latest`);
             }}
         >
-            <Card>
-                <CardContent>
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <CardTitle>
-                                <div className="flex items-center justify-between gap-2">
-                                    <Label>{repo.name}</Label>
-                                    <Badge>{repo.visibility}</Badge>
-                                </div>
-                            </CardTitle>
-                            <CardDescription>{repo.createdAt}</CardDescription>
-                        </div>
-
-                        <div>
-                            <Dialog open={showRepoSettingsDialog} onOpenChange={setShowRepoSettingsDialog}>
-                                <DialogTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                        className="hover:cursor-pointer"
-                                    >
-                                        Редактировать
-                                    </Button>
-                                </DialogTrigger>
-                                <UserRepoSettingsDialog repo={repo}/>
-                            </Dialog>
-                        </div>
+            <CardContent>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>
+                            <div className="flex items-center justify-between gap-2">
+                                <Label>{repo.name}</Label>
+                                <Badge>{repo.visibility}</Badge>
+                            </div>
+                        </CardTitle>
+                        <CardDescription>{repo.createdAt}</CardDescription>
                     </div>
-                </CardContent>
-            </Card>
-        </div>
+                    <div>
+                        <Dialog open={showRepoSettingsDialog} onOpenChange={setShowRepoSettingsDialog}>
+                            <DialogTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                    }}
+                                    className="hover:cursor-pointer"
+                                >
+                                    Редактировать
+                                </Button>
+                            </DialogTrigger>
+                            <UserRepoSettingsDialog repo={repo}/>
+                        </Dialog>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
 

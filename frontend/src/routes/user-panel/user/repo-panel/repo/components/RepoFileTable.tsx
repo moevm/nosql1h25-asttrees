@@ -22,7 +22,7 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
 
     const handleDirectory = useCallback((name: string) => {
         navigate(`?path=${(path === '' ? '' : (path + '/')) + name}`)
-    }, [path])
+    }, [navigate, path])
 
     const handleReturn = useCallback(() => {
         if (path) {
@@ -30,33 +30,33 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
             const newPath = lastSlashIndex !== -1 ? path.substring(0, lastSlashIndex) : '';
             navigate(`?path=${newPath}`)
         }
-    }, [path])
+    }, [navigate, path])
 
     return (
         <div>
             <table
-                className="min-w-full table-fixed border-separate border-spacing-0 border rounded-2xl overflow-hidden border-gray-200">
+                className="min-w-full table-fixed border-separate border-spacing-0 border rounded-sm overflow-hidden">
                 <thead>
-                <tr className="bg-[#F1F5F9]">
+                <tr className="bg-slate-100">
                     <th className="flex justify-between text-left py-2 px-4 gap-2">
                         <div className={"flex justify-center gap-2"}>
                             <Label className={"font-bold"}>
                                 {data.commit?.author}
                             </Label>
-                            <Label className={"text-gray-400"}>
+                            <Label className={"text-primary/60"}>
                                 {data.commit?.message}
                             </Label>
                         </div>
 
                         <div className={"flex justify-center gap-2"}>
-                            <Label className={"text-gray-400"}>
+                            <Label className={"text-primary/60"}>
                                 {data.commit?.hash}
                             </Label>
-                            <Label className={"text-gray-400"}>
+                            <Label className={"text-primary/60"}>
                                 {new Date(data.commit?.createdAt)?.toLocaleDateString("ru-RU")}
                             </Label>
                             <Link to={`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commits`}>
-                                <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
+                                <Button variant="ghost">
                                     <History/> {getCommitLabel(data.commitCount)}
                                 </Button>
                             </Link>
@@ -65,27 +65,31 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                     </th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-background">
                 {path !== '' && (
-                    <tr className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
-                        <td className="py-2 px-4 border-b border-gray-200 flex items-center gap-2" onClick={handleReturn}>
+                    <tr className="hover:bg-accent/50 cursor-pointer" onClick={handleReturn}>
+                        <td className="py-2 px-4 border-t border-gray-200 flex items-center gap-2">
                             <Folder />
                             ..
                         </td>
                     </tr>
                 )}
                 {data.files?.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
-                        <td className="py-2 px-4 border-b border-gray-200 flex items-center gap-2">
+                    <tr
+                        key={item.id}
+                        className="hover:bg-accent/50 cursor-pointer"
+                        onClick={e => item.type === 'FILE' ? navigate(`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commit/${data.commit?.id}/file/${item.id}`) : handleDirectory(item.name)}
+                    >
+                        <td className="py-2 px-4 border-t flex items-center gap-2">
                             {item.type === "FILE" ? (
-                                <a href={`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commit/${data.commit?.id}/file/${item.id}`}
+                                <div
                                    className="flex items-center gap-2">
-                                    <File/>
+                                    <File size={20}/>
                                     {item.name}
-                                </a>
+                                </div>
                             ) : (
-                                <div className="flex items-center gap-2" onClick={() => handleDirectory(item.name)}>
-                                    <Folder/>
+                                <div className="flex items-center gap-2">
+                                    <Folder size={20}/>
                                     {item.name}
                                 </div>
                             )}

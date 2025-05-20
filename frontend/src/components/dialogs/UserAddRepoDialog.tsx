@@ -75,7 +75,7 @@ function UserAddRepoDialog() {
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
                             control={form.control}
                             name="url"
@@ -105,11 +105,11 @@ function UserAddRepoDialog() {
 
                         <div className="flex flex-col gap-2 items-start">
                             <Label className="font-bold">Публичность</Label>
-                            <Label className="text-gray-400">Кто может просматривать этот репозиторий</Label>
+                            <Label className="text-primary/60">Кто может просматривать этот репозиторий</Label>
 
                             <Button
                                 type={"button"}
-                                variant={`${visibility === "public" ? "" : "ghost"}`}
+                                variant={`${visibility === "public" ? "secondary" : "ghost"}`}
                                 className="flex gap-2 justify-start text-left p-6 w-full"
                                 onClick={() => {
                                     setVisibility("public");
@@ -120,8 +120,7 @@ function UserAddRepoDialog() {
                                     <Eye className=""/>
                                     <div className="flex flex-col gap-1">
                                         <Label className="font-bold">Публичный</Label>
-                                        <Label className="text-gray-400">Любой человек может просматревать ваши
-                                            репозитории</Label>
+                                        <Label className="text-primary/60">Любой человек</Label>
                                     </div>
                                 </div>
 
@@ -129,7 +128,7 @@ function UserAddRepoDialog() {
 
                             <Button
                                 type={"button"}
-                                variant={`${visibility === "protected" ? "" : "ghost"}`}
+                                variant={`${visibility === "protected" ? "secondary" : "ghost"}`}
                                 className={`flex gap-2 justify-start text-left p-6 w-full`}
                                 onClick={() => {
                                     setVisibility("protected");
@@ -140,7 +139,7 @@ function UserAddRepoDialog() {
                                     <Shield className="mt-1"/>
                                     <div className="flex flex-col gap-1">
                                         <Label className="font-bold">Защищенный</Label>
-                                        <Label className="text-gray-400">Авторизованные пользователи</Label>
+                                        <Label className="text-primary/60">Авторизованные пользователи</Label>
                                     </div>
                                 </div>
 
@@ -148,7 +147,7 @@ function UserAddRepoDialog() {
 
                             <Button
                                 type={"button"}
-                                variant={`${visibility === "private" ? "" : "ghost"}`}
+                                variant={`${visibility === "private" ? "secondary" : "ghost"}`}
                                 className={`flex gap-2 justify-start text-left p-6 w-full`}
                                 onClick={() => {
                                     setVisibility("private");
@@ -159,7 +158,7 @@ function UserAddRepoDialog() {
                                     <EyeOff className="mt-1"/>
                                     <div className="flex flex-col gap-1">
                                         <Label className="font-bold">Приватный</Label>
-                                        <Label className="text-gray-400">Только я</Label>
+                                        <Label className="text-primary/60">Только я</Label>
                                     </div>
                                 </div>
 

@@ -29,16 +29,16 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
                             <Label className={"font-bold"}>
                                 {repo.commit?.author}
                             </Label>
-                            <Label className={"text-gray-400"}>
+                            <Label className={"text-primary/60"}>
                                 {repo.commit?.message}
                             </Label>
                         </div>
 
                         <div className={"flex justify-center gap-2"}>
-                            <Label className={"text-gray-400"}>
+                            <Label className={"text-primary/60"}>
                                 {repo.commit?.hash}
                             </Label>
-                            <Label className={"text-gray-400"}>
+                            <Label className={"text-primary/60"}>
                                 {new Date(repo.commit?.createdAt)?.toLocaleDateString("ru-RU")}
                             </Label>
                             <Link
