@@ -35,7 +35,8 @@ function FileViewPage() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator/>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
+                                    <BreadcrumbLink
+                                        href={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
                                         <div className="flex items-center justify-between gap-1">
                                             <Package/>
                                             <Label>{currentRepo.data.repository.name}</Label>

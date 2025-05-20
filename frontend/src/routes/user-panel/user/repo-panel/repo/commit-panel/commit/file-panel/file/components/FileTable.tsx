@@ -4,7 +4,7 @@ import {
     type ApiRepositoryViewModel
 } from "@/store/store.ts";
 import {Label} from "@/components/ui/label.tsx";
-import {History} from "lucide-react";
+import {ChevronDown, ChevronUp, History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
 import {useMemo, useState} from "react";
@@ -57,11 +57,25 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
 }
 
 function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
-    const {id,data} = node
-    const {label,type}=data
+    console.info({
+        node
+    })
+    const {id, data} = node
+    const {label, type} = data
     return (
-        <div style={style} ref={dragHandle} onClick={() => node.toggle()}>
-            {label} {type}
+        <div
+            style={style}
+            ref={dragHandle}
+            onClick={() => node.toggle()}
+            className={"font-mono hover:bg-secondary rounded-md cursor-pointer flex items-center gap-2 text-sm"}
+        >
+            <span style={{width: 16, height: 16}}>
+                 {node.children?.length !== 0 && (
+                     node.isOpen ? <ChevronDown size={16}/> : <ChevronUp size={16}/>
+                 )}
+            </span>
+            <span className={"rounded-full bg-slate-800 text-background px-2 py-0.5"}>{type}</span>
+            <span>{label}</span>
         </div>
     );
 }
@@ -115,14 +129,14 @@ function FileTableContent({repo, fileContent, fileAst}: {
                 <tbody>
                 {selectedTab === "code" ? (
                     <tr>
-                        <td colSpan={2} className="py-4 px-4">
-                            <div className="bg-gray-100 p-4 rounded-md overflow-auto">
-                                <pre className="whitespace-pre-wrap">
+                        <td colSpan={2}>
+                            <div className="p-4 overflow-auto">
+                                <pre className="whitespace-pre-wrap text-sm">
                                     <code>
                                         <div className="grid grid-cols-[auto_1fr] gap-1">
                                             {highlightedCode && highlightedCode.split('\n').map((line, index) => (
                                                 <React.Fragment key={index}>
-                                                    <span className="text-gray-500 text-right pr-8 font-mono">
+                                                    <span className="text-gray-500 text-right pr-4 font-mono select-none">
                                                         {index + 1}
                                                     </span>
                                                     <span dangerouslySetInnerHTML={{__html: line}}/>
@@ -137,26 +151,23 @@ function FileTableContent({repo, fileContent, fileAst}: {
                 ) : (
                     <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'} display={() => (
                         <tr>
-                            <td colSpan={2} className="py-4 px-4">
-                                <div className="bg-gray-100 p-4 rounded-md overflow-auto">
-                                <pre className="whitespace-pre-wrap">
-                                    <code>
-                                        <div className="grid grid-cols-[auto_1fr] gap-1">
-                                            <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'}
-                                                         display={() => (
-                                                             <div>
-                                                                 <Tree
-                                                                     initialData={loaded(fileAst).data.astTree.nodes}
-                                                                     // width={"100%"}
-                                                                 >
-                                                                     {AstNode}
-                                                                 </Tree>
-                                                             </div>
-                                                         )}/>
-                                        </div>
-                                    </code>
-                                </pre>
-                                </div>
+                            <td colSpan={2} className="py-4 px-4 font-mono">
+                                <BatchLoader
+                                    states={[fileAst]}
+                                    loadingMessage={'Загрузка AST-дерева'}
+                                    display={() => (
+                                        <Tree
+                                            rowHeight={26}
+                                            disableDrag={true}
+                                            disableEdit={true}
+                                            disableDrop={true}
+                                            width={'auto'}
+                                            initialData={loaded(fileAst).data.astTree.nodes}
+                                        >
+                                            {AstNode}
+                                        </Tree>
+                                    )}
+                                />
                             </td>
                         </tr>
                     )}/>
