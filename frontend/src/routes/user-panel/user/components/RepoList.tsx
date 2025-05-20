@@ -47,7 +47,6 @@ function RepoList({data}: { data: ApiRepositoryModel[] }) {
         return totalPages
     });
 
-
     return (
         <div className="flex flex-col gap-2">
             <div className={"flex justify-between gap-1"}>
