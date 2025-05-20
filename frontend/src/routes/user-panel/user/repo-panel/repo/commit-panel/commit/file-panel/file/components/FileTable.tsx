@@ -1,5 +1,5 @@
 import {
-    $fileAst,
+    $fileAst, type ApiFileAstModel,
     type ApiFileContentModel,
     type ApiRepositoryViewModel
 } from "@/store/store.ts";
@@ -12,6 +12,9 @@ import {Link} from "react-router-dom";
 import React from "react";
 import hljs from 'highlight.js';
 import {useAtomValue} from "jotai/react";
+import {type Loadable} from "jotai/utils";
+import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
+import {loaded} from "@/api";
 
 
 function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
@@ -53,13 +56,14 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     )
 }
 
-function FileTable({repo, fileContent}: {
+function FileTableContent({repo, fileContent, fileAst}: {
     repo: ApiRepositoryViewModel,
-    fileContent: ApiFileContentModel
+    fileContent: ApiFileContentModel,
+    fileAst: Loadable<ApiFileAstModel>
 }) {
     const [selectedTab, setSelectedTab] = useState("code")
     const highlightedCode = useMemo(() => {
-        if (!fileContent.isBinary && fileContent.commitFile!.type !== 'DIRECTORY') {
+        if (!fileContent.isBinary) {
             return hljs.highlightAuto(
                 fileContent.content!
             ).value
@@ -67,30 +71,25 @@ function FileTable({repo, fileContent}: {
         return null
     }, [fileContent])
 
-    const astTree = useMemo(() => {
-        if (fileContent.hasAst) {
-            return useAtomValue($fileAst)!
-        }
-        return null
-    }, [fileContent])
-
     return (
         <div>
             <RepoHeader repo={repo}/>
+            {/*TODO избавиться от табличной верстки*/}
             <table
                 className="min-w-full table-fixed border-separate border-spacing-0 border rounded-2xl overflow-hidden border-gray-200">
                 <thead>
+                {/*TODO вынести цвет в tailwind переменную*/}
                 <tr className="bg-[#F1F5F9]">
                     <th className="flex justify-between text-left py-2 px-4 gap-2 items-center">
                         <div className={"flex justify-center gap-2 items-center"}>
-                            <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-[300px]">
+                            {fileContent.hasAst && <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-[300px]">
                                 <TabsList className="grid w-full grid-cols-2">
                                     <TabsTrigger value="code"
                                                  className="hover:bg-gray-200 transition-colors duration-200">Код</TabsTrigger>
                                     <TabsTrigger value="AST"
                                                  className="hover:bg-gray-200 transition-colors duration-200">AST</TabsTrigger>
                                 </TabsList>
-                            </Tabs>
+                            </Tabs>}
                             <span>{fileContent.lines} строк &middot; {fileContent.bytes} байт</span>
                         </div>
                     </th>
@@ -109,7 +108,7 @@ function FileTable({repo, fileContent}: {
                                                     <span className="text-gray-500 text-right pr-8 font-mono">
                                                         {index + 1}
                                                     </span>
-                                                    <span dangerouslySetInnerHTML={{__html: line}} />
+                                                    <span dangerouslySetInnerHTML={{__html: line}}/>
                                                 </React.Fragment>
                                             ))}
                                         </div>
@@ -119,18 +118,39 @@ function FileTable({repo, fileContent}: {
                         </td>
                     </tr>
                 ) : (
-                    <tr>
-                        <td colSpan={2} className="py-4 px-4">
-                            <div>
-                                Assstt
-                            </div>
-                        </td>
-                    </tr>
+                    <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'} display={() => (
+                        <tr>
+                            <td colSpan={2} className="py-4 px-4">
+                                <div>
+                                    {JSON.stringify(loaded(fileAst).data)}
+                                </div>
+                            </td>
+                        </tr>
+                    )}/>
+
                 )
                 }
                 </tbody>
             </table>
         </div>
+    )
+}
+
+function FileTable({repo, fileContent, fileAst}: {
+    repo: Loadable<ApiRepositoryViewModel>,
+    fileContent: Loadable<ApiFileContentModel>,
+    fileAst: Loadable<ApiFileAstModel>
+}) {
+    return (
+        <BatchLoader
+            states={[repo, fileContent]}
+            loadingMessage={'Загрузка репозитория'}
+            display={() => <FileTableContent
+                repo={loaded(repo).data}
+                fileContent={loaded(fileContent).data}
+                fileAst={fileAst}
+            />}
+        />
     )
 }
 

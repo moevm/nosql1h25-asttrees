@@ -15,12 +15,11 @@ export const $usersQuery = atomWithQuery((get) => {
 export const $users = loadableQuery($usersQuery)
 
 export type ApiCommitModel = components['schemas']['CommitDto']
-
 export type ApiRepositoryModel = components['schemas']['RepositoryDto']
-
 export type ApiRepositoryViewModel = components['schemas']['RepositoryViewDto']
 export type ApiUserModel = components['schemas']['UserDto']
 export type ApiFileContentModel = components['schemas']["FileContentDto"]
+export type ApiFileAstModel = components['schemas']["FileAstDto"]
 
 export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
@@ -170,7 +169,7 @@ export const $fileAstQuery = atomWithQuery((get) => {
 
     const enabled = currentUser.state === 'hasData'
         && fileContent.state === 'hasData'
-        && fileContent.hasAst === true
+        && fileContent.data.hasAst === true
     return $fileAstView(enabled, get($repoId)!, get($branchId)!, get($commitId)!, get($fileId)!)
 })
 
