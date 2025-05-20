@@ -13,5 +13,6 @@ import java.util.List;
 @NonFinal
 public class AstTreeViewModel {
     int depth;
+    int size;
     List<AstNodeViewModel> nodes;
 }

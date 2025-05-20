@@ -2,6 +2,7 @@ import {atom, createStore} from "jotai";
 import type {components} from "@/schema.ts";
 import {$api, $authToken, loadableQuery} from "@/api";
 import {atomWithQuery} from "jotai-tanstack-query";
+import {useAtomValue, useSetAtom} from "jotai/react";
 
 export const store = createStore()
 
@@ -15,7 +16,9 @@ export const $usersQuery = atomWithQuery((get) => {
 export const $users = loadableQuery($usersQuery)
 
 export type ApiCommitModel = components['schemas']['CommitDto']
+
 export type ApiRepositoryModel = components['schemas']['RepositoryDto']
+
 export type ApiRepositoryViewModel = components['schemas']['RepositoryViewDto']
 export type ApiUserModel = components['schemas']['UserDto']
 export type ApiFileContentModel = components['schemas']["FileContentDto"]
@@ -107,6 +110,7 @@ export const $fileContentView = (enabled: boolean, repoId: string, branchId: str
 
 export const $fileContentQuery = atomWithQuery((get) => {
     const currentUser = get($currentUser)
+    const enabled = currentUser.state === 'hasData'
     const repoId = get($repoId)!
     const branchId = get($branchId)
     const commitId = get($commitId)
@@ -174,3 +178,5 @@ export const $fileAstQuery = atomWithQuery((get) => {
 })
 
 export const $fileAst = loadableQuery($fileAstQuery)
+
+export const showRepoSettingsDialogAtom = atom(false);
