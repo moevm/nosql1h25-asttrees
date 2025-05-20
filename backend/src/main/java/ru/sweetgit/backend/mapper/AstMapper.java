@@ -31,6 +31,7 @@ public abstract class AstMapper {
             if (nodeModel == null) continue;
 
             AstNodeDto dto = new AstNodeDto(
+                    nodeModel.getId(),
                     nodeModel.getLabel(),
                     nodeModel.getType(),
                     new ArrayList<>()
