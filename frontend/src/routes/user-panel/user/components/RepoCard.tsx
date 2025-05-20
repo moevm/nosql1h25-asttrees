@@ -11,14 +11,15 @@ import type {ApiRepositoryModel} from "@/store/store.ts";
 
 function RepoCard({repo}: { repo: ApiRepositoryModel }) {
     const nav = useNavigate();
-    const ignoreClick = useRef(false);
+    const showRepoSettingsDialog = useAtomValue(showRepoSettingsDialogAtom);
+    const setShowRepoSettingsDialog = useSetAtom(showRepoSettingsDialogAtom);
+
 
     return (
         <div
             className="transition-transform hover:scale-102 hover:cursor-pointer"
             onClick={(e) => {
-                if (ignoreClick.current) {
-                    ignoreClick.current = false;
+                if (showRepoSettingsDialog) {
                     return;
                 }
                 nav(`repo/${repo.id}/branch/default/commit/latest`);
@@ -44,7 +45,6 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
                                         variant="ghost"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            ignoreClick.current = true;
                                         }}
                                     >
                                         Редактировать
