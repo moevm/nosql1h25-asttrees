@@ -99,7 +99,7 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
 
                     <div className="flex flex-col gap-2 items-start">
                         <Label className="font-bold">Публичность</Label>
-                        <Label className="text-gray-400">Кто может просматривать этот репозиторий</Label>
+                        <Label className="text-primary/60">Кто может просматривать этот репозиторий</Label>
 
                         <Button
                             type={"button"}
@@ -113,7 +113,7 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
                                 <Eye className=""/>
                                 <div className="flex flex-col gap-1">
                                     <Label className="font-bold">Публичный</Label>
-                                    <Label className="text-gray-400">Любой человек может просматревать ваши
+                                    <Label className="text-primary/60">Любой человек может просматревать ваши
                                         репозитории</Label>
                                 </div>
                             </div>
@@ -132,7 +132,7 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
                                 <Shield className="mt-1"/>
                                 <div className="flex flex-col gap-1">
                                     <Label className="font-bold">Защищенный</Label>
-                                    <Label className="text-gray-400">Авторизованные пользователи</Label>
+                                    <Label className="text-primary/60">Авторизованные пользователи</Label>
                                 </div>
                             </div>
 
@@ -150,7 +150,7 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
                                 <EyeOff className="mt-1"/>
                                 <div className="flex flex-col gap-1">
                                     <Label className="font-bold">Приватный</Label>
-                                    <Label className="text-gray-400">Только я</Label>
+                                    <Label className="text-primary/60">Только я</Label>
                                 </div>
                             </div>
 

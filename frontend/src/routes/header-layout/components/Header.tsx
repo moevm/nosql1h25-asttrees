@@ -12,9 +12,9 @@ function Header() {
 
             currentUser.state === 'hasData' ? (
                 <header
-                    className="fixed z-50 w-full border-b bg-background px-4 py-2 shadow border-grid backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                    className="fixed z-50 w-full border-b bg-white px-10 py-2 border-grid">
                     <div className="flex h-14 items-center gap-2 md:gap-4">
-                        <Link to={`/users/${currentUser.data.id}`} className="px-8 text-4xl leading-tight">
+                        <Link to={`/users/${currentUser.data.id}`} className="text-[32px] leading-tight">
                             <span className="font-bold">Sweet</span>Git
                         </Link>
                         <div className="ml-auto flex gap-2">
@@ -26,9 +26,9 @@ function Header() {
                 </header>
             ) : (
                     <header
-                        className="fixed z-50 w-full border-b bg-background px-4 py-2 shadow border-grid backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                        className="fixed z-50 w-full border-b bg-white px-10 py-2 border-grid">
                         <div className="flex h-14 items-center gap-2 md:gap-4">
-                            <Link to={`/`} className="px-8 text-4xl leading-tight">
+                            <Link to={`/`} className="text-4xl leading-tight">
                                 <span className="font-bold">Sweet</span>Git
                             </Link>
                         </div>
