@@ -89,7 +89,7 @@ function RepoViewPage() {
                                         <Settings/> Настройки
                                     </Button>
                                 </DialogTrigger>
-                                <UserRepoSettingsDialog repo={currentRepo?.data as ApiRepositoryViewModel}/>
+                                <UserRepoSettingsDialog repo={currentRepo?.data?.repository as ApiRepositoryViewModel}/>
                             </Dialog>
                         </div>
                     </div>
