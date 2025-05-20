@@ -37,7 +37,7 @@ public interface AstTreeRepository extends ArangoRepository<AstTreeModel, String
              )
             
              RETURN traversalResults == [] ? { depth: 0, nodes: [] } : {
-                 le
+                 size: LENGTH(traversalResults[*].nodeOutput),
                  depth: MAX(traversalResults[*].nodeSpecificDepth),
                  nodes: traversalResults[*].nodeOutput
              }
