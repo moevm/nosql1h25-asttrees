@@ -2,7 +2,6 @@ import {Dialog} from "@radix-ui/react-dialog";
 import {
     DialogClose,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -24,16 +23,41 @@ import {
     FormMessage
 } from "@/components/ui/form.tsx";
 import {Label} from "@/components/ui/label.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {$api, defaultOnErrorHandler} from "@/api";
+import {toast} from "sonner";
+import {useAtomValue} from "jotai/react";
+import {$currentUser} from "@/store/store.ts";
+import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 
 const formSchema = z.object({
     oldPassword: z.string().min(3, "Минимум 3 символа"),
     newPassword: z.string().min(3, "Минимум 3 символа"),
 });
 
+export function userSettingsChangeQuery() {
+    return $api.useMutation('patch', '/users/me', {
+        onSuccess(data) {
+            if (data) {
+                toast.success('Настройки пользователя были успешно обновлены!')
+            }
+        },
+        onError: defaultOnErrorHandler
+    })
+}
+
+
 function UserSettingsDialog () {
 
-    const [visibility, setVisibility] = useState<string>("public");
+    const user = useAtomValue($currentUser)!
+    const [visibility, setVisibility] = useState<string>('public');
+    const [showDialog, setShowDialog] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (user.state === "hasData") {
+            setVisibility(user.data.visibility.toLowerCase());
+        }
+    }, [user]);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -43,13 +67,30 @@ function UserSettingsDialog () {
         },
     });
 
+    const {
+        mutate,
+        isPending
+    } = userSettingsChangeQuery()
+
     function onSubmit(values: z.infer<typeof formSchema>) {
 
         console.log(values, visibility)
+
+        mutate({
+            body: {
+                oldPassword: values.oldPassword,
+                newPassword: values.newPassword,
+                visibility: visibility.toUpperCase()
+            }
+        });
+
+        form.reset();
+        setShowDialog(false);
+
     }
 
     return (
-        <Dialog>
+        <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
                 <Button className="ml-auto flex justify-center gap-2">
                     <SettingsIcon /> Настройки
@@ -144,7 +185,6 @@ function UserSettingsDialog () {
                 </Form>
             </DialogContent>
         </Dialog>
-
     )
 }
 
