@@ -7,11 +7,10 @@ services:
     ports:
       - "8529:8529"
     volumes:
-      - /tmp/arangodb_dev_data:/var/lib/arangodb3
+      - arangodb_data:/var/lib/arangodb3
     restart: unless-stopped
 
   backend:
-    restart: unless-stopped
     build: ./backend
     ports:
       - "8080:8080"
@@ -19,8 +18,8 @@ services:
       - ARANGO_DB=prod-db
       - ARANGO_USER=prod-user
       - ARANGO_PASSWORD=secure-pass
-      - ARANGO_HOST=arangodb:8529
-      - JWT_SECRET=your-very-secure-prod-secret
+      - ARANGO_HOST=db:8529
+      - JWT_SECRET=S4Ordc+OvQx3AB1yZUIaX5YutUph9P1ZLZ5WJNdaD3KkTCWSxOHzPNPMS6dZPl6zAdOji/gmu9+mGvscTqbydw==
       - JWT_EXPIRATION_MS=86400000
       - FILE_STORAGE_PATH=/data/store
       - ARANGO_DUMP=/usr/bin/arangodump
@@ -30,4 +29,7 @@ services:
       - ./store:/data/store
     depends_on:
       - db
+
+volumes:
+  arangodb_data:
   # TODO: frontend
