@@ -51,6 +51,7 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
                                         onClick={(e) => {
                                             e.stopPropagation();
                                         }}
+                                        className="hover:cursor-pointer"
                                     >
                                         Редактировать
                                     </Button>

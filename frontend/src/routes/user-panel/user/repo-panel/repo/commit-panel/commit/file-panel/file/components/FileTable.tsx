@@ -1,5 +1,5 @@
 import {
-    $fileAst, type ApiFileAstModel,
+    type ApiFileAstModel,
     type ApiFileContentModel,
     type ApiRepositoryViewModel
 } from "@/store/store.ts";
@@ -11,10 +11,10 @@ import {useMemo, useState} from "react";
 import {Link} from "react-router-dom";
 import React from "react";
 import hljs from 'highlight.js';
-import {useAtomValue} from "jotai/react";
 import {type Loadable} from "jotai/utils";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {loaded} from "@/api";
+import {type NodeRendererProps, Tree} from 'react-arborist';
 
 
 function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
@@ -56,6 +56,16 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     )
 }
 
+function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
+    const {id,data} = node
+    const {label,type}=data
+    return (
+        <div style={style} ref={dragHandle} onClick={() => node.toggle()}>
+            {label} {type}
+        </div>
+    );
+}
+
 function FileTableContent({repo, fileContent, fileAst}: {
     repo: ApiRepositoryViewModel,
     fileContent: ApiFileContentModel,
@@ -82,15 +92,22 @@ function FileTableContent({repo, fileContent, fileAst}: {
                 <tr className="bg-[#F1F5F9]">
                     <th className="flex justify-between text-left py-2 px-4 gap-2 items-center">
                         <div className={"flex justify-center gap-2 items-center"}>
-                            {fileContent.hasAst && <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-[300px]">
-                                <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="code"
-                                                 className="hover:bg-gray-200 transition-colors duration-200">Код</TabsTrigger>
-                                    <TabsTrigger value="AST"
-                                                 className="hover:bg-gray-200 transition-colors duration-200">AST</TabsTrigger>
-                                </TabsList>
-                            </Tabs>}
-                            <span>{fileContent.lines} строк &middot; {fileContent.bytes} байт</span>
+                            {fileContent.hasAst &&
+                                <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-[300px]">
+                                    <TabsList className="grid w-full grid-cols-2">
+                                        <TabsTrigger value="code"
+                                                     className="hover:bg-gray-200 transition-colors duration-200">Код</TabsTrigger>
+                                        <TabsTrigger value="AST"
+                                                     className="hover:bg-gray-200 transition-colors duration-200">AST</TabsTrigger>
+                                    </TabsList>
+                                </Tabs>}
+                            {selectedTab === "code" ? (
+                                <span>Строк: {fileContent.lines} &middot; Байт: {fileContent.bytes}</span>
+                            ) : (
+                                <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'} display={() => (
+                                    <span>Узлов: {loaded(fileAst).data.astTree.nodes.length} &middot; Глубина: {loaded(fileAst).data.astTree.depth}</span>
+                                )}/>
+                            )}
                         </div>
                     </th>
                 </tr>
@@ -121,8 +138,24 @@ function FileTableContent({repo, fileContent, fileAst}: {
                     <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'} display={() => (
                         <tr>
                             <td colSpan={2} className="py-4 px-4">
-                                <div>
-                                    {JSON.stringify(loaded(fileAst).data)}
+                                <div className="bg-gray-100 p-4 rounded-md overflow-auto">
+                                <pre className="whitespace-pre-wrap">
+                                    <code>
+                                        <div className="grid grid-cols-[auto_1fr] gap-1">
+                                            <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'}
+                                                         display={() => (
+                                                             <div>
+                                                                 <Tree
+                                                                     initialData={loaded(fileAst).data.astTree.nodes}
+                                                                     // width={"100%"}
+                                                                 >
+                                                                     {AstNode}
+                                                                 </Tree>
+                                                             </div>
+                                                         )}/>
+                                        </div>
+                                    </code>
+                                </pre>
                                 </div>
                             </td>
                         </tr>

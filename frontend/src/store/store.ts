@@ -110,7 +110,6 @@ export const $fileContentView = (enabled: boolean, repoId: string, branchId: str
 
 export const $fileContentQuery = atomWithQuery((get) => {
     const currentUser = get($currentUser)
-    const enabled = currentUser.state === 'hasData'
     const repoId = get($repoId)!
     const branchId = get($branchId)
     const commitId = get($commitId)
