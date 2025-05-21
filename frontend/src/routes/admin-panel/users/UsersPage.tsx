@@ -10,7 +10,12 @@ function UsersPage() {
     return (
         <BatchLoader states={[users]}
                      loadingMessage={"Загрузка пользователей"}
-                     display={() => <UserTableView data={loaded(users).data}></UserTableView>}/>
+                     display={() =>
+                         <div className={"flex flex-col m-6  py-4 ml-6"}>
+                             <span className={"text-4xl"}>Пользователи</span>
+                             <UserTableView data={loaded(users).data}></UserTableView>
+                         </div>
+                     }/>
     );
 }
 

@@ -2,41 +2,7 @@ import {Checkbox} from "@/components/ui/checkbox.tsx";
 import type {ApiUserModel} from "@/store/store.ts";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
 import {MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
-import type {ColumnDef, ColumnMeta, RowData} from "@tanstack/react-table";
-
-// TODO точно куда-то переместить (весь файл)
-
-// TODO а это куда-нибудь вынести
-export type ColumnType = 'string' | 'number' | 'list' | 'none'
-export type TypedColumnDef<T extends RowData> = ColumnDef<T> & {
-    meta: ColumnMeta<T, unknown> & { type: ColumnType, selectFromFile?: true }
-}
-
-export const getColumnTypeRelations: (type: ColumnType) => string[] = type => {
-    switch (type) {
-        case 'string':
-            return ['includes', 'not-includes', 'equals', 'not-equals']
-        case 'number':
-            return ['eq', 'not-eq', 'gt', 'lt', 'ge', 'le']
-        case 'list':
-            return []
-        default:
-            return []
-    }
-}
-
-export const relationFullName = {
-    'includes': "включает",
-    'not-includes': "не включает",
-    'equals': "соответствует",
-    'not-equals': "не соответствует",
-    'eq': "равно",
-    'not-eq': "не равно",
-    'gt': "больше, чем",
-    'lt': "меньше, чем",
-    'ge': "больше или равно",
-    'le': "меньше или равно"
-}
+import type {TypedColumnDef} from "@/lib/table.ts";
 
 export const columnsUser = [
     {
