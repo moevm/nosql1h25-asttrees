@@ -2,15 +2,9 @@ import {Checkbox} from "@/components/ui/checkbox.tsx";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
 import type {ApiEntityCommitModel} from "@/store/store.ts";
 import dayjs from "dayjs";
-import type {TypedColumnDef} from "@/lib/table.ts";
+import {type TypedColumnDef, typesVisibilityType} from "@/lib/table.ts";
 import type {EntityField} from "@/lib/utils.ts";
 import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
-
-const typesVisibilityType = {
-    'PUBLIC': "Публичный",
-    'PROTECTED': "Защищенный",
-    'PRIVATE': "Приватный"
-}
 
 export const fieldsCommits: EntityField[] = [
     {

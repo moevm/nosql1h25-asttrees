@@ -16,7 +16,6 @@ function AdminUsersTableView() {
     } = useServerTable<ApiUserModel>({
         columns: columnsUser,
         queryUrl: "/entities/users",
-        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
     const navigate = useNavigate()
 

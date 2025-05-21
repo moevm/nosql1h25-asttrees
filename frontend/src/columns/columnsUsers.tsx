@@ -1,7 +1,7 @@
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import type {ApiEntityUserModel} from "@/store/store.ts";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
-import type {TypedColumnDef} from "@/lib/table.ts";
+import {type TypedColumnDef, typesVisibilityType} from "@/lib/table.ts";
 import type {EntityField} from "@/lib/utils.ts";
 import dayjs from "dayjs";
 import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
@@ -105,6 +105,9 @@ export const columnsUser = [
             type: "string",
             field: "visibility"
         },
+        accessorFn: (row) => {
+            return typesVisibilityType[row.visibility] ?? row.visibility
+        },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />,
     },
     {
@@ -122,9 +125,9 @@ export const columnsUser = [
     },
     {
         accessorKey: "repositoryCount",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Кол-во репозиториев" />,
+        header: ({column}) => <DataTableColumnHeader column={column} title="Количество репозиториев" />,
         meta: {
-            title: "Кол-во репозиториев",
+            title: "Количество репозиториев",
             type: "number",
             field: "repositoryCount"
         },

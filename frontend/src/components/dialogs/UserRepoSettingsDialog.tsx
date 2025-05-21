@@ -24,7 +24,7 @@ const formSchema = z.object({
     name: z.string().min(3, "Минимум 3 символа"),
 });
 
-function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
+function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryModel}) {
 
     const [visibility, setVisibility] = useState<string>("public")
     console.log(repo)

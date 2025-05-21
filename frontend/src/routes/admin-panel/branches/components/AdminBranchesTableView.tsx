@@ -16,7 +16,6 @@ function AdminBranchesTableView() {
     } = useServerTable<ApiEntityBranchModel>({
         columns: columnsBranches,
         queryUrl: "/entities/branches",
-        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
     const navigate = useNavigate()
