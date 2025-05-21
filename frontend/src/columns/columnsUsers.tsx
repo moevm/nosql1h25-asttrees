@@ -1,15 +1,16 @@
-
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import type {ApiUserModel} from "@/store/store.ts";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
-import {CheckboxRenderer, ListRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
+import {MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
 import type {ColumnDef, ColumnMeta, RowData} from "@tanstack/react-table";
 
 // TODO точно куда-то переместить (весь файл)
 
 // TODO а это куда-нибудь вынести
 export type ColumnType = 'string' | 'number' | 'list' | 'none'
-export type TypedColumnDef<T extends RowData> = ColumnDef<T> & { meta: ColumnMeta<T, unknown> & { type: ColumnType, selectFromFile?: true } }
+export type TypedColumnDef<T extends RowData> = ColumnDef<T> & {
+    meta: ColumnMeta<T, unknown> & { type: ColumnType, selectFromFile?: true }
+}
 
 export const getColumnTypeRelations: (type: ColumnType) => string[] = type => {
     switch (type) {
@@ -36,28 +37,6 @@ export const relationFullName = {
     'ge': "больше или равно",
     'le': "меньше или равно"
 }
-
-const typesUserType = {
-    'bot': "Бот",
-    'user': "Пользователь"
-}
-
-const customSortingFn = (rowA, rowB, columnId) => {
-    const getValue = (row) => {
-        const value = row.getValue(columnId);
-        if (value === undefined || value === null) return "";
-        return String(value);
-    };
-
-    const a = getValue(rowA);
-    const b = getValue(rowB);
-
-    if (a === b) return 0;
-    if (a === "+" || a === "-") return 1;
-    if (b === "+" || b === "-") return -1;
-
-    return a.localeCompare(b, "ru", {numeric: true});
-};
 
 export const columnsUser = [
     {
@@ -98,8 +77,7 @@ export const columnsUser = [
             type: 'string',
             selectFromFile: true,
         },
-        sortingFn: customSortingFn,
-        cell: ({cell}) => <MonoRenderer value={cell.getValue()} />
+        cell: ({cell}) => <MonoRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "username",
@@ -113,8 +91,7 @@ export const columnsUser = [
             type: 'string',
             selectFromFile: true,
         },
-        sortingFn: customSortingFn,
-        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "email",
@@ -127,7 +104,6 @@ export const columnsUser = [
             title: "Email",
             type: 'list',
         },
-        sortingFn: customSortingFn,
     },
     {
         accessorKey: "visibility",
@@ -140,8 +116,7 @@ export const columnsUser = [
             title: "Публичность",
             type: 'string',
         },
-        sortingFn: customSortingFn,
-        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "repositoryCount",
@@ -154,7 +129,6 @@ export const columnsUser = [
             title: "Кол-во репозиториев",
             type: 'string'
         },
-        sortingFn: customSortingFn,
-        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
 ] as TypedColumnDef<ApiUserModel>[]

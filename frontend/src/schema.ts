@@ -228,6 +228,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/repositories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getRepositories_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -331,8 +347,18 @@ export interface components {
             /** @enum {string} */
             visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
         };
+        CommitFileDto: {
+            id?: string;
+            name?: string;
+            fullPath?: string;
+            /** @enum {string} */
+            type?: "DIRECTORY" | "FILE";
+            hash?: string;
+            commit?: string;
+            parent?: string;
+        };
         FileContentDto: {
-            commitFile?: components["schemas"]["ShortCommitFileDto"];
+            commitFile?: components["schemas"]["CommitFileDto"];
             isBinary?: boolean;
             content?: string;
             /** Format: int32 */
@@ -342,19 +368,22 @@ export interface components {
             hasAst?: boolean;
         };
         AstNodeDto: {
+            id?: string;
             label?: string;
             type?: string;
         };
         AstTreeViewDto: {
             /** Format: int32 */
             depth?: number;
+            /** Format: int32 */
+            size?: number;
             nodes?: components["schemas"]["AstNodeDto"][];
         };
         FileAstDto: {
-            commitFile?: components["schemas"]["ShortCommitFileDto"];
+            commitFile?: components["schemas"]["CommitFileDto"];
             astTree?: components["schemas"]["AstTreeViewDto"];
         };
-        FullUserDto: {
+        EntityUserDto: {
             id?: string;
             username?: string;
             email?: string;
@@ -365,6 +394,21 @@ export interface components {
             isAdmin?: boolean;
             /** Format: int32 */
             repositoryCount?: number;
+        };
+        EntityRepositoryDto: {
+            id?: string;
+            name?: string;
+            owner?: components["schemas"]["ShortUserDto"];
+            /** Format: uri */
+            originalLink?: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: int32 */
+            branchCount?: number;
+            /** Format: int32 */
+            commitCount?: number;
         };
     };
     responses: never;
@@ -720,7 +764,27 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["FullUserDto"][];
+                    "*/*": components["schemas"]["EntityUserDto"][];
+                };
+            };
+        };
+    };
+    getRepositories_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityRepositoryDto"][];
                 };
             };
         };

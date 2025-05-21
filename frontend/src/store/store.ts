@@ -14,6 +14,17 @@ export const $usersQuery = atomWithQuery((get) => {
 })
 export const $users = loadableQuery($usersQuery)
 
+export const $reposQueryOptions = () => $api.queryOptions(
+    'get',
+    `/entities/repositories`,
+);
+
+export const $reposQuery = atomWithQuery((get) => {
+    return $reposQueryOptions()
+})
+
+export const $repos = loadableQuery($reposQuery)
+
 export type ApiCommitModel = components['schemas']['CommitDto']
 
 export type ApiRepositoryModel = components['schemas']['RepositoryDto']
@@ -22,6 +33,7 @@ export type ApiRepositoryViewModel = components['schemas']['RepositoryViewDto']
 export type ApiUserModel = components['schemas']['UserDto']
 export type ApiFileContentModel = components['schemas']["FileContentDto"]
 export type ApiFileAstModel = components['schemas']["FileAstDto"]
+export type ApiEntityRepositoryModel = components['schemas']['EntityRepositoryDto']
 
 export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
@@ -64,7 +76,7 @@ export const $currentUserReposQuery = atomWithQuery((get) => {
 
 export const $currentUserRepos = loadableQuery($currentUserReposQuery)
 
-export const $currentRepoView = (enabled: boolean, repoId: string, branchId: string, commitId: string, path: string) => $api.queryOptions(
+export const $currentRepoViewQueryOptions = (enabled: boolean, repoId: string, branchId: string, commitId: string, path: string) => $api.queryOptions(
     'get',
     '/repositories/{repoId}/branches/{branchId}/commits/{commitId}/view',
     {
@@ -90,12 +102,12 @@ export const $currentRepoViewQuery = atomWithQuery((get) => {
         && branchId !== null
         && commitId !== null
     const path = get($path)
-    return $currentRepoView(enabled, repoId ?? '', branchId, commitId, path)
+    return $currentRepoViewQueryOptions(enabled, repoId ?? '', branchId, commitId, path)
 })
 
 export const $currentRepo = loadableQuery($currentRepoViewQuery)
 
-export const $fileContentView = (enabled: boolean, repoId: string, branchId: string, commitId: string, commitFileId: string) => $api.queryOptions(
+export const $fileContentQueryOptions = (enabled: boolean, repoId: string, branchId: string, commitId: string, commitFileId: string) => $api.queryOptions(
     'get',
     '/repositories/{repoId}/branches/{branchId}/commits/{commitId}/files/{commitFileId}/content',
     {
@@ -122,12 +134,12 @@ export const $fileContentQuery = atomWithQuery((get) => {
         && branchId !== null
         && commitId !== null
         && fileId !== null
-    return $fileContentView(enabled, repoId, branchId!, commitId!, fileId)
+    return $fileContentQueryOptions(enabled, repoId, branchId!, commitId!, fileId)
 })
 
 export const $fileContent = loadableQuery($fileContentQuery)
 
-export const $branchCommitsView = (enabled: boolean, repoId: string, branchId: string) => $api.queryOptions(
+export const $branchCommitsQueryOptions = (enabled: boolean, repoId: string, branchId: string) => $api.queryOptions(
     'get',
     '/repositories/{repoId}/branches/{branchId}/commits',
     {
@@ -148,12 +160,12 @@ export const $branchCommitsQuery = atomWithQuery((get) => {
     const enabled = currentUser.state === 'hasData'
         && repoId !== null
         && branchId !== null
-    return $branchCommitsView(enabled, repoId!, branchId)
+    return $branchCommitsQueryOptions(enabled, repoId!, branchId)
 })
 
 export const $branchCommits = loadableQuery($branchCommitsQuery)
 
-export const $fileAstView = (enabled: boolean, repoId: string, branchId: string, commitId: string, commitFileId: string) => $api.queryOptions(
+export const $fileAstQueryOptions = (enabled: boolean, repoId: string, branchId: string, commitId: string, commitFileId: string) => $api.queryOptions(
     'get',
     '/repositories/{repoId}/branches/{branchId}/commits/{commitId}/files/{commitFileId}/ast',
     {
@@ -176,7 +188,7 @@ export const $fileAstQuery = atomWithQuery((get) => {
     const enabled = currentUser.state === 'hasData'
         && fileContent.state === 'hasData'
         && fileContent.data.hasAst === true
-    return $fileAstView(enabled, get($repoId)!, get($branchId)!, get($commitId)!, get($fileId)!)
+    return $fileAstQueryOptions(enabled, get($repoId)!, get($branchId)!, get($commitId)!, get($fileId)!)
 })
 
 export const $fileAst = loadableQuery($fileAstQuery)
