@@ -3,6 +3,7 @@ import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {columnsCommits} from "@/columns/columnsCommits.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
 import {columnsRepos} from "@/columns/columnsRepos.tsx";
+import {useNavigate} from "react-router-dom";
 
 function AdminCommitsTableView() {
     const {
@@ -19,7 +20,7 @@ function AdminCommitsTableView() {
         searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
-    console.log(data)
+    const navigate = useNavigate()
 
     return (
         <RichTableView
@@ -34,8 +35,8 @@ function AdminCommitsTableView() {
                 enableSearch: true,
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
-                rowClickHandler: (user) => {
-                    // navigate(`/spaces/...`)
+                rowClickHandler: (commit) => {
+                    navigate(`/admin/commits/${commit.id}`)
                 },
             }}
         />

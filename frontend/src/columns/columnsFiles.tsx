@@ -1,15 +1,9 @@
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
-import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
-import type {ApiEntityRepositoryModel} from "@/store/store.ts";
+import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
 import dayjs from "dayjs";
-import type {TypedColumnDef} from "@/lib/table.ts";
+import {type TypedColumnDef, typesFileType} from "@/lib/table.ts";
 import type {tempFile} from "@/routes/admin-panel/files/components/AdminFilesTableView.tsx";
-
-export const typesType = {
-    'FILE': "Файл",
-    'DIRECTORY': "Директория",
-}
 
 export const columnsFiles = [
     {
@@ -114,7 +108,7 @@ export const columnsFiles = [
             )
         },
         accessorFn: (row) => {
-            return typesType[row.type] ?? row.type
+            return typesFileType[row.type] ?? row.type
         },
         meta: {
             title: "Тип",

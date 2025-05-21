@@ -1,7 +1,7 @@
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import type {ApiUserModel} from "@/store/store.ts";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
-import {MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
+import {MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
 import type {TypedColumnDef} from "@/lib/table.ts";
 
 export const columnsUser = [

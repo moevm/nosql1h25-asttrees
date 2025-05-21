@@ -30,3 +30,14 @@ export const relationFullName = {
     'ge': "больше или равно",
     'le': "меньше или равно"
 }
+
+export const typesVisibilityType = {
+    'PUBLIC': "Публичный",
+    'PROTECTED': "Защищенный",
+    'PRIVATE': "Приватный"
+}
+
+export const typesFileType = {
+    'FILE': "Файл",
+    'DIRECTORY': "Директория",
+}
