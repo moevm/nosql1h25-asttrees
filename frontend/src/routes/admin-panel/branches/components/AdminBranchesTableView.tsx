@@ -14,7 +14,7 @@ function AdminBranchesTableView() {
         setSearchPosition,
     } = useServerTable<ApiEntityBranchModel>({
         columns: columnsBranches,
-        queryUrl: "/entities/repositories",
+        queryUrl: "/entities/branches",
         searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
