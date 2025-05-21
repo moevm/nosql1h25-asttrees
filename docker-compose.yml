@@ -8,6 +8,13 @@ services:
     volumes:
       - arangodb_data:/var/lib/arangodb3
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://db:8529/_admin/server/availability"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
 
   backend:
     build: ./backend
@@ -34,7 +41,7 @@ services:
       start_period: 30s
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
         restart: true
 
   frontend:
