@@ -15,8 +15,8 @@ RUN curl -L https://download.arangodb.com/arangodb312/Community/Linux/arangodb3-
  && mkdir -p /opt/arangodb-client \
  && tar -xzf /tmp/arangodb.tar.gz -C /opt/arangodb-client --strip-components=1 \
  && rm /tmp/arangodb.tar.gz \
- && ln -s /opt/arangodb-client/usr/bin/arangodump /usr/local/bin/arangodump \
- && ln -s /opt/arangodb-client/usr/bin/arangorestore /usr/local/bin/arangorestore
+ && ln -s /opt/arangodb-client/usr/bin/arangodump /usr/bin/arangodump \
+ && ln -s /opt/arangodb-client/usr/bin/arangorestore /usr/bin/arangorestore
 
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
