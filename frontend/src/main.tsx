@@ -4,12 +4,12 @@ import 'highlight.js/styles/intellij-light.css'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import AuthorisationPage from "@/routes/reg-auth-page/AuthorisationPage.tsx";
 import AdminPanelLayout from "@/routes/admin-panel/AdminPanelLayout.tsx";
-import UsersAdmninPage from "@/routes/admin-panel/users/UsersAdmninPage.tsx";
-import ReposAdminPage from "@/routes/admin-panel/repos/ReposAdminPage.tsx";
-import CommitsAdminPage from "@/routes/admin-panel/commits/CommitsAdminPage.tsx";
+import AdminUsersPage from "@/routes/admin-panel/users/AdminUsersPage.tsx";
+import AdminReposPage from "@/routes/admin-panel/repos/AdminReposPage.tsx";
+import AdminCommitsPage from "@/routes/admin-panel/commits/AdminCommitsPage.tsx";
 import FilesPage from "@/routes/admin-panel/files/FilesPage.tsx";
-import AstTreesPage from "@/routes/admin-panel/ast-trees/AstTreesPage.tsx";
-import ImportExportDBPage from "@/routes/admin-panel/import-export-db/ImportExportDBPage.tsx";
+import AdminAstTreesPage from "@/routes/admin-panel/ast-trees/AdminAstTreesPage.tsx";
+import AdminImportExportDBPage from "@/routes/admin-panel/import-export-db/AdminImportExportDBPage.tsx";
 import HeaderLayout from "@/routes/header-layout/HeaderLayout.tsx";
 import UserPage from "@/routes/user-panel/user/UserPage.tsx";
 import RepoViewPage from "@/routes/user-panel/user/repo-panel/repo/RepoViewPage.tsx";
@@ -27,7 +27,7 @@ import CommitLayout from "@/routes/user-panel/user/repo-panel/repo/commit-panel/
 import FileLayout from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/FileLayout.tsx";
 import FileViewPage
     from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/FileViewPage.tsx";
-import BranchesPage from "@/routes/admin-panel/branches/BranchesPage.tsx";
+import AdminBranchesPage from "@/routes/admin-panel/branches/AdminBranchesPage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
@@ -56,13 +56,13 @@ createRoot(document.getElementById('root')!).render(
 
                             <Route path="admin" element={<AdminPanelLayout/>}>
                                 <Route index element={<Navigate to="users" replace/>}/>
-                                <Route path="branches" element={<BranchesPage/>}/>
-                                <Route path="users" element={<UsersAdmninPage/>}/>
-                                <Route path="repos" element={<ReposAdminPage/>}/>
-                                <Route path="commits" element={<CommitsAdminPage/>}/>
+                                <Route path="branches" element={<AdminBranchesPage/>}/>
+                                <Route path="users" element={<AdminUsersPage/>}/>
+                                <Route path="repos" element={<AdminReposPage/>}/>
+                                <Route path="commits" element={<AdminCommitsPage/>}/>
                                 <Route path="files" element={<FilesPage/>}/>
-                                <Route path="ast-trees" element={<AstTreesPage/>}/>
-                                <Route path="import-export" element={<ImportExportDBPage/>}/>
+                                <Route path="ast-trees" element={<AdminAstTreesPage/>}/>
+                                <Route path="import-export" element={<AdminImportExportDBPage/>}/>
                             </Route>
                         </Route>
                     </Routes>

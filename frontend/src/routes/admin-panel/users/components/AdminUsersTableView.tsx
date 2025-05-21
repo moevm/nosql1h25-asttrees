@@ -1,13 +1,10 @@
 import {columnsUser} from "@/columns/columnsUsers.tsx";
-import {useNavigate} from "react-router-dom";
 import type {ApiUserModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 
-function UsersAdminTableView(props: {
+function AdminUsersTableView(props: {
     data: ApiUserModel[]
 }) {
-    console.log(props.data);
-    const navigate = useNavigate();
     return (
         <>
             <RichTableView
@@ -28,4 +25,4 @@ function UsersAdminTableView(props: {
     )
 }
 
-export default UsersAdminTableView
+export default AdminUsersTableView
