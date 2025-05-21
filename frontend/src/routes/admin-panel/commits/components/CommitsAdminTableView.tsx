@@ -1,8 +1,8 @@
 import type {ApiEntityRepositoryModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
-import {columnsRepos} from "@/columns/columnsRepos.tsx";
+import {columnsCommits} from "@/columns/columnsCommits.tsx";
 
-function ReposTableView(props: {
+function CommitsAdminTableView(props: {
     data: ApiEntityRepositoryModel[]
 }) {
     return (
@@ -11,7 +11,7 @@ function ReposTableView(props: {
                 <RichTableView
                     entries={props.data}
                     tableConfig={{
-                        columns: columnsRepos
+                        columns: columnsCommits
                     }}
                     settings={{
                         enableSearch: true,
@@ -29,4 +29,4 @@ function ReposTableView(props: {
     )
 }
 
-export default ReposTableView
+export default CommitsAdminTableView
