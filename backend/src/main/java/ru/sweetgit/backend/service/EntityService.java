@@ -6,10 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.entity.EntityQuery;
 import ru.sweetgit.backend.entity.EntitySearchDto;
-import ru.sweetgit.backend.model.FullBranchModel;
-import ru.sweetgit.backend.model.FullCommitModel;
-import ru.sweetgit.backend.model.FullRepositoryModel;
-import ru.sweetgit.backend.model.FullUserModel;
+import ru.sweetgit.backend.model.*;
 import ru.sweetgit.backend.repo.EntityRepository;
 
 import java.util.Map;
@@ -53,6 +50,15 @@ public class EntityService {
     ) {
         return entityRepository.execute(
                 (EntityQuery<FullCommitModel>) entityQueriesByName.get("commits"),
+                searchDto
+        );
+    }
+
+    public Page<FullAstTreeModel> getAstTreeEntities(
+            EntitySearchDto searchDto
+    ) {
+        return entityRepository.execute(
+                (EntityQuery<FullAstTreeModel>) entityQueriesByName.get("ast_trees"),
                 searchDto
         );
     }

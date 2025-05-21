@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.request.EntitySearchRequest;
-import ru.sweetgit.backend.dto.response.EntityBranchDto;
-import ru.sweetgit.backend.dto.response.EntityCommitDto;
-import ru.sweetgit.backend.dto.response.EntityRepositoryDto;
-import ru.sweetgit.backend.dto.response.EntityUserDto;
+import ru.sweetgit.backend.dto.response.*;
 import ru.sweetgit.backend.entity.EntitySearchDto;
 import ru.sweetgit.backend.entity.Filter;
 import ru.sweetgit.backend.entity.FilterKind;
@@ -112,7 +109,6 @@ public class EntityController {
     }
 
 
-
     @GetMapping("/entities/commits/{commitId}")
     public ResponseEntity<EntityCommitDto> getCommit(
             @PathVariable String commitId
@@ -122,6 +118,30 @@ public class EntityController {
 
         var entity = page.stream().findFirst()
                 .orElseThrow(() -> ApiException.notFound("Коммит", "id", commitId).build());
+
+        return ResponseEntity.ok(entityMapper.toEntityDto(entity));
+    }
+
+
+    @PostMapping("/entities/ast_trees/query")
+    public ResponseEntity<Page<EntityAstTreeDto>> queryAstTrees(
+            @Valid @RequestBody EntitySearchRequest request
+    ) {
+        var searchDto = convert(request);
+        var page = entityService.getAstTreeEntities(searchDto);
+        return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
+    }
+
+
+    @GetMapping("/entities/ast_trees/{astTreeId}")
+    public ResponseEntity<EntityAstTreeDto> getAstTree(
+            @PathVariable String astTreeId
+    ) {
+        var searchDto = queryById(astTreeId);
+        var page = entityService.getAstTreeEntities(searchDto);
+
+        var entity = page.stream().findFirst()
+                .orElseThrow(() -> ApiException.notFound("AST-дерево", "хэш", astTreeId).build());
 
         return ResponseEntity.ok(entityMapper.toEntityDto(entity));
     }

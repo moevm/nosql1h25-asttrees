@@ -3,10 +3,7 @@ package ru.sweetgit.backend.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.sweetgit.backend.entity.EntityQuery;
-import ru.sweetgit.backend.model.FullBranchModel;
-import ru.sweetgit.backend.model.FullCommitModel;
-import ru.sweetgit.backend.model.FullRepositoryModel;
-import ru.sweetgit.backend.model.FullUserModel;
+import ru.sweetgit.backend.model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -159,6 +156,51 @@ public class EntityQueryConfiguration {
                                     }
                                 ),
                                 commitCount: LENGTH(commitsForThisBranch)
+                            }
+                        )
+                        """
+        );
+    }
+
+    @Bean
+    public EntityQuery<FullAstTreeModel> astTreeEntityQuery() {
+        return new EntityQuery<>(
+                "ast_trees",
+                FullAstTreeModel.class,
+                """
+                        FOR ast_tree IN ast_trees
+                            LET rootNodeDoc = DOCUMENT(ast_tree.rootNode)
+
+                            LET traversalData = (
+                                FOR v, e, p IN 0..10000 OUTBOUND rootNodeDoc ast_parents
+                                    RETURN { depth: LENGTH(p.edges) }
+                            )
+
+                            LET treeDepth = LENGTH(traversalData) == 0 ? 0 : MAX(traversalData[*].depth)
+                            LET treeSize = LENGTH(traversalData)
+
+                            LET commitFileDoc = FIRST(
+                                FOR cf IN commit_files
+                                    FILTER cf.hash == ast_tree._key
+                                    LIMIT 1
+                                    RETURN cf
+                            )
+                        """,
+                """
+                        MERGE(
+                            ast_tree,
+                            {
+                                id: ast_tree._key,         // Map _key to id
+                                arangoId: ast_tree._id,    // Map _id to arangoId
+                                depth: treeDepth,
+                                size: treeSize,
+                                commitFile: MERGE(
+                                    commitFileDoc,
+                                    {
+                                        id: commitFileDoc._key,
+                                        arangoId: commitFileDoc._id,
+                                    }
+                                )
                             }
                         )
                         """
