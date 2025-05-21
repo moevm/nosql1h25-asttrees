@@ -9,10 +9,10 @@ logging:
 arangodb:
   spring:
     data:
-      database: ${ARANGO_DB:sweetgit-db}
-      user: ${ARANGO_USER:root}
-      password: ${ARANGO_PASSWORD:}
-      hosts: ${ARANGO_HOST:localhost:8529}
+      database: ${ARANGO_DB}
+      user: ${ARANGO_USER}
+      password: ${ARANGO_PASSWORD}
+      hosts: ${ARANGO_HOST}
 
 springdoc:
   api-docs:
@@ -22,12 +22,12 @@ springdoc:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  expiration-ms: ${JWT_EXPIRATION_MS}
 
 app:
   file-storage:
-    path: ${FILE_STORAGE_PATH:/app/store}
+    path: ${FILE_STORAGE_PATH}
   backup:
     executable:
-      dump: ${ARANGO_DUMP:/usr/bin/arangodump}
-      restore: ${ARANGO_RESTORE:/usr/bin/arangorestore}
+      dump: ${ARANGO_DUMP}
+      restore: ${ARANGO_RESTORE}

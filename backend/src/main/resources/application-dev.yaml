@@ -21,13 +21,13 @@ springdoc:
     path: /docs
 
 jwt:
-  secret: dev-secret
+  secret: 
   expiration-ms: 86400000
 
 app:
   file-storage:
-    path: /Users/swee/dev/etu/nosql1h25-asttrees/store
+    path: 
   backup:
     executable:
-      dump: /Users/swee/arangodb3-client-macos-3.11.13_arm64/bin/arangodump
-      restore: /Users/swee/arangodb3-client-macos-3.11.13_arm64/bin/arangorestore
+      dump: 
+      restore: /

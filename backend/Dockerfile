@@ -7,6 +7,9 @@ FROM openjdk:17-jdk-slim
 
 RUN apt-get update && apt-get install -y curl tar && rm -rf /var/lib/apt/lists/*
 
+ENV ARANGO_DUMP=/usr/bin/arangodump
+ENV ARANGO_RESTORE=/usr/bin/arangorestore
+
 RUN curl -L https://download.arangodb.com/arangodb312/Community/Linux/arangodb3-client-linux-3.12.4_x86_64.tar.gz -o /tmp/arangodb.tar.gz \
  && mkdir -p /opt/arangodb-client \
  && tar -xzf /tmp/arangodb.tar.gz -C /opt/arangodb-client --strip-components=1 \
