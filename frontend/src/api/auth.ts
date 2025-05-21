@@ -20,7 +20,6 @@ export function useLoginMutation() {
         {
             async onSuccess(data) {
                 const token = data.token
-                console.info('setting token to ' + token)
                 setToken(token!)
             },
             onError(error, variables, context) {

@@ -35,7 +35,7 @@ function AdminBranchesTableView() {
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
                 rowClickHandler: (branch) => {
-                    navigate(`/admin/branches/${branch.id}`)
+                    navigate(`/admin/branches/${branch.id}`, { replace: true })
                 },
             }}
         />

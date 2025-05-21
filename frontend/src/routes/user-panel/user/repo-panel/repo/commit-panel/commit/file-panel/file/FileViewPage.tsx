@@ -13,6 +13,7 @@ import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import FileTable
     from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/components/FileTable.tsx";
 import React from "react";
+import {Link} from "react-router-dom";
 
 function FileViewPage() {
     const currentRepo = useAtomValue($currentRepo)!
@@ -27,21 +28,22 @@ function FileViewPage() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href={`/users/${currentRepo.data.owner.id}`}>
-                                        <div className="flex items-center justify-between gap-1">
+                                    <BreadcrumbLink asChild>
+                                        <Link className="flex items-center justify-between gap-1" to={`/users/${currentRepo.data.owner.id}`}>
                                             <UserIcon/>
                                             <Label>{currentRepo.data.owner.username}</Label>
-                                        </div>
+                                        </Link>
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator/>
                                 <BreadcrumbItem>
                                     <BreadcrumbLink
-                                        href={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
-                                        <div className="flex items-center justify-between gap-1">
+                                        asChild
+                                    >
+                                        <Link className="flex items-center justify-between gap-1" to={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
                                             <Package/>
                                             <Label>{currentRepo.data.repository.name}</Label>
-                                        </div>
+                                        </Link>
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 {fileContent.data.commitFile.fullPath && fileContent.data.commitFile.fullPath !== "" && (
@@ -51,13 +53,13 @@ function FileViewPage() {
                                             <React.Fragment key={index}>
                                                 {index > 0 && <BreadcrumbSeparator />}
                                                 <BreadcrumbItem>
-                                                    <BreadcrumbLink href={
-                                                        `/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}?path=${fileContent.data.commitFile.fullPath.split('/').slice(0, index + 1).join('/')}`
-                                                    }>
-                                                        <div className="flex items-center justify-between gap-1">
+                                                    <BreadcrumbLink
+                                                        asChild
+                                                    >
+                                                        <Link className="flex items-center justify-between gap-1" to={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}?path=${fileContent.data.commitFile.fullPath.split('/').slice(0, index + 1).join('/')}`}>
                                                             <Folder />
                                                             <Label>{segment}</Label>
-                                                        </div>
+                                                        </Link>
                                                     </BreadcrumbLink>
                                                 </BreadcrumbItem>
                                             </React.Fragment>

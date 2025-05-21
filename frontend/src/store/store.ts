@@ -265,4 +265,5 @@ export const $fileAstQuery = atomWithQuery((get) => {
 
 export const $fileAst = loadableQuery($fileAstQuery)
 
-export const showRepoSettingsDialogAtom = atom(false);
+export const $showRepoSettingsDialog = atom(false);
+export const $repoSettingsDialogRepo = atom<ApiRepositoryModel | null>(null)

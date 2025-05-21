@@ -32,9 +32,6 @@ const fetchClient = createFetchClient<paths>({
     baseUrl: "http://localhost:8080",
     async fetch(request) {
         const token = store.get($authToken)
-        console.info('Adding token to request', {
-            token
-        })
         if (token !== null) {
             request.headers.set('Authorization', 'Bearer ' + token)
         }
@@ -91,6 +88,5 @@ export function defaultOnSuccessHandler() {
 
 export function defaultOnErrorHandler(error: unknown, variables: unknown, context: unknown) {
     console.log(`mutation error`, {variables, context})
-    console.error(error.stack)
     toast.error("Ошибка ", { description: errorMessage(error) })
 }

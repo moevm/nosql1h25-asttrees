@@ -21,9 +21,9 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     return (
         <div className="pb-5">
             <table
-                className="min-w-full table-fixed border-separate border-spacing-0 border rounded-2xl overflow-hidden border-gray-200">
+                className="min-w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border">
                 <thead>
-                <tr className="bg-[#F1F5F9]">
+                <tr className="bg-slate-100">
                     <th className="flex justify-between text-left py-2 px-4 gap-2">
                         <div className={"flex justify-center gap-2"}>
                             <Label className={"font-bold"}>
@@ -43,7 +43,7 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
                             </Label>
                             <Link
                                 to={`/users/${repo.owner?.id}/repo/${repo.repository?.id}/branch/${repo.branch?.id}/commits`}>
-                                <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
+                                <Button variant="ghost">
                                     <History/> История коммитов
                                 </Button>
                             </Link>
@@ -57,9 +57,6 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
 }
 
 function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
-    console.info({
-        node
-    })
     const {id, data} = node
     const {label, type} = data
     return (
@@ -67,7 +64,7 @@ function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
             style={style}
             ref={dragHandle}
             onClick={() => node.toggle()}
-            className={"font-mono hover:bg-secondary rounded-md cursor-pointer flex items-center gap-2 text-sm"}
+            className={"font-mono hover:bg-accent/50 rounded cursor-pointer flex items-center gap-2 text-sm"}
         >
             <span style={{width: 16, height: 16}}>
                  {node.children?.length !== 0 && (
@@ -98,35 +95,31 @@ function FileTableContent({repo, fileContent, fileAst}: {
     return (
         <div>
             <RepoHeader repo={repo}/>
-            {/*TODO избавиться от табличной верстки*/}
             <table
-                className="min-w-full table-fixed border-separate border-spacing-0 border rounded-2xl overflow-hidden border-gray-200">
+                className="min-w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border">
                 <thead>
-                {/*TODO вынести цвет в tailwind переменную*/}
-                <tr className="bg-[#F1F5F9]">
+                <tr className="bg-slate-100">
                     <th className="flex justify-between text-left py-2 px-4 gap-2 items-center">
                         <div className={"flex justify-center gap-2 items-center"}>
                             {fileContent.hasAst &&
-                                <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-[300px]">
+                                <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
                                     <TabsList className="grid w-full grid-cols-2">
-                                        <TabsTrigger value="code"
-                                                     className="hover:bg-gray-200 transition-colors duration-200">Код</TabsTrigger>
-                                        <TabsTrigger value="AST"
-                                                     className="hover:bg-gray-200 transition-colors duration-200">AST</TabsTrigger>
+                                        <TabsTrigger value="code">Код</TabsTrigger>
+                                        <TabsTrigger value="AST">AST</TabsTrigger>
                                     </TabsList>
                                 </Tabs>}
                             {selectedTab === "code" ? (
-                                <span>Строк: {fileContent.lines} &middot; Байт: {fileContent.bytes}</span>
+                                <span className={"text-sm text-primary/60 font-medium leading-none py-3"}>Строк: {fileContent.lines} &middot; Байт: {fileContent.bytes}</span>
                             ) : (
                                 <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'} display={() => (
-                                    <span>Узлов: {loaded(fileAst).data.astTree.nodes.length} &middot; Глубина: {loaded(fileAst).data.astTree.depth}</span>
+                                    <span className={"text-sm text-primary/60 font-medium leading-none py-3"}>Узлов: {loaded(fileAst).data.astTree.nodes.length} &middot; Глубина: {loaded(fileAst).data.astTree.depth}</span>
                                 )}/>
                             )}
                         </div>
                     </th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-background border-t border-border">
                 {selectedTab === "code" ? (
                     <tr>
                         <td colSpan={2}>

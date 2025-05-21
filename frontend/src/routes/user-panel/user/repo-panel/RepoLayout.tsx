@@ -30,7 +30,6 @@ function RepoLayout() {
     const setPath = useSetAtom($path)
 
     useEffect(() => {
-        console.info('useEffect', path)
         setPath(path)
     }, [setPath, path]);
 

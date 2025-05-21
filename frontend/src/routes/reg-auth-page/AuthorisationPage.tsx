@@ -75,8 +75,7 @@ function RegisterPage() {
                 password: values.password
             }
         });
-        console.log("Регистрация:", values);
-    }, []);
+    }, [mutate]);
 
     return (
         <Card>
@@ -269,7 +268,7 @@ function AuthorisationPage() {
     }, [tabParam, setTab]);
 
     useEffect(() => {
-        navigate(`/${tab}`);
+        navigate(`/${tab}`, { replace: true });
     }, [tab, navigate]);
 
     return (

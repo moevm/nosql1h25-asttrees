@@ -20,8 +20,6 @@ function AdminUsersTableView() {
     });
     const navigate = useNavigate()
 
-    console.log(data)
-
     return (
         <RichTableView
             table={table}
@@ -36,7 +34,7 @@ function AdminUsersTableView() {
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
                 rowClickHandler: (user) => {
-                    navigate(`/admin/users/${user.id}`)
+                    navigate(`/admin/users/${user.id}`, { replace: true })
                 },
             }}
         />

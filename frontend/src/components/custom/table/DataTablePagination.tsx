@@ -40,8 +40,6 @@ export function DataTablePagination<TData>({
     const canPreviousPage = pageIndex > 0
     const canNextPage = pageIndex < pageCount - 1
 
-    console.log(totalItems, size, number, totalPages)
-
     return (
         <div className="flex items-center justify-between px-2 py-2">
             <div className="flex-1 text-sm text-muted-foreground pl-2">

@@ -37,7 +37,7 @@ function AdminAstTreesTableView() {
                         enableVisualization: true,
                         enableColumnVisibilityToggle: true,
                         rowClickHandler: (astTree) => {
-                            navigate(`/admin/ast-trees/${astTree.id}`)
+                            navigate(`/admin/ast-trees/${astTree.id}`, { replace: true })
                         },
                     }}
                 />

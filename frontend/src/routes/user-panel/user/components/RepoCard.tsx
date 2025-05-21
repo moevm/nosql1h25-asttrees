@@ -3,11 +3,9 @@ import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Badge} from "@/components/ui/badge.tsx";
 import {useNavigate} from "react-router-dom";
-import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
-import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
-import type {ApiRepositoryModel} from "@/store/store.ts";
-import {useAtomValue, useSetAtom} from "jotai/react";
-import {$currentRepo, showRepoSettingsDialogAtom} from "@/store/store.ts";
+import {$repoSettingsDialogRepo, type ApiRepositoryModel} from "@/store/store.ts";
+import {$showRepoSettingsDialog} from "@/store/store.ts";
+import {useSetAtom} from "jotai/react";
 
 const formatDate = (isoDateString: string | undefined): string => {
     if (!isoDateString) {
@@ -30,19 +28,17 @@ const formatDate = (isoDateString: string | undefined): string => {
 
 function RepoCard({repo}: { repo: ApiRepositoryModel }) {
     const nav = useNavigate();
-
-    const showRepoSettingsDialog = useAtomValue(showRepoSettingsDialogAtom);
-    const setShowRepoSettingsDialog = useSetAtom(showRepoSettingsDialogAtom);
-
+    const setShowRepoSettingsDialog = useSetAtom($showRepoSettingsDialog)
+    const setSelectedRepo = useSetAtom($repoSettingsDialogRepo)
 
     return (
         <Card
-            className="cursor-pointer"
             onClick={(e) => {
-                if (showRepoSettingsDialog) {
-                    return;
+                console.info((e.target as HTMLElement).tagName)
+                if ((e.target as HTMLElement).tagName !== 'BUTTON') {
+                    console.info('nav')
+                    nav(`repo/${repo.id}/branch/default/commit/latest`, {replace: true});
                 }
-                nav(`repo/${repo.id}/branch/default/commit/latest`);
             }}
         >
             <CardContent>
@@ -60,20 +56,15 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
                         <CardDescription className="mt-4">{formatDate(repo.createdAt)}</CardDescription>
                     </div>
                     <div>
-                        <Dialog open={showRepoSettingsDialog} onOpenChange={setShowRepoSettingsDialog}>
-                            <DialogTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                    }}
-                                    className="hover:cursor-pointer"
-                                >
-                                    Редактировать
-                                </Button>
-                            </DialogTrigger>
-                            <UserRepoSettingsDialog repo={repo}/>
-                        </Dialog>
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                setSelectedRepo(repo)
+                                setShowRepoSettingsDialog(true)
+                            }}
+                        >
+                            Редактировать
+                        </Button>
                     </div>
                 </div>
             </CardContent>

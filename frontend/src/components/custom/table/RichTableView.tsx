@@ -57,9 +57,6 @@ function RichTableView<TData, TValue>({
         return row.getValue(columnId)?.toString().toLowerCase().includes(filterValue.toLowerCase());
     };
 
-    console.log(data)
-    console.log(data?.page)
-
     return (
         <div className={"flex w-full min-w-screen-sm max-w-screen-lg flex-col"}>
 
@@ -183,7 +180,7 @@ function RichTableView<TData, TValue>({
                 </div>
             </div>
 
-            <div className="rounded-md border">
+            <div className="rounded border">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (

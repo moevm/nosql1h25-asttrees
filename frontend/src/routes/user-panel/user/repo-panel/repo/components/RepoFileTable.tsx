@@ -24,16 +24,16 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
     const curUser = useAtomValue($currentUser)
 
     const handleDirectory = useCallback((name: string) => {
-        navigate(`?path=${(path === '' ? '' : (path + '/')) + name}`)
-    }, [path])
+        navigate(`?path=${(path === '' ? '' : (path + '/')) + name}`, { replace: true })
+    }, [navigate, path])
 
     const handleReturn = useCallback(() => {
         if (path) {
             const lastSlashIndex = path.lastIndexOf('/');
             const newPath = lastSlashIndex !== -1 ? path.substring(0, lastSlashIndex) : '';
-            navigate(`?path=${newPath}`)
+            navigate(`?path=${newPath}`, { replace: true })
         }
-    }, [path])
+    }, [navigate, path])
 
     function findBranchIdByName(branchName: string | undefined, branches: typeof data.branches) {
         if (!branchName || !branches) return undefined;
@@ -46,7 +46,7 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
         const userId = curUser?.data?.id
         const branchId = findBranchIdByName(newBranchName, data.branches)
         const repId = data.repository?.id
-        navigate(`/users/${userId}/repo/${repId}/branch/${branchId}/commit/latest`)
+        navigate(`/users/${userId}/repo/${repId}/branch/${branchId}/commit/latest`, { replace: true })
     }
 
     return (
@@ -62,7 +62,7 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
-                            <SelectLabel>Branches</SelectLabel>
+                            <SelectLabel>Ветка</SelectLabel>
                             {data.branches?.map((item) => (
                                 <SelectItem key={item.name} value={item.name}>{item.name}</SelectItem>
                             ))}
@@ -71,29 +71,29 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                 </Select>
             </div>
             <table
-                className="min-w-full table-fixed border-separate border-spacing-0 border rounded-2xl overflow-hidden border-gray-200">
+                className="min-w-full bg-background table-fixed border-separate border-spacing-0 border rounded overflow-hidden border">
                 <thead>
-                <tr className="bg-[#F1F5F9]">
+                <tr className="bg-slate-100">
                     <th className="flex justify-between text-left py-2 px-4 gap-2">
                         <div className={"flex justify-center gap-2"}>
                             <Label className={"font-bold"}>
                                 {data.commit?.author}
                             </Label>
-                            <Label className={"text-gray-400"}>
+                            <Label className={"text-primary/60"}>
                                 {data.commit?.message}
                             </Label>
                         </div>
 
                         <div className={"flex justify-center gap-2"}>
-                            <Label className={"text-gray-400"}>
+                            <Label className={"text-primary/60"}>
                                 {data.commit?.hash}
                             </Label>
-                            <Label className={"text-gray-400"}>
+                            <Label className={"text-primary/60"}>
                                 {new Date(data.commit?.createdAt)?.toLocaleDateString("ru-RU")}
                             </Label>
                             <Link
                                 to={`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commits`}>
-                                <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
+                                <Button variant="ghost">
                                     <History/> {getCommitLabel(data.commitCount)}
                                 </Button>
                             </Link>
@@ -104,21 +104,20 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                 </thead>
                 <tbody>
                 {path !== '' && (
-                    <tr className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
-                        <td className="py-2 px-4 border-b border-gray-200 flex items-center gap-2"
-                            onClick={handleReturn}>
-                            <Folder/>
+                    <tr className="hover:bg-accent transition-colors cursor-pointer" onClick={handleReturn}>
+                        <td className="py-2 px-4 border-t border-border flex items-center gap-2">
+                            <Folder size={25}/>
                             ..
                         </td>
                     </tr>
                 )}
                 {data.files?.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-300 hover:underline hover:cursor-pointer">
+                    <tr key={item.id} className="hover:bg-accent transition-colors cursor-pointer">
                         <td
-                            className="py-2 px-4 border-b border-gray-200 flex items-center gap-2 cursor-pointer"
-                            onClick={item.type === "FILE" ? () => window.location.href = `/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commit/${data.commit?.id}/file/${item.id}` : () => handleDirectory(item.name)}>
+                            className="py-2 px-4 border-t border-border flex items-center gap-2 cursor-pointer"
+                            onClick={item.type === "FILE" ? () => navigate(`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commit/${data.commit?.id}/file/${item.id}`, { replace: true }) : () => handleDirectory(item.name)}>
                             <div className="flex items-center gap-2">
-                                {item.type === "FILE" ? <File/> : <Folder/>}
+                                {item.type === "FILE" ? <File size={25}/> : <Folder size={25}/>}
                                 {item.name}
                             </div>
                         </td>

@@ -50,7 +50,6 @@ function UserAddRepoDialog() {
     });
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values, visibility)
         mutate({
             body: {
                 originalLink: values.url,
@@ -65,13 +64,13 @@ function UserAddRepoDialog() {
         <Dialog>
             <DialogTrigger asChild>
                 <Button className="ml-auto flex justify-center gap-2">
-                    <Package/> Добавить в репозиторий
+                    <Package/> Импортировать репозиторий
                 </Button>
             </DialogTrigger>
 
             <DialogContent className="w-full max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Добавить репозиторий</DialogTitle>
+                    <DialogTitle>Импортировать репозиторий</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -109,18 +108,17 @@ function UserAddRepoDialog() {
 
                             <Button
                                 type={"button"}
-                                variant={`${visibility === "public" ? "secondary" : "ghost"}`}
+                                variant={`${visibility === "public" ? "default" : "ghost"}`}
                                 className="flex gap-2 justify-start text-left p-6 w-full"
                                 onClick={() => {
                                     setVisibility("public");
-                                    console.log(visibility)
                                 }}
                             >
                                 <div className={"flex justify-between items-center gap-2"}>
                                     <Eye className=""/>
                                     <div className="flex flex-col gap-1">
                                         <Label className="font-bold">Публичный</Label>
-                                        <Label className="text-primary/60">Любой человек</Label>
+                                        <Label className="opacity-75">Любой человек</Label>
                                     </div>
                                 </div>
 
@@ -128,18 +126,17 @@ function UserAddRepoDialog() {
 
                             <Button
                                 type={"button"}
-                                variant={`${visibility === "protected" ? "secondary" : "ghost"}`}
+                                variant={`${visibility === "protected" ? "default" : "ghost"}`}
                                 className={`flex gap-2 justify-start text-left p-6 w-full`}
                                 onClick={() => {
                                     setVisibility("protected");
-                                    console.log(visibility)
                                 }}>
 
                                 <div className={"flex justify-between items-center gap-2"}>
                                     <Shield className="mt-1"/>
                                     <div className="flex flex-col gap-1">
                                         <Label className="font-bold">Защищенный</Label>
-                                        <Label className="text-primary/60">Авторизованные пользователи</Label>
+                                        <Label className="opacity-75">Авторизованные пользователи</Label>
                                     </div>
                                 </div>
 
@@ -147,18 +144,17 @@ function UserAddRepoDialog() {
 
                             <Button
                                 type={"button"}
-                                variant={`${visibility === "private" ? "secondary" : "ghost"}`}
+                                variant={`${visibility === "private" ? "default" : "ghost"}`}
                                 className={`flex gap-2 justify-start text-left p-6 w-full`}
                                 onClick={() => {
                                     setVisibility("private");
-                                    console.log(visibility)
                                 }}>
 
                                 <div className={"flex justify-between items-center gap-2"}>
                                     <EyeOff className="mt-1"/>
                                     <div className="flex flex-col gap-1">
                                         <Label className="font-bold">Приватный</Label>
-                                        <Label className="text-primary/60">Только я</Label>
+                                        <Label className="opacity-75">Только я</Label>
                                     </div>
                                 </div>
 

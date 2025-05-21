@@ -201,28 +201,28 @@ function UserSettingsDialog() {
 
                             <Button
                                 type={"button"}
-                                variant={`${visibility === "public" ? "secondary" : "ghost"}`}
+                                variant={`${visibility === "public" ? "default" : "ghost"}`}
                                 className={`flex gap-2 justify-start text-left p-6  w-full`}
                                 onClick={() => setVisibility("public")}>
                                 <div className={"flex justify-between items-center gap-2"}>
                                     <Eye className=""/>
                                     <div className="flex flex-col gap-1">
                                         <Label className="font-bold">Публичный</Label>
-                                        <Label className="text-primary/60">Любой человек</Label>
+                                        <Label className="opacity-75">Любой человек</Label>
                                     </div>
                                 </div>
                             </Button>
 
                             <Button
                                 type={"button"}
-                                variant={`${visibility === "private" ? "secondary" : "ghost"}`}
+                                variant={`${visibility === "private" ? "default" : "ghost"}`}
                                 className={`flex gap-2 justify-start text-left p-6 w-full`}
                                 onClick={() => setVisibility("private")}>
                                 <div className={"flex justify-between items-center gap-2"}>
                                     <Shield className="mt-1"/>
                                     <div className="flex flex-col gap-1">
                                         <Label className="font-bold">Защищенный</Label>
-                                        <Label className="text-primary/60">Авторизованные пользователи</Label>
+                                        <Label className="opacity-75">Авторизованные пользователи</Label>
                                     </div>
                                 </div>
                             </Button>
