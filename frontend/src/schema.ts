@@ -244,6 +244,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/commits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getCommits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/branches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBranches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -407,6 +439,49 @@ export interface components {
             createdAt?: string;
             /** Format: int32 */
             branchCount?: number;
+            /** Format: int32 */
+            commitCount?: number;
+        };
+        EntityCommitDto: {
+            id?: string;
+            hash?: string;
+            author?: string;
+            email?: string;
+            message?: string;
+            /** Format: int32 */
+            filesChanged?: number;
+            /** Format: int32 */
+            linesAdded?: number;
+            /** Format: int32 */
+            linesRemoved?: number;
+            repository?: components["schemas"]["RepositoryWithOwnerDetailsDto"];
+            /** Format: int32 */
+            branchCount?: number;
+            /** Format: int32 */
+            fileCount?: number;
+            /** Format: int32 */
+            fileWithAstCount?: number;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        RepositoryWithOwnerDetailsDto: {
+            id?: string;
+            name?: string;
+            owner?: components["schemas"]["ShortUserDto"];
+            /** Format: uri */
+            originalLink?: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        EntityBranchDto: {
+            id?: string;
+            name?: string;
+            repository?: components["schemas"]["RepositoryWithOwnerDetailsDto"];
+            isDefault?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
             /** Format: int32 */
             commitCount?: number;
         };
@@ -785,6 +860,46 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["EntityRepositoryDto"][];
+                };
+            };
+        };
+    };
+    getCommits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityCommitDto"][];
+                };
+            };
+        };
+    };
+    getBranches: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityBranchDto"][];
                 };
             };
         };
