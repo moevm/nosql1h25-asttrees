@@ -29,6 +29,7 @@ interface RichTableViewProps<TData, TValue> {
     table: ReturnType<typeof useReactTable<TData>>;
     isLoading?: boolean;
     entityType?: EntityField[];
+    queryURLname?: string;
     data?: {
         totalElements?: number,
         size?: number,
@@ -51,6 +52,7 @@ function RichTableView<TData, TValue>({
     table,
     isLoading,
     entityType,
+    queryURLname,
     data = {},
     settings = {},
     filterString = "",
@@ -254,7 +256,7 @@ function RichTableView<TData, TValue>({
                 <DataTablePagination table={table} totalItems={data?.page?.totalElements} number={data?.page?.number} size={data?.page?.size} totalPages={data?.page?.totalPages}/>
             </div>
 
-            <VisualizationDialog dataFields={currentEntitiesFields} />
+            <VisualizationDialog dataFields={currentEntitiesFields} queryURL={queryURLname as string} />
             {/*<ExportDialog*/}
             {/*    open={showDialogExport}*/}
             {/*    onOpenChange={setShowDialogExport}*/}

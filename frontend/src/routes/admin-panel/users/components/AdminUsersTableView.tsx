@@ -26,6 +26,7 @@ function AdminUsersTableView() {
         <RichTableView
             table={table}
             entityType={fieldsUsers}
+            queryURLname={"users"}
             isLoading={isLoading}
             data={data}
             filterString={filterString}
