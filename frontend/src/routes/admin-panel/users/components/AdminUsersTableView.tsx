@@ -10,6 +10,7 @@ function AdminUsersTableView() {
         filterString,
         setFilterString,
         searchPosition,
+        data,
         setSearchPosition,
     } = useServerTable<ApiUserModel>({
         columns: columnsUser,
@@ -17,11 +18,13 @@ function AdminUsersTableView() {
         searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
+    console.log(data)
 
     return (
         <RichTableView
             table={table}
             isLoading={isLoading}
+            data={data}
             filterString={filterString}
             setFilterString={setFilterString}
             searchPosition={searchPosition}

@@ -24,6 +24,11 @@ import {getColumnTypeRelations, relationFullName} from "@/lib/table.ts";
 interface RichTableViewProps<TData, TValue> {
     table: ReturnType<typeof useReactTable<TData>>;
     isLoading?: boolean;
+    data?: {
+        number: number,
+        size: number,
+        totalElements: number,
+    } | null;
     settings?: {
         enableSearch?: boolean;
         enableVisualization?: boolean;
@@ -39,6 +44,7 @@ interface RichTableViewProps<TData, TValue> {
 function RichTableView<TData, TValue>({
     table,
     isLoading,
+    data = {},
     settings = {},
     filterString = "",
     setFilterString = () => {},
@@ -50,6 +56,9 @@ function RichTableView<TData, TValue>({
         return row.getValue(columnId)?.toString().toLowerCase().includes(filterValue.toLowerCase());
     };
 
+    console.log(data)
+    console.log(data?.page)
+
     return (
         <div className={"flex w-full min-w-screen-sm max-w-screen-lg flex-col"}>
 
@@ -58,13 +67,13 @@ function RichTableView<TData, TValue>({
                     <div className="flex gap-2 max-w-sm w-full">
                         <Input
                             placeholder={
-                                searchPosition.length
-                                    ? "Поиск по " + searchPosition.join(", ")
+                                !(searchPosition) || searchPosition.length
+                                    ? "Поиск по " + searchPosition?.join(", ")
                                     : "Выберите колонку для поиска"
                             }
                             value={filterString}
                             onChange={(event) => setFilterString(event.target.value)}
-                            disabled={searchPosition.length === 0}
+                            disabled={searchPosition?.length === 0}
                             className=""
                         />
                         <MultiSelect
@@ -227,7 +236,7 @@ function RichTableView<TData, TValue>({
                         )}
                     </TableBody>
                 </Table>
-                <DataTablePagination table={table}/>
+                <DataTablePagination table={table} totalItems={data?.page?.totalElements}/>
             </div>
 
             {/*<ExportDialog*/}

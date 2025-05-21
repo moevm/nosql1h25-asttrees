@@ -131,6 +131,7 @@ export function useServerTable<T>({
     });
 
     return {
+        data: data,
         table,
         isLoading: isPending,
         refetch: () => mutate({ body: queryBody }, {
