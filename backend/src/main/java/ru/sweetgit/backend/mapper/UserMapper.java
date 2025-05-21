@@ -22,8 +22,6 @@ public abstract class UserMapper {
 
     public abstract UserDto toUserDto(UserModel user);
 
-    public abstract EntityUserDto toEntityDto(FullUserModel fullUserModel);
-
     public UserModel toUserModel(AuthRegisterRequest request) {
         return new UserModel(
                 null,
