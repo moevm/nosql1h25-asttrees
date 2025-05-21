@@ -25,9 +25,10 @@ interface RichTableViewProps<TData, TValue> {
     table: ReturnType<typeof useReactTable<TData>>;
     isLoading?: boolean;
     data?: {
-        number: number,
-        size: number,
-        totalElements: number,
+        totalElements?: number,
+        size?: number,
+        number?: number,
+        totalPages?: number
     } | null;
     settings?: {
         enableSearch?: boolean;
@@ -236,7 +237,7 @@ function RichTableView<TData, TValue>({
                         )}
                     </TableBody>
                 </Table>
-                <DataTablePagination table={table} totalItems={data?.page?.totalElements}/>
+                <DataTablePagination table={table} totalItems={data?.page?.totalElements} number={data?.page?.number} size={data?.page?.size} totalPages={data?.page?.totalPages}/>
             </div>
 
             {/*<ExportDialog*/}

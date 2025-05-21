@@ -74,18 +74,20 @@ export function useServerTable<T>({
                                   }: UseServerTableOptions<T>) {
     const [globalFilter, setGlobalFilter] = useState(defaultQuery);
     const [sorting, setSorting] = useState<SortingState>([]);
-    const [sortingForQuery, setsortingForQuery] = useState<EntityField[]>([]);
+    const [sortingForQuery, setSortingForQuery] = useState<EntityField[]>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: defaultPageSize,
     });
+
     const [data, setData] = useState<ServerResponse<T> | null>(null);
+    const { mutate, isPending } = useGetTableDataQuery<T>(queryUrl);
 
     const table = useReactTable({
-        data: data?.content || [],
+        data: data?.content ?? [],
         columns,
-        pageCount: data ? Math.ceil(data.totalElements / pagination.pageSize) : -1,
+        pageCount: data?.totalPages ?? -1,
         manualPagination: true,
         manualSorting: true,
         manualFiltering: true,
@@ -105,12 +107,10 @@ export function useServerTable<T>({
         getFilteredRowModel: getFilteredRowModel(),
     });
 
-
     const queryBody: ServerQuery = useMemo(() => ({
         query: globalFilter,
         searchFields,
         pagination,
-        // sort: sorting.map((s) => ({ field: s.id, asc: !s.desc })),
         sort: sortingForQuery,
         filter: columnFilters.map((f) => ({
             field: f.id,
@@ -119,42 +119,35 @@ export function useServerTable<T>({
         })),
     }), [globalFilter, searchFields, pagination, sortingForQuery, columnFilters]);
 
-    const { mutate, isPending } = useGetTableDataQuery<T>(queryUrl);
-
-
-
     useEffect(() => {
-        console.info({
-            sorting,
-            columns: table.getAllColumns()
-        })
         const mappedSorting = sorting.map((s) => {
             const col = table.getAllColumns().find((c) => c.id === s.id);
-
-            const field = col?.columnDef?.meta?.field || s.id;
-            return { field, asc: !s.desc };
+            return {
+                field: col?.columnDef.meta?.field || s.id,
+                asc: !s.desc,
+            };
         });
 
-        setsortingForQuery(mappedSorting as EntityField[]);
+        setSortingForQuery(mappedSorting as EntityField[]);
 
         mutate(
             { body: { ...queryBody, sort: mappedSorting } },
             {
                 onSuccess: (res) => {
                     setData(res as ServerResponse<T>);
-                    console.log("Query body", queryBody);
-                    console.log("Sorting used:", mappedSorting);
                 },
             }
         );
-    }, [globalFilter, sorting, columnFilters, pagination, queryUrl]);
+    }, [globalFilter, sorting, columnFilters, pagination]);
 
     return {
-        data: data,
+        data,
         table,
         isLoading: isPending,
-        refetch: () => mutate({ body: queryBody }, {
-            onSuccess: (res) => setData(res as ServerResponse<T>)
-        }),
+        refetch: () =>
+            mutate(
+                { body: queryBody },
+                { onSuccess: (res) => setData(res as ServerResponse<T>) }
+            ),
     };
 }
