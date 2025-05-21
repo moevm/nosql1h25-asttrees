@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import type {ApiUserModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 
-function UserTableView(props: {
+function UsersAdminTableView(props: {
     data: ApiUserModel[]
 }) {
     console.log(props.data);
@@ -30,4 +30,4 @@ function UserTableView(props: {
     )
 }
 
-export default UserTableView
+export default UsersAdminTableView

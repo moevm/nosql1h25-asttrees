@@ -4,9 +4,9 @@ import 'highlight.js/styles/intellij-light.css'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import AuthorisationPage from "@/routes/reg-auth-page/AuthorisationPage.tsx";
 import AdminPanelLayout from "@/routes/admin-panel/AdminPanelLayout.tsx";
-import UsersPage from "@/routes/admin-panel/users/UsersPage.tsx";
+import UsersAdmninPage from "@/routes/admin-panel/users/UsersAdmninPage.tsx";
 import ReposAdminPage from "@/routes/admin-panel/repos/ReposAdminPage.tsx";
-import CommitsPage from "@/routes/admin-panel/commits/CommitsPage.tsx";
+import CommitsAdminPage from "@/routes/admin-panel/commits/CommitsAdminPage.tsx";
 import FilesPage from "@/routes/admin-panel/files/FilesPage.tsx";
 import AstTreesPage from "@/routes/admin-panel/ast-trees/AstTreesPage.tsx";
 import ImportExportDBPage from "@/routes/admin-panel/import-export-db/ImportExportDBPage.tsx";
@@ -57,9 +57,9 @@ createRoot(document.getElementById('root')!).render(
                             <Route path="admin" element={<AdminPanelLayout/>}>
                                 <Route index element={<Navigate to="users" replace/>}/>
                                 <Route path="branches" element={<BranchesPage/>}/>
-                                <Route path="users" element={<UsersPage/>}/>
+                                <Route path="users" element={<UsersAdmninPage/>}/>
                                 <Route path="repos" element={<ReposAdminPage/>}/>
-                                <Route path="commits" element={<CommitsPage/>}/>
+                                <Route path="commits" element={<CommitsAdminPage/>}/>
                                 <Route path="files" element={<FilesPage/>}/>
                                 <Route path="ast-trees" element={<AstTreesPage/>}/>
                                 <Route path="import-export" element={<ImportExportDBPage/>}/>
