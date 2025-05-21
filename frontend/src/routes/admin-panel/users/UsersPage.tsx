@@ -3,6 +3,7 @@ import UserTableView from "@/routes/admin-panel/users/components/UsersTableView.
 import {$users} from "@/store/store.ts";
 import {useAtomValue} from "jotai/react";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
+import {Label} from "@/components/ui/label.tsx";
 
 function UsersPage() {
     const users = useAtomValue($users);
@@ -11,8 +12,8 @@ function UsersPage() {
         <BatchLoader states={[users]}
                      loadingMessage={"Загрузка пользователей"}
                      display={() =>
-                         <div className={"flex flex-col m-6  py-4 ml-6"}>
-                             <span className={"text-4xl"}>Пользователи</span>
+                         <div className={"flex flex-col p-8"}>
+                             <Label className={"text-4xl"}>Пользователи</Label>
                              <UserTableView data={loaded(users).data}></UserTableView>
                          </div>
                      }/>

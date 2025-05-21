@@ -34,6 +34,7 @@ export type ApiUserModel = components['schemas']['UserDto']
 export type ApiFileContentModel = components['schemas']["FileContentDto"]
 export type ApiFileAstModel = components['schemas']["FileAstDto"]
 export type ApiEntityRepositoryModel = components['schemas']['EntityRepositoryDto']
+export type ApiEntityBranchModel = components['schemas']['EntityBranchDto']
 
 export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
@@ -194,3 +195,12 @@ export const $fileAstQuery = atomWithQuery((get) => {
 export const $fileAst = loadableQuery($fileAstQuery)
 
 export const showRepoSettingsDialogAtom = atom(false);
+
+export const $branchesQueryOptions = () => $api.queryOptions(
+    'get',
+    `/entities/branches`,
+);
+export const $branchesQuery = atomWithQuery((get) => {
+    return $branchesQueryOptions()
+})
+export const $branches = loadableQuery($branchesQuery)

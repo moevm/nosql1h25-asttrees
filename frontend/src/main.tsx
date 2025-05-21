@@ -27,6 +27,7 @@ import CommitLayout from "@/routes/user-panel/user/repo-panel/repo/commit-panel/
 import FileLayout from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/FileLayout.tsx";
 import FileViewPage
     from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/FileViewPage.tsx";
+import BranchesPage from "@/routes/admin-panel/branches/BranchesPage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
@@ -55,6 +56,7 @@ createRoot(document.getElementById('root')!).render(
 
                             <Route path="admin" element={<AdminPanelLayout/>}>
                                 <Route index element={<Navigate to="users" replace/>}/>
+                                <Route path="branches" element={<BranchesPage/>}/>
                                 <Route path="users" element={<UsersPage/>}/>
                                 <Route path="repos" element={<ReposAdminPage/>}/>
                                 <Route path="commits" element={<CommitsPage/>}/>

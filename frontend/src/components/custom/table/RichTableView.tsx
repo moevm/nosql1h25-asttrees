@@ -104,7 +104,7 @@ function RichTableView<TData, TValue>({
 
 
     return (
-        <div className={"flex w-full max-w-screen-lg flex-col p-8"}>
+        <div className={"flex w-full min-w-screen-sm max-w-screen-lg flex-col"}>
 
             <div className="flex flex-col gap-2 w-full py-2">
                 {!(settings) || settings.enableSearch && (

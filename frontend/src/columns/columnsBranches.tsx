@@ -1,7 +1,7 @@
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
 import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
-import type {ApiEntityRepositoryModel} from "@/store/store.ts";
+import type {ApiEntityBranchModel} from "@/store/store.ts";
 import dayjs from "dayjs";
 import type {TypedColumnDef} from "@/lib/table.ts";
 
@@ -11,7 +11,7 @@ const typesVisibilityType = {
     'PRIVATE': "Приватный"
 }
 
-export const columnsRepos = [
+export const columnsBranches = [
     {
         id: "select",
         header: ({table}) => (
@@ -65,45 +65,30 @@ export const columnsRepos = [
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
     {
-        accessorKey: "owner.username",
+        accessorKey: "repository.name",
         header: ({column}) => {
             return (
-                <DataTableColumnHeader column={column} title="Владелец"/>
+                <DataTableColumnHeader column={column} title="Репозиторий"/>
             );
         },
         meta: {
-            title: "Владелец",
+            title: "Репозиторий",
             type: 'string',
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
     {
-        accessorKey: "originalLink",
+        accessorKey: "isDefault",
         header: ({column}) => {
             return (
-                <DataTableColumnHeader column={column} title="Источник"/>
+                <DataTableColumnHeader column={column} title="По-умолчанию"/>
             )
         },
         meta: {
-            title: "Источник",
-            type: 'string',
+            title: "По-умолчанию",
+            type: 'boolean',
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
-    },
-    {
-        accessorKey: "visibility",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Публичность"/>
-            )
-        },
-        meta: {
-            title: "Публичность",
-            type: 'string'
-        },
-        accessorFn: (row) => {
-            return typesVisibilityType[row.visibility] ?? row.visibility
-        },
     },
     {
         accessorKey: "createdAt",
@@ -122,19 +107,6 @@ export const columnsRepos = [
         cell: ({ cell }) => <DateRenderer value={cell.getValue()} />,
     },
     {
-        accessorKey: "branchCount",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Количество веток"/>
-            )
-        },
-        meta: {
-            title: "Количество веток",
-            type: 'number',
-        },
-        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
-    },
-    {
         accessorKey: "commitCount",
         header: ({column}) => {
             return (
@@ -147,4 +119,4 @@ export const columnsRepos = [
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
-] as TypedColumnDef<ApiEntityRepositoryModel>[]
+] as TypedColumnDef<ApiEntityBranchModel>[]
