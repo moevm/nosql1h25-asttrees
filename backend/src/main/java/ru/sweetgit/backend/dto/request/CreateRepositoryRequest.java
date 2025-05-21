@@ -9,6 +9,7 @@ import java.net.URI;
 public record CreateRepositoryRequest(
         @NotNull
         URI originalLink,
+        @NotNull
         @NotBlank
         String name,
         @NotNull

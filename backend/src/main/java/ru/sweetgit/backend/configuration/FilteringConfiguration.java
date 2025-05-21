@@ -20,6 +20,12 @@ public class FilteringConfiguration {
                         Map.of("value", new TypeReference<String>() {
                         }),
                         (fieldName, parameters, varBinder) -> String.format("%s == %s", fieldName, varBinder.apply(parameters.get("value")))
+                ),
+                new FilterKind(
+                        "int_equals",
+                        Map.of("value", new TypeReference<Long>() {
+                        }),
+                        (fieldName, parameters, varBinder) -> String.format("%s == %s", fieldName, varBinder.apply(parameters.get("value")))
                 )
         );
     }

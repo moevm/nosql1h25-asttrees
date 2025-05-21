@@ -26,7 +26,7 @@ jwt:
 
 app:
   file-storage:
-    path: /Users/raregod/nosql1h25-asttrees/store
+    path: /Users/swee/dev/etu/nosql1h25-asttrees/store
   backup:
     executable:
       dump: /Users/raregod/backDumpRestore/bin/arangodump

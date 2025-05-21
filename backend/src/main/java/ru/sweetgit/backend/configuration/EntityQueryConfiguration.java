@@ -131,6 +131,7 @@ public class EntityQueryConfiguration {
         );
     }
 
+    @Bean
     public EntityQuery<FullBranchModel> branchEntityQuery() {
         return new EntityQuery<>(
                 "branches",
