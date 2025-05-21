@@ -4,12 +4,61 @@ import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utlis
 import type {ApiEntityRepositoryModel} from "@/store/store.ts";
 import dayjs from "dayjs";
 import type {TypedColumnDef} from "@/lib/table.ts";
+import type {EntityField} from "@/lib/utils.ts";
 
 const typesVisibilityType = {
     'PUBLIC': "Публичный",
     'PROTECTED': "Защищенный",
     'PRIVATE': "Приватный"
 }
+
+export const fieldsRepos: EntityField[] = [
+    {
+        id: "id",
+        name: "id",
+        type: "string"
+    },
+    {
+        id: "name",
+        name: "Название",
+        type: "string"
+    },
+    {
+        id: "owner.id",
+        name: "id владельца",
+        type: "string"
+    },
+    {
+        id: "owner.username",
+        name: "имя владельца",
+        type: "string"
+    },
+    {
+        id: "originalLink",
+        name: "URL",
+        type: "string"
+    },
+    {
+        id: "visibility",
+        name: "Доступность",
+        type: "string"
+    },
+    {
+        id: "createdAt",
+        name: "Создано",
+        type: "date"
+    },
+    {
+        id: "branchCount",
+        name: "Кол-во веток",
+        type: "int"
+    },
+    {
+        id: "commitCount",
+        name: "Кол-во коммитов",
+        type: "int"
+    }
+]
 
 export const columnsRepos = [
     {
@@ -48,6 +97,7 @@ export const columnsRepos = [
         meta: {
             title: "id",
             type: 'string',
+            field: "id"
         },
         cell: ({cell}) => <MonoRenderer value={cell.getValue()} />
     },
@@ -61,6 +111,7 @@ export const columnsRepos = [
         meta: {
             title: "Название",
             type: 'string',
+            field: 'name'
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
@@ -74,6 +125,7 @@ export const columnsRepos = [
         meta: {
             title: "Владелец",
             type: 'string',
+            field: 'owner.username'
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
@@ -87,6 +139,7 @@ export const columnsRepos = [
         meta: {
             title: "Источник",
             type: 'string',
+            field: 'originalLink'
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
@@ -99,7 +152,8 @@ export const columnsRepos = [
         },
         meta: {
             title: "Публичность",
-            type: 'string'
+            type: 'string',
+            field: 'visibility'
         },
         accessorFn: (row) => {
             return typesVisibilityType[row.visibility] ?? row.visibility
@@ -118,6 +172,7 @@ export const columnsRepos = [
         meta: {
             title: "Дата создания",
             type: 'datetime',
+            field: 'createdAt'
         },
         cell: ({ cell }) => <DateRenderer value={cell.getValue()} />,
     },
@@ -131,6 +186,7 @@ export const columnsRepos = [
         meta: {
             title: "Количество веток",
             type: 'number',
+            field: 'branchCount'
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
@@ -144,6 +200,7 @@ export const columnsRepos = [
         meta: {
             title: "Количество коммитов",
             type: 'number',
+            field: 'commitCount'
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },

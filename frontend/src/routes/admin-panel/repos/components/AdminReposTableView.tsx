@@ -16,7 +16,7 @@ function AdminReposTableView() {
     } = useServerTable<ApiEntityRepositoryModel>({
         columns: columnsRepos,
         queryUrl: "/entities/repositories",
-        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
+        searchFields: ["id", "name", "owner", "originalLink", "visibility", "createdAt", "branchCount", "commitCount"],
     });
 
     console.log(data)

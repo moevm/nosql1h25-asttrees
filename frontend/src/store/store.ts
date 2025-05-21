@@ -47,6 +47,7 @@ export type ApiFileAstModel = components['schemas']["FileAstDto"]
 export type ApiEntityRepositoryModel = components['schemas']['EntityRepositoryDto']
 export type ApiEntityCommitModel = components['schemas']['EntityCommitDto']
 export type ApiEntityBranchModel = components['schemas']['EntityBranchDto']
+export type ApiEntityUserModel = components['schemas']['EntityUserDto']
 
 export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
