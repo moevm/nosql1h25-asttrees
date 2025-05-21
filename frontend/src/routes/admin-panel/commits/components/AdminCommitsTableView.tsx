@@ -2,7 +2,7 @@ import type {ApiEntityRepositoryModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {columnsCommits} from "@/columns/columnsCommits.tsx";
 
-function CommitsAdminTableView(props: {
+function AdminCommitsTableView(props: {
     data: ApiEntityRepositoryModel[]
 }) {
     return (
@@ -27,4 +27,4 @@ function CommitsAdminTableView(props: {
     )
 }
 
-export default CommitsAdminTableView
+export default AdminCommitsTableView

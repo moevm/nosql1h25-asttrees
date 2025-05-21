@@ -2,10 +2,10 @@ import {useAtomValue} from "jotai/react";
 import {$commits} from "@/store/store.ts";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {loaded} from "@/api";
-import CommitsTableView from "@/routes/admin-panel/commits/components/CommitsAdminTableView.tsx";
+import CommitsTableView from "@/routes/admin-panel/commits/components/AdminCommitsTableView.tsx";
 import {Label} from "@/components/ui/label.tsx";
 
-function CommitsAdminPage() {
+function AdminCommitsPage() {
     const commits = useAtomValue($commits);
 
     return (
@@ -21,4 +21,4 @@ function CommitsAdminPage() {
     );
 }
 
-export default CommitsAdminPage;
+export default AdminCommitsPage;

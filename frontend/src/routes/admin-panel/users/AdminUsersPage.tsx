@@ -1,11 +1,11 @@
 import {loaded} from "@/api";
-import UsersAdminTableView from "@/routes/admin-panel/users/components/UsersAdminTableView.tsx";
+import AdminUsersTableView from "@/routes/admin-panel/users/components/AdminUsersTableView.tsx";
 import {$users} from "@/store/store.ts";
 import {useAtomValue} from "jotai/react";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {Label} from "@/components/ui/label.tsx";
 
-function UsersAdmninPage() {
+function AdminUsersPage() {
     const users = useAtomValue($users);
 
     return (
@@ -14,10 +14,10 @@ function UsersAdmninPage() {
                      display={() =>
                          <div className={"flex flex-col p-8"}>
                              <Label className={"text-4xl"}>Пользователи</Label>
-                             <UsersAdminTableView data={loaded(users).data}></UsersAdminTableView>
+                             <AdminUsersTableView data={loaded(users).data}></AdminUsersTableView>
                          </div>
                      }/>
     );
 }
 
-export default UsersAdmninPage;
+export default AdminUsersPage;

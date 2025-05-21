@@ -1,11 +1,10 @@
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
-import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
+import {MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
 import type {ApiEntityBranchModel} from "@/store/store.ts";
-import dayjs from "dayjs";
 import type {TypedColumnDef} from "@/lib/table.ts";
 
-export const columnsBranches = [
+export const columnsAstTrees = [
     {
         id: "select",
         header: ({table}) => (
@@ -46,69 +45,40 @@ export const columnsBranches = [
         cell: ({cell}) => <MonoRenderer value={cell.getValue()} />
     },
     {
-        accessorKey: "name",
+        accessorKey: "hash",
         header: ({column}) => {
             return (
-                <DataTableColumnHeader column={column} title="Название"/>
+                <DataTableColumnHeader column={column} title="Hash"/>
             )
         },
         meta: {
-            title: "Название",
+            title: "Hash",
             type: 'string',
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
     {
-        accessorKey: "repository.name",
+        accessorKey: "depth",
         header: ({column}) => {
             return (
-                <DataTableColumnHeader column={column} title="Репозиторий"/>
+                <DataTableColumnHeader column={column} title="Глубина"/>
             );
         },
         meta: {
-            title: "Репозиторий",
-            type: 'string',
+            title: "Глубина",
+            type: 'number',
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
     {
-        accessorKey: "isDefault",
+        accessorKey: "size",
         header: ({column}) => {
             return (
-                <DataTableColumnHeader column={column} title="По-умолчанию"/>
+                <DataTableColumnHeader column={column} title="Размер"/>
             )
         },
         meta: {
-            title: "По-умолчанию",
-            type: 'boolean',
-        },
-        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
-    },
-    {
-        accessorKey: "createdAt",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Дата создания"/>
-            )
-        },
-        accessorFn: (row) => {
-            return dayjs(row.createdAt);
-        },
-        meta: {
-            title: "Дата создания",
-            type: 'datetime',
-        },
-        cell: ({ cell }) => <DateRenderer value={cell.getValue()} />,
-    },
-    {
-        accessorKey: "commitCount",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Количество коммитов"/>
-            )
-        },
-        meta: {
-            title: "Количество коммитов",
+            title: "Размер",
             type: 'number',
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />

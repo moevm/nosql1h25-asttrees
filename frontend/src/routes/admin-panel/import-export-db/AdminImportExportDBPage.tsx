@@ -49,7 +49,7 @@ export function useImportQuery() {
 }
 
 
-function ImportExportDBPage() {
+function AdminImportExportDBPage() {
 
     const {mutate:mutateExport, isPending: isPendingExport} = useExportQuery()
     const {mutate:mutateImport, isPending: isPendingImport} = useImportQuery()
@@ -100,4 +100,4 @@ function ImportExportDBPage() {
     )
 }
 
-export default ImportExportDBPage
+export default AdminImportExportDBPage
