@@ -1,8 +1,44 @@
 import {Checkbox} from "@/components/ui/checkbox.tsx";
-import type {ApiUserModel} from "@/store/store.ts";
+import type {ApiEntityUserModel} from "@/store/store.ts";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
-import {MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
 import type {TypedColumnDef} from "@/lib/table.ts";
+import type {EntityField} from "@/lib/utils.ts";
+import dayjs from "dayjs";
+import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
+
+
+export const fieldsUsers: EntityField[] = [
+    {
+        id: "id",
+        name: "ID",
+        type: "string",
+    },
+    {
+        id: "username",
+        name: "Никнейм",
+        type: "string",
+    },
+    {
+        id: "email",
+        name: "Email",
+        type: "string",
+    },
+    {
+        id: "visibility",
+        name: "Публичность",
+        type: "string",
+    },
+    {
+        id: "createdAt",
+        name: "Дата создания",
+        type: "date",
+    },
+    {
+        id: "repositoryCount",
+        name: "Количество репозиториев",
+        type: "int",
+    },
+];
 
 export const columnsUser = [
     {
@@ -33,68 +69,65 @@ export const columnsUser = [
     },
     {
         accessorKey: "id",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="id"/>
-            )
-        },
+        header: ({column}) => <DataTableColumnHeader column={column} title="ID" />,
         meta: {
-            title: "id",
-            type: 'string',
-            selectFromFile: true,
+            title: "ID",
+            type: "string",
+            field: "id"
         },
-        cell: ({cell}) => <MonoRenderer value={cell.getValue()}/>
+        cell: ({cell}) => <MonoRenderer value={cell.getValue()} />,
     },
     {
         accessorKey: "username",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Никнейм"/>
-            )
-        },
+        header: ({column}) => <DataTableColumnHeader column={column} title="Никнейм" />,
         meta: {
             title: "Никнейм",
-            type: 'string',
-            selectFromFile: true,
+            type: "string",
+            field: "username"
         },
-        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
+        cell: ({cell}) => <OptRenderer value={cell.getValue()} />,
     },
     {
         accessorKey: "email",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Email"/>
-            );
-        },
+        header: ({column}) => <DataTableColumnHeader column={column} title="Email" />,
         meta: {
             title: "Email",
-            type: 'list',
+            type: "string",
+            field: "email"
         },
+        cell: ({cell}) => <OptRenderer value={cell.getValue()} />,
     },
     {
         accessorKey: "visibility",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Публичность"/>
-            )
-        },
+        header: ({column}) => <DataTableColumnHeader column={column} title="Публичность" />,
         meta: {
             title: "Публичность",
-            type: 'string',
+            type: "string",
+            field: "visibility"
         },
-        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
+        cell: ({cell}) => <OptRenderer value={cell.getValue()} />,
+    },
+    {
+        accessorKey: "createdAt",
+        header: ({column}) => <DataTableColumnHeader column={column} title="Дата создания" />,
+        meta: {
+            title: "Дата создания",
+            type: "datetime",
+            field: "createdAt"
+        },
+        accessorFn: (row) => {
+            return dayjs(row.createdAt);
+        },
+        cell: ({cell}) => <DateRenderer value={cell.getValue()} />,
     },
     {
         accessorKey: "repositoryCount",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Кол-во репозиториев"/>
-            )
-        },
+        header: ({column}) => <DataTableColumnHeader column={column} title="Кол-во репозиториев" />,
         meta: {
             title: "Кол-во репозиториев",
-            type: 'string'
+            type: "number",
+            field: "repositoryCount"
         },
-        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
+        cell: ({cell}) => <OptRenderer value={cell.getValue()} />,
     },
-] as TypedColumnDef<ApiUserModel>[]
+] as TypedColumnDef<ApiEntityUserModel>[]

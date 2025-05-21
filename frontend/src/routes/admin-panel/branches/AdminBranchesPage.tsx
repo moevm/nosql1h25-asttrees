@@ -1,5 +1,6 @@
 import AdminBranchesTableView from "@/routes/admin-panel/branches/components/AdminBranchesTableView.tsx";
 import {Label} from "@/components/ui/label.tsx";
+import React from "react";
 
 function AdminBranchesPage() {
 
