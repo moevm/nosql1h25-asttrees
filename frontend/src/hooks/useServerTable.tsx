@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import {
     useReactTable,
     getCoreRowModel,
@@ -48,7 +47,6 @@ interface ServerResponse<T> {
 
 interface UseServerTableOptions<T> {
     columns: any;
-    searchFields: string[];
     queryUrl: string;
     defaultPageSize?: number;
     defaultQuery?: string;
@@ -67,13 +65,14 @@ export function useGetTableDataQuery(queryURL: string) {
 
 export function useServerTable<T>({
                                       columns,
-                                      searchFields,
                                       queryUrl,
                                       defaultPageSize = 10,
                                       defaultQuery = "",
                                   }: UseServerTableOptions<T>) {
     const [globalFilter, setGlobalFilter] = useState(defaultQuery);
     const [sorting, setSorting] = useState<SortingState>([]);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchFields, setSearchFields] = useState<string[]>([]);
     const [sortingForQuery, setSortingForQuery] = useState<EntityField[]>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [pagination, setPagination] = useState({
@@ -108,7 +107,8 @@ export function useServerTable<T>({
     });
 
     const queryBody: ServerQuery = useMemo(() => ({
-        query: globalFilter,
+        query: searchQuery, ///////
+        globalFilter,
         searchFields,
         pagination,
         sort: sortingForQuery,
@@ -117,7 +117,7 @@ export function useServerTable<T>({
             kind: typeof f.value === "number" ? "number" : "string",
             params: { value: f.value },
         })),
-    }), [globalFilter, searchFields, pagination, sortingForQuery, columnFilters]);
+    }), [searchQuery, globalFilter, searchFields, pagination, sortingForQuery, columnFilters]);
 
     useEffect(() => {
         const mappedSorting = sorting.map((s) => {
@@ -138,12 +138,16 @@ export function useServerTable<T>({
                 },
             }
         );
-    }, [globalFilter, sorting, columnFilters, pagination]);
+    }, [searchQuery, globalFilter, sorting, columnFilters, pagination]);
 
     return {
         data,
         table,
         isLoading: isPending,
+        filterString: searchQuery,
+        setFilterString: setSearchQuery,
+        searchPosition: searchFields,
+        setSearchPosition: setSearchFields,
         refetch: () =>
             mutate(
                 { body: queryBody },

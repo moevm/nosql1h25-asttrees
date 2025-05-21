@@ -1,7 +1,7 @@
 import type {ApiEntityBranchModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
-import {columnsBranches} from "@/columns/columnsBranches.tsx";
+import {columnsBranches, fieldsBranches} from "@/columns/columnsBranches.tsx";
 import {useNavigate} from "react-router-dom";
 
 function AdminBranchesTableView() {
@@ -16,7 +16,6 @@ function AdminBranchesTableView() {
     } = useServerTable<ApiEntityBranchModel>({
         columns: columnsBranches,
         queryUrl: "/entities/branches",
-        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
     const navigate = useNavigate()
@@ -25,6 +24,8 @@ function AdminBranchesTableView() {
         <RichTableView
             table={table}
             isLoading={isLoading}
+            entityType={fieldsBranches}
+            queryURLname={"branches"}
             data={data}
             filterString={filterString}
             setFilterString={setFilterString}

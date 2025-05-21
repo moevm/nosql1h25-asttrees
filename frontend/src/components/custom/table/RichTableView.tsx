@@ -1,14 +1,9 @@
 import * as React from "react";
-import type {ColumnDef, ColumnFiltersState, Row, SortingState, VisibilityState} from "@tanstack/react-table";
 import {
     flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
     useReactTable
 } from "@tanstack/react-table";
-import {ReactNode, useEffect} from "react";
+import {useEffect, useMemo} from "react";
 import {Input} from "@/components/ui/input.tsx";
 import {MultiSelect} from "@/components/custom/multi-select/MultiSelect.tsx";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
@@ -20,10 +15,16 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/c
 import {DataTablePagination} from "@/components/custom/table/DataTablePagination.tsx";
 import {DataTableViewOptions} from "@/components/custom/table/DataTableViewOptions.tsx";
 import {getColumnTypeRelations, relationFullName} from "@/lib/table.ts";
+import {useAtomValue, useSetAtom} from "jotai/react";
+import {$currentEntitiesFieldsAtom, $showVisualizationDialogAtom} from "@/store/store.ts";
+import VisualizationDialog from "@/components/dialogs/VisualizationDialog.tsx";
+import type {EntityField} from "@/lib/utils.ts";
 
 interface RichTableViewProps<TData, TValue> {
     table: ReturnType<typeof useReactTable<TData>>;
-    isLoading?: boolean;
+    isLoading: boolean;
+    entityType: EntityField[];
+    queryURLname: string;
     data?: {
         totalElements?: number,
         size?: number,
@@ -36,55 +37,58 @@ interface RichTableViewProps<TData, TValue> {
         enableColumnVisibilityToggle?: boolean;
         rowClickHandler?: (data: TData) => void;
     };
-    filterString?: string;
-    setFilterString?: (value: string) => void;
-    searchPosition?: string[];
-    setSearchPosition?: (value: string[]) => void;
+    filterString: string;
+    setFilterString: (value: string) => void;
+    searchPosition: string[];
+    setSearchPosition: (value: string[]) => void;
 }
 
 function RichTableView<TData, TValue>({
-    table,
-    isLoading,
-    data = {},
-    settings = {},
-    filterString = "",
-    setFilterString = () => {},
-    searchPosition = [],
-    setSearchPosition = () => {}
-}: RichTableViewProps<TData, TValue>) {
+                                          table,
+                                          isLoading,
+                                          entityType,
+                                          queryURLname,
+                                          data = {},
+                                          settings = {},
+                                          filterString,
+                                          setFilterString,
+                                          searchPosition,
+                                          setSearchPosition
+                                      }: RichTableViewProps<TData, TValue>) {
 
-    const defaultGlobalFilter = (row, columnId, filterValue) => {
-        return row.getValue(columnId)?.toString().toLowerCase().includes(filterValue.toLowerCase());
-    };
+    const setShowVisualizationDialog = useSetAtom($showVisualizationDialogAtom);
+    const currentEntitiesFields = useAtomValue($currentEntitiesFieldsAtom);
+    const setCurrentEntitiesFields = useSetAtom($currentEntitiesFieldsAtom);
+
+    useEffect(() => {
+        setCurrentEntitiesFields(entityType);
+    }, [entityType, setCurrentEntitiesFields]);
+
+    const searchableEntityFields = useMemo(() => {
+        return entityType.filter(it => it.type === 'string')
+    }, [entityType])
 
     return (
         <div className={"flex w-full min-w-screen-sm max-w-screen-lg flex-col"}>
-
             <div className="flex flex-justify-between gap-2 w-full py-2">
                 {!(settings) || settings.enableSearch && (
                     <div className="flex gap-2 max-w-sm w-full">
                         <Input
                             placeholder={
-                                !(searchPosition) || searchPosition.length
+                                (searchPosition.length !== 0)
                                     ? "Поиск по " + searchPosition?.join(", ")
                                     : "Выберите колонку для поиска"
                             }
                             value={filterString}
                             onChange={(event) => setFilterString(event.target.value)}
-                            disabled={searchPosition?.length === 0}
+                            disabled={searchPosition.length === 0}
                             className=""
                         />
                         <MultiSelect
                             asChild
-                            options={table.getAllColumns()
-                                .filter(
-                                    (column) =>
-                                        typeof column.accessorFn !== "undefined" &&
-                                        column.getCanHide() &&
-                                        column.columnDef.meta.type === 'string'
-                                )
+                            options={searchableEntityFields
                                 .map(it => ({
-                                    label: it.columnDef.meta?.title || it.id,
+                                    label: it.name,
                                     value: it.id
                                 }))}
                             onValueChange={setSearchPosition}
@@ -172,9 +176,12 @@ function RichTableView<TData, TValue>({
                 <div className="flex justify-center items-center gap-2 ml-auto">
                     <div>
                         {settings?.enableVisualization &&
-                            <Button size="sm" onClick={() => setShowDialogExport(true)}>
+                            <Button size="sm" onClick={() => {
+                                setShowVisualizationDialog(true);
+                            }}>
                                 <GitGraph/> Визуализация
-                            </Button>}
+                            </Button>
+                        }
                     </div>
                     {settings?.enableColumnVisibilityToggle && <DataTableViewOptions table={table}/>}
                 </div>
@@ -234,48 +241,12 @@ function RichTableView<TData, TValue>({
                         )}
                     </TableBody>
                 </Table>
-                <DataTablePagination table={table} totalItems={data?.page?.totalElements} number={data?.page?.number} size={data?.page?.size} totalPages={data?.page?.totalPages}/>
+                <DataTablePagination table={table} totalItems={data?.page?.totalElements}
+                                     number={data?.page?.number}
+                                     size={data?.page?.size} totalPages={data?.page?.totalPages}/>
             </div>
 
-            {/*<ExportDialog*/}
-            {/*    open={showDialogExport}*/}
-            {/*    onOpenChange={setShowDialogExport}*/}
-            {/*    table={table}*/}
-            {/*    selectedCount={Object.keys(rowSelection).length}*/}
-            {/*    data={entries}*/}
-            {/*/>*/}
-            {/*<FileDialog*/}
-            {/*    open={showDialogSelectFromFile}*/}
-            {/*    onOpenChange={setShowDialogSelectFromFile}*/}
-            {/*    title={"Выделить из файла"}*/}
-            {/*    description={"Будут выделены все строки с совпадениями основных полей"}*/}
-            {/*    buttonText={"Выделить из файла"}*/}
-            {/*    onSubmit={(data) => {*/}
-            {/*        const matches = new Set(data.flatMap(it => Object.values(it).map(it => String(it).toLowerCase())))*/}
-            {/*        console.info(matches)*/}
-
-            {/*        const cols = table.getAllColumns()*/}
-            {/*            .filter(*/}
-            {/*                (column) =>*/}
-            {/*                    column.columnDef.meta.selectFromFile === true*/}
-            {/*            )*/}
-
-            {/*        let count = 0*/}
-            {/*        table.getRowModel().rows.forEach(row => {*/}
-            {/*            if (cols.some(it => matches.has(String(row.getValue(it.id)).toLowerCase()))) {*/}
-            {/*                row.toggleSelected(true)*/}
-            {/*                count++*/}
-            {/*            }*/}
-            {/*        })*/}
-
-            {/*        toast.success(`Выделено ${count} строк`)*/}
-            {/*        return true*/}
-            {/*    }}*/}
-            {/*/>*/}
-            {/*<UserImportDialog*/}
-            {/*    open={showDialogImport}*/}
-            {/*    onOpenChange={setShowDialogImport}*/}
-            {/*/>*/}
+            <VisualizationDialog dataFields={currentEntitiesFields} queryURL={queryURLname as string}/>
         </div>
     );
 }

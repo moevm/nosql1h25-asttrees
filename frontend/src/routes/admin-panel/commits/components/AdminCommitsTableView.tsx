@@ -1,8 +1,7 @@
-import type {ApiEntityCommitModel, ApiEntityRepositoryModel} from "@/store/store.ts";
+import type {ApiEntityCommitModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
-import {columnsCommits} from "@/columns/columnsCommits.tsx";
+import {columnsCommits, fieldsCommits} from "@/columns/columnsCommits.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
-import {columnsRepos} from "@/columns/columnsRepos.tsx";
 import {useNavigate} from "react-router-dom";
 
 function AdminCommitsTableView() {
@@ -17,7 +16,6 @@ function AdminCommitsTableView() {
     } = useServerTable<ApiEntityCommitModel>({
         columns: columnsCommits,
         queryUrl: "/entities/commits",
-        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
     const navigate = useNavigate()
@@ -26,6 +24,8 @@ function AdminCommitsTableView() {
         <RichTableView
             table={table}
             isLoading={isLoading}
+            entityType={fieldsCommits}
+            queryURLname={"commits"}
             data={data}
             filterString={filterString}
             setFilterString={setFilterString}

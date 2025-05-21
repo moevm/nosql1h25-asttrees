@@ -2,7 +2,7 @@ import type {ApiEntityAstTreeModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
 import {useNavigate} from "react-router-dom";
-import {columnsAstTrees} from "@/columns/columnsAstTrees.tsx";
+import {columnsAstTrees, fieldsAstTrees} from "@/columns/columnsAstTrees.tsx";
 
 function AdminAstTreesTableView() {
     const {
@@ -16,7 +16,6 @@ function AdminAstTreesTableView() {
     } = useServerTable<ApiEntityAstTreeModel>({
         columns: columnsAstTrees,
         queryUrl: "/entities/ast_trees",
-        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
     const navigate = useNavigate()
@@ -28,6 +27,8 @@ function AdminAstTreesTableView() {
                     table={table}
                     isLoading={isLoading}
                     data={data}
+                    entityType={fieldsAstTrees}
+                    queryURLname={"ast_trees"}
                     filterString={filterString}
                     setFilterString={setFilterString}
                     searchPosition={searchPosition}
