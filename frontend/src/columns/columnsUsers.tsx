@@ -1,10 +1,10 @@
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import type {ApiEntityUserModel} from "@/store/store.ts";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
-import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
 import type {TypedColumnDef} from "@/lib/table.ts";
 import type {EntityField} from "@/lib/utils.ts";
 import dayjs from "dayjs";
+import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
 
 
 export const fieldsUsers: EntityField[] = [
