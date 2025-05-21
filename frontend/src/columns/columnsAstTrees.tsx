@@ -1,8 +1,9 @@
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
-import {MonoRenderer, OptRenderer} from "@/components/custom/utlis/ValueRenderers.tsx";
-import type {ApiEntityBranchModel} from "@/store/store.ts";
+import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
+import type {ApiEntityAstTreeModel} from "@/store/store.ts";
 import type {TypedColumnDef} from "@/lib/table.ts";
+import dayjs from "dayjs";
 
 export const columnsAstTrees = [
     {
@@ -42,20 +43,23 @@ export const columnsAstTrees = [
             title: "id",
             type: 'string',
         },
-        cell: ({cell}) => <MonoRenderer value={cell.getValue()} />
+        cell: ({cell}) => <MonoRenderer value={cell.getValue()}/>
     },
     {
-        accessorKey: "hash",
+        accessorKey: "createdAt",
         header: ({column}) => {
             return (
-                <DataTableColumnHeader column={column} title="Hash"/>
+                <DataTableColumnHeader column={column} title="Дата создания"/>
             )
         },
-        meta: {
-            title: "Hash",
-            type: 'string',
+        accessorFn: (row) => {
+            return dayjs(row.createdAt);
         },
-        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
+        meta: {
+            title: "Дата создания",
+            type: 'datetime',
+        },
+        cell: ({cell}) => <DateRenderer value={cell.getValue()}/>,
     },
     {
         accessorKey: "depth",
@@ -68,7 +72,7 @@ export const columnsAstTrees = [
             title: "Глубина",
             type: 'number',
         },
-        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "size",
@@ -81,6 +85,32 @@ export const columnsAstTrees = [
             title: "Размер",
             type: 'number',
         },
-        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
-] as TypedColumnDef<ApiEntityBranchModel>[]
+    {
+        accessorKey: "commitFile.name",
+        header: ({column}) => {
+            return (
+                <DataTableColumnHeader column={column} title="Название файла"/>
+            )
+        },
+        meta: {
+            title: "Название файла",
+            type: 'string',
+        },
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
+    },
+    {
+        accessorKey: "commitFile.hash",
+        header: ({column}) => {
+            return (
+                <DataTableColumnHeader column={column} title="Hash файла"/>
+            )
+        },
+        meta: {
+            title: "Hash файла",
+            type: 'string',
+        },
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
+    },
+] as TypedColumnDef<ApiEntityAstTreeModel>[]

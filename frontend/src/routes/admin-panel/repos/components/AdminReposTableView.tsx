@@ -3,6 +3,7 @@ import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {columnsRepos} from "@/columns/columnsRepos.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
 import {columnsUser} from "@/columns/columnsUsers.tsx";
+import {useNavigate} from "react-router-dom";
 
 function AdminReposTableView() {
     const {
@@ -19,7 +20,7 @@ function AdminReposTableView() {
         searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
-    console.log(data)
+    const navigate = useNavigate()
 
     return (
         <RichTableView
@@ -34,8 +35,8 @@ function AdminReposTableView() {
                 enableSearch: true,
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
-                rowClickHandler: (user) => {
-                    // navigate(`/spaces/...`)
+                rowClickHandler: (repo) => {
+                    navigate(`/admin/repos/${repo.id}`)
                 },
             }}
         />

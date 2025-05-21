@@ -2,6 +2,7 @@ import {columnsUser} from "@/columns/columnsUsers.tsx";
 import type {ApiUserModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
+import {useNavigate} from "react-router-dom";
 
 function AdminUsersTableView() {
     const {
@@ -17,6 +18,7 @@ function AdminUsersTableView() {
         queryUrl: "/entities/users",
         searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
+    const navigate = useNavigate()
 
     console.log(data)
 
@@ -34,11 +36,11 @@ function AdminUsersTableView() {
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
                 rowClickHandler: (user) => {
-                    // navigate(`/spaces/...`)
+                    navigate(`/admin/users/${user.id}`)
                 },
             }}
         />
     );
 }
 
-export default AdminUsersTableView;
+export default AdminUsersTableView

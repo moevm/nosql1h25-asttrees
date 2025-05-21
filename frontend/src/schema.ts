@@ -20,7 +20,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/entities/users": {
+    "/entities/users/query": {
         parameters: {
             query?: never;
             header?: never;
@@ -36,7 +36,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/entities/repositories": {
+    "/entities/repositories/query": {
         parameters: {
             query?: never;
             header?: never;
@@ -45,14 +45,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["querytRepositories"];
+        post: operations["queryRepositories"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/entities/commits": {
+    "/entities/commits/query": {
         parameters: {
             query?: never;
             header?: never;
@@ -68,7 +68,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/entities/branches": {
+    "/entities/branches/query": {
         parameters: {
             query?: never;
             header?: never;
@@ -78,6 +78,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["queryBranches"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/ast_trees/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["queryAstTrees"];
         delete?: never;
         options?: never;
         head?: never;
@@ -276,6 +292,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/users/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/repositories/{repositoryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getRepository"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/commits/{commitId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getCommit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/branches/{branchId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBranch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/ast_trees/{astTreeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAstTree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -453,6 +549,86 @@ export interface components {
             commitFile?: components["schemas"]["CommitFileDto"];
             astTree?: components["schemas"]["AstTreeViewDto"];
         };
+        EntityUserDto: {
+            id?: string;
+            username?: string;
+            email?: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PRIVATE";
+            /** Format: date-time */
+            createdAt?: string;
+            isAdmin?: boolean;
+            /** Format: int32 */
+            repositoryCount?: number;
+        };
+        EntityRepositoryDto: {
+            id?: string;
+            name?: string;
+            owner?: components["schemas"]["ShortUserDto"];
+            /** Format: uri */
+            originalLink?: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: int32 */
+            branchCount?: number;
+            /** Format: int32 */
+            commitCount?: number;
+        };
+        EntityCommitDto: {
+            id?: string;
+            hash?: string;
+            author?: string;
+            email?: string;
+            message?: string;
+            /** Format: int32 */
+            filesChanged?: number;
+            /** Format: int32 */
+            linesAdded?: number;
+            /** Format: int32 */
+            linesRemoved?: number;
+            repository?: components["schemas"]["RepositoryWithOwnerDetailsDto"];
+            /** Format: int32 */
+            branchCount?: number;
+            /** Format: int32 */
+            fileCount?: number;
+            /** Format: int32 */
+            fileWithAstCount?: number;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        RepositoryWithOwnerDetailsDto: {
+            id?: string;
+            name?: string;
+            owner?: components["schemas"]["ShortUserDto"];
+            /** Format: uri */
+            originalLink?: string;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        EntityBranchDto: {
+            id?: string;
+            name?: string;
+            repository?: components["schemas"]["RepositoryWithOwnerDetailsDto"];
+            isDefault?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: int32 */
+            commitCount?: number;
+        };
+        EntityAstTreeDto: {
+            id?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: int32 */
+            depth?: number;
+            /** Format: int32 */
+            size?: number;
+            commitFile?: components["schemas"]["ShortCommitFileDto"];
+        };
     };
     responses: never;
     parameters: never;
@@ -510,7 +686,7 @@ export interface operations {
             };
         };
     };
-    querytRepositories: {
+    queryRepositories: {
         parameters: {
             query?: never;
             header?: never;
@@ -559,6 +735,30 @@ export interface operations {
         };
     };
     queryBranches: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntitySearchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PagedModel"];
+                };
+            };
+        };
+    };
+    queryAstTrees: {
         parameters: {
             query?: never;
             header?: never;
@@ -884,6 +1084,116 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["FileAstDto"];
+                };
+            };
+        };
+    };
+    getUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityUserDto"];
+                };
+            };
+        };
+    };
+    getRepository: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repositoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityRepositoryDto"];
+                };
+            };
+        };
+    };
+    getCommit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commitId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityCommitDto"];
+                };
+            };
+        };
+    };
+    getBranch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                branchId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityBranchDto"];
+                };
+            };
+        };
+    };
+    getAstTree: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                astTreeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityAstTreeDto"];
                 };
             };
         };

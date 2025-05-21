@@ -5,41 +5,93 @@ import {atomWithQuery} from "jotai-tanstack-query";
 
 export const store = createStore()
 
-export const $usersQueryOptions = () => $api.queryOptions(
+export const $adminUserQueryOptions = (userId: string) => $api.queryOptions(
     'get',
-    `/entities/users`,
+    `/entities/users/{userId}`,
+    {
+        params: {
+            path: {
+                userId: userId
+            }
+        },
+    },
 );
-export const $usersQuery = atomWithQuery((get) => {
-    return $usersQueryOptions()
+export const $adminUserQuery = atomWithQuery((get) => {
+    const adminUserId = get($adminUserId)
+    return $adminUserQueryOptions(adminUserId!)
 })
-export const $users = loadableQuery($usersQuery)
+export const $adminUser = loadableQuery($adminUserQuery)
 
-export const $reposQueryOptions = () => $api.queryOptions(
+export const $adminRepoQueryOptions = (repoId: string) => $api.queryOptions(
     'get',
-    `/entities/repositories`,
+    `/entities/repositories/{repositoryId}`,
+    {
+        params: {
+            path: {
+                repositoryId: repoId
+            }
+        },
+    },
 );
-
-export const $reposQuery = atomWithQuery((get) => {
-    return $reposQueryOptions()
+export const $adminRepoQuery = atomWithQuery((get) => {
+    const adminRepoId = get($adminRepoId)
+    return $adminRepoQueryOptions(adminRepoId!)
 })
+export const $adminRepo = loadableQuery($adminRepoQuery)
 
-export const $repos = loadableQuery($reposQuery)
-
-export const $commitsQueryOptions = () => $api.queryOptions(
+export const $adminBranchQueryOptions = (branchId: string) => $api.queryOptions(
     'get',
-    `/entities/commits`,
+    `/entities/branches/{branchId}`,
+    {
+        params: {
+            path: {
+                branchId: branchId
+            }
+        },
+    },
 );
-
-export const $commitsQuery = atomWithQuery((get) => {
-    return $commitsQueryOptions()
+export const $adminBranchQuery = atomWithQuery((get) => {
+    const adminBranchId = get($adminBranchId)
+    return $adminBranchQueryOptions(adminBranchId!)
 })
+export const $adminBranch = loadableQuery($adminBranchQuery)
 
-export const $commits = loadableQuery($commitsQuery)
+export const $adminCommitQueryOptions = (commitId: string) => $api.queryOptions(
+    'get',
+    `/entities/commits/{commitId}`,
+    {
+        params: {
+            path: {
+                commitId: commitId
+            }
+        },
+    },
+);
+export const $adminCommitQuery = atomWithQuery((get) => {
+    const adminCommitId = get($adminCommitId)
+    return $adminCommitQueryOptions(adminCommitId!)
+})
+export const $adminCommit = loadableQuery($adminCommitQuery)
+
+export const $adminAstTreeQueryOptions = (astTreeId: string) => $api.queryOptions(
+    'get',
+    `/entities/ast_trees/{astTreeId}`,
+    {
+        params: {
+            path: {
+                astTreeId: astTreeId
+            }
+        },
+    },
+);
+export const $adminAstTreeQuery = atomWithQuery((get) => {
+    const adminAstTreeId = get($adminAstTreeId)
+    return $adminAstTreeQueryOptions(adminAstTreeId!)
+})
+export const $adminAstTree = loadableQuery($adminAstTreeQuery)
 
 export type ApiCommitModel = components['schemas']['CommitDto']
-
 export type ApiRepositoryModel = components['schemas']['RepositoryDto']
-
 export type ApiRepositoryViewModel = components['schemas']['RepositoryViewDto']
 export type ApiUserModel = components['schemas']['UserDto']
 export type ApiFileContentModel = components['schemas']["FileContentDto"]
@@ -47,11 +99,18 @@ export type ApiFileAstModel = components['schemas']["FileAstDto"]
 export type ApiEntityRepositoryModel = components['schemas']['EntityRepositoryDto']
 export type ApiEntityCommitModel = components['schemas']['EntityCommitDto']
 export type ApiEntityBranchModel = components['schemas']['EntityBranchDto']
+export type ApiEntityUserModel = components['schemas']['EntityUserDto']
+export type ApiEntityAstTreeModel = components['schemas']['EntityAstTreeDto']
 
 export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
 export const $branchId = atom<string | null>(null)
 export const $commitId = atom<string | null>(null)
+export const $adminUserId = atom<string | null>(null)
+export const $adminRepoId = atom<string | null>(null)
+export const $adminBranchId = atom<string | null>(null)
+export const $adminCommitId = atom<string | null>(null)
+export const $adminAstTreeId = atom<string | null>(null)
 export const $path = atom("")
 
 export const $currentUserQueryOptions = (enabled: boolean) => $api.queryOptions(
@@ -207,12 +266,3 @@ export const $fileAstQuery = atomWithQuery((get) => {
 export const $fileAst = loadableQuery($fileAstQuery)
 
 export const showRepoSettingsDialogAtom = atom(false);
-
-export const $branchesQueryOptions = () => $api.queryOptions(
-    'get',
-    `/entities/branches`,
-);
-export const $branchesQuery = atomWithQuery((get) => {
-    return $branchesQueryOptions()
-})
-export const $branches = loadableQuery($branchesQuery)
