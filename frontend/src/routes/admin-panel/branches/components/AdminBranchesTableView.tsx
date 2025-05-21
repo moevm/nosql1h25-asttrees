@@ -2,6 +2,7 @@ import type {ApiEntityBranchModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
 import {columnsBranches} from "@/columns/columnsBranches.tsx";
+import {useNavigate} from "react-router-dom";
 
 function AdminBranchesTableView() {
     const {
@@ -18,7 +19,7 @@ function AdminBranchesTableView() {
         searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
-    console.log(data)
+    const navigate = useNavigate()
 
     return (
         <RichTableView
@@ -33,8 +34,8 @@ function AdminBranchesTableView() {
                 enableSearch: true,
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
-                rowClickHandler: (user) => {
-                    // navigate(`/spaces/...`)
+                rowClickHandler: (branch) => {
+                    navigate(`/admin/branches/${branch.id}`)
                 },
             }}
         />
