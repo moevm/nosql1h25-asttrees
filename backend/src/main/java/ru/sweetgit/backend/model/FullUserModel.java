@@ -20,5 +20,5 @@ public class FullUserModel {
     Instant createdAt;
     UserVisibilityModel visibility;
     Boolean isAdmin;
-    int repositoryCount;
+    Integer repositoryCount;
 }

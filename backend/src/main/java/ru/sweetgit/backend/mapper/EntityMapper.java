@@ -2,9 +2,11 @@ package ru.sweetgit.backend.mapper;
 
 import org.mapstruct.Mapper;
 import ru.sweetgit.backend.dto.response.EntityBranchDto;
+import ru.sweetgit.backend.dto.response.EntityCommitDto;
 import ru.sweetgit.backend.dto.response.EntityRepositoryDto;
 import ru.sweetgit.backend.dto.response.EntityUserDto;
 import ru.sweetgit.backend.model.FullBranchModel;
+import ru.sweetgit.backend.model.FullCommitModel;
 import ru.sweetgit.backend.model.FullRepositoryModel;
 import ru.sweetgit.backend.model.FullUserModel;
 
@@ -22,4 +24,6 @@ public abstract class EntityMapper {
     public abstract EntityRepositoryDto toEntityDto(FullRepositoryModel fullRepositoryModel);
 
     public abstract EntityUserDto toEntityDto(FullUserModel fullUserModel);
+
+    public abstract EntityCommitDto toEntityDto(FullCommitModel fullCommitModel);
 }

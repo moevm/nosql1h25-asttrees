@@ -27,9 +27,9 @@ public class CommitModel {
     String author;
     String email;
     String message;
-    int filesChanged;
-    int linesAdded;
-    int linesRemoved;
+    Integer filesChanged;
+    Integer linesAdded;
+    Integer linesRemoved;
     @Ref(lazy = true)
     List<CommitFileModel> rootFiles;
     Instant createdAt;

@@ -11,14 +11,19 @@ import java.time.Instant;
 @Value
 @Builder(toBuilder = true)
 @NonFinal
-public class FullRepositoryModel {
+public class FullCommitModel {
     String id;
     String arangoId;
-    String name;
-    UserModel owner;
-    String originalLink;
-    RepositoryVisibilityModel visibility;
-    Instant createdAt;
+    String hash;
+    String author;
+    String email;
+    String message;
+    Integer filesChanged;
+    Integer linesAdded;
+    Integer linesRemoved;
+    RepositoryModel repository;
     Integer branchCount;
-    Integer commitCount;
+    Integer fileCount;
+    Integer fileWithAstCount;
+    Instant createdAt;
 }

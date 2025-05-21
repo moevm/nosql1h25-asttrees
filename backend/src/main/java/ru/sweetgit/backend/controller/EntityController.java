@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.sweetgit.backend.dto.response.EntityBranchDto;
+import ru.sweetgit.backend.dto.response.EntityCommitDto;
 import ru.sweetgit.backend.dto.response.EntityRepositoryDto;
 import ru.sweetgit.backend.dto.response.EntityUserDto;
 import ru.sweetgit.backend.mapper.EntityMapper;
@@ -42,6 +43,15 @@ public class EntityController {
     public ResponseEntity<List<EntityBranchDto>> getBranches() {
         return ResponseEntity.ok(
                 StreamUtils.createStreamFromIterator(entityService.getBranchEntities().iterator())
+                        .map(entityMapper::toEntityDto)
+                        .toList()
+        );
+    }
+
+    @GetMapping("/entities/commits")
+    public ResponseEntity<List<EntityCommitDto>> getCommits() {
+        return ResponseEntity.ok(
+                StreamUtils.createStreamFromIterator(entityService.getCommitEntities().iterator())
                         .map(entityMapper::toEntityDto)
                         .toList()
         );

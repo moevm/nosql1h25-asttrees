@@ -12,7 +12,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @NonFinal
 public class AstTreeViewModel {
-    int depth;
-    int size;
+    Integer depth;
+    Integer size;
     List<AstNodeViewModel> nodes;
 }
