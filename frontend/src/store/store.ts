@@ -25,6 +25,17 @@ export const $reposQuery = atomWithQuery((get) => {
 
 export const $repos = loadableQuery($reposQuery)
 
+export const $commitsQueryOptions = () => $api.queryOptions(
+    'get',
+    `/entities/commits`,
+);
+
+export const $commitsQuery = atomWithQuery((get) => {
+    return $commitsQueryOptions()
+})
+
+export const $commits = loadableQuery($commitsQuery)
+
 export type ApiCommitModel = components['schemas']['CommitDto']
 
 export type ApiRepositoryModel = components['schemas']['RepositoryDto']
@@ -34,6 +45,7 @@ export type ApiUserModel = components['schemas']['UserDto']
 export type ApiFileContentModel = components['schemas']["FileContentDto"]
 export type ApiFileAstModel = components['schemas']["FileAstDto"]
 export type ApiEntityRepositoryModel = components['schemas']['EntityRepositoryDto']
+export type ApiEntityCommitModel = components['schemas']['EntityCommitDto']
 export type ApiEntityBranchModel = components['schemas']['EntityBranchDto']
 
 export const $repoId = atom<string | null>(null)
