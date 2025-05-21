@@ -15,8 +15,7 @@ function BranchesAdminPage(props: {
                     }}
                     settings={{
                         enableSearch: true,
-                        enableExport: true,
-                        enableImport: true,
+                        enableVisualization: true,
                         enableColumnVisibilityToggle: true,
                         rowClickHandler: () => {
                             // navigate(`/spaces/${selectedSpaceId}/dashboard/users/${user._id}`)
