@@ -4,7 +4,7 @@ import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utlis
 import type {ApiEntityRepositoryModel} from "@/store/store.ts";
 import dayjs from "dayjs";
 import type {TypedColumnDef} from "@/lib/table.ts";
-import type {tempFile} from "@/routes/admin-panel/files/components/FilesAdminTableView.tsx";
+import type {tempFile} from "@/routes/admin-panel/files/components/AdminFilesTableView.tsx";
 
 export const typesType = {
     'FILE': "Файл",

@@ -33,7 +33,7 @@ export function generateMockFiles(count = 20): tempFile[] {
     }));
 }
 
-function FilesAdminTableView(props: {
+function AdminFilesTableView(props: {
     data: tempFile[]
 }) {
     return (
@@ -58,4 +58,4 @@ function FilesAdminTableView(props: {
     )
 }
 
-export default FilesAdminTableView
+export default AdminFilesTableView

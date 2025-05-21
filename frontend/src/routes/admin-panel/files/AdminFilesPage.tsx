@@ -1,8 +1,8 @@
-import FilesAdminTableView, {generateMockFiles} from "@/routes/admin-panel/files/components/FilesAdminTableView.tsx";
+import AdminFilesTableView, {generateMockFiles} from "@/routes/admin-panel/files/components/AdminFilesTableView.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 
-function FilesPage() {
+function AdminFilesPage() {
     const data = generateMockFiles(30);
 
     return (
@@ -11,11 +11,11 @@ function FilesPage() {
                      display={() =>
                          <div className={"flex flex-col p-8"}>
                              <Label className={"text-4xl"}>Файлы</Label>
-                             <FilesAdminTableView data={data}></FilesAdminTableView>
+                             <AdminFilesTableView data={data}></AdminFilesTableView>
                          </div>
                      }
         />
     )
 }
 
-export default FilesPage;
+export default AdminFilesPage;

@@ -7,7 +7,7 @@ import AdminPanelLayout from "@/routes/admin-panel/AdminPanelLayout.tsx";
 import UsersAdmninPage from "@/routes/admin-panel/users/UsersAdmninPage.tsx";
 import ReposAdminPage from "@/routes/admin-panel/repos/ReposAdminPage.tsx";
 import CommitsAdminPage from "@/routes/admin-panel/commits/CommitsAdminPage.tsx";
-import FilesPage from "@/routes/admin-panel/files/FilesPage.tsx";
+import AdminFilesPage from "@/routes/admin-panel/files/AdminFilesPage.tsx";
 import AstTreesPage from "@/routes/admin-panel/ast-trees/AstTreesPage.tsx";
 import ImportExportDBPage from "@/routes/admin-panel/import-export-db/ImportExportDBPage.tsx";
 import HeaderLayout from "@/routes/header-layout/HeaderLayout.tsx";
@@ -60,7 +60,7 @@ createRoot(document.getElementById('root')!).render(
                                 <Route path="users" element={<UsersAdmninPage/>}/>
                                 <Route path="repos" element={<ReposAdminPage/>}/>
                                 <Route path="commits" element={<CommitsAdminPage/>}/>
-                                <Route path="files" element={<FilesPage/>}/>
+                                <Route path="files" element={<AdminFilesPage/>}/>
                                 <Route path="ast-trees" element={<AstTreesPage/>}/>
                                 <Route path="import-export" element={<ImportExportDBPage/>}/>
                             </Route>
