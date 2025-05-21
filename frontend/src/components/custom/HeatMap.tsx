@@ -6,7 +6,7 @@ import {
     VisualMapComponent,
 } from 'echarts/components';
 import { HeatmapChart } from 'echarts/charts';
-import { CanvasRenderer } from 'echarts/renderers';
+import {SVGRenderer} from 'echarts/renderers';
 import type { EChartsOption } from 'echarts';
 
 
@@ -15,7 +15,7 @@ echarts.use([
     GridComponent,
     VisualMapComponent,
     HeatmapChart,
-    CanvasRenderer,
+    SVGRenderer,
 ]);
 
 interface HeatmapProps {
@@ -32,7 +32,7 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
     useEffect(() => {
         if (!chartRef.current || !data.length) return;
 
-        const chart = echarts.init(chartRef.current);
+        const chart = echarts.init(chartRef.current, null, {renderer: "svg"});
 
         const xAxisData = [...new Set(data.map(item => item.xValue))];
         const yAxisData = [...new Set(data.map(item => item.yValue))];
@@ -45,7 +45,11 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
 
         const option: EChartsOption = {
             tooltip: { position: 'top' },
-            grid: { height: '50%', top: '10%' },
+            grid: {
+                height: '50%',
+                top: '10%',
+                left: 120,
+            },
             xAxis: {
                 type: 'category',
                 data: xAxisData,
@@ -55,6 +59,10 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
                 type: 'category',
                 data: yAxisData,
                 splitArea: { show: true },
+                axisLabel: {
+                    overflow: 'break', // или truncate/ellipsis
+                    width: 100,
+                },
             },
             visualMap: {
                 min: 0,
@@ -84,13 +92,15 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
         const resize = () => chart.resize();
         window.addEventListener('resize', resize);
 
+        chart.resize()
+
         return () => {
             chart.dispose();
             window.removeEventListener('resize', resize);
         };
     }, [data]);
 
-    return <div ref={chartRef} style={{ width: '100%', height: '600px' }} />;
+    return <div ref={chartRef} style={{ marginLeft: "10px",  width: '100%', height: '600px', display: "inherit" }} />;
 };
 
 export default HeatMap;

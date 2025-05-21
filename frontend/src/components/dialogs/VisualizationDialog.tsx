@@ -26,8 +26,8 @@ function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[
     const showDialog = useAtomValue($showVisualizationDialogAtom);
     const setShowDialog = useSetAtom($showVisualizationDialogAtom);
 
-    const [atrX, setAtrX] = useState<string | null>(null);
-    const [atrY, setAtrY] = useState<string | null>(null);
+    const [atrX, setAtrX] = useState<string | undefined>(null);
+    const [atrY, setAtrY] = useState<string | undefined>(null);
     const [heatmapData, setHeatmapData] = useState<{ xValue: string; yValue: string; count: number }[]>([]);
 
 
@@ -49,9 +49,9 @@ function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[
         });
     }, [atrX, atrY]);
     return (
-        <div className={"w-fit"}>
+        <div>
             <Dialog open={showDialog} onOpenChange={setShowDialog}>
-                <DialogContent>
+                <DialogContent className={"min-w-[1000px] max-w-[95vw] w-full"}>
                     <DialogHeader>
                         <DialogTitle>
                             <Label>Построить график</Label>
@@ -64,9 +64,9 @@ function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[
                             <div className={"flex justify-center items-center gap-2"}>
                                 <div className={"flex flex-col items-center gap-1"}>
                                     <Label>Ось X</Label>
-                                    <Select onValueChange={setAtrX}>
+                                    <Select value={atrX ?? undefined} onValueChange={setAtrX}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder={"Атрибут X"}></SelectValue>
+                                            <SelectValue placeholder="Атрибут X" />
                                         </SelectTrigger>
 
                                         <SelectContent>
@@ -82,7 +82,7 @@ function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[
 
                                 <div className={"flex flex-col items-center gap-1"}>
                                     <Label>Ось Y</Label>
-                                    <Select onValueChange={setAtrY}>
+                                    <Select value={atrY ?? undefined} onValueChange={setAtrY}>
                                         <SelectTrigger>
                                             <SelectValue placeholder={"Атрибут Y"}></SelectValue>
                                         </SelectTrigger>
@@ -100,12 +100,14 @@ function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[
                             </div>
 
                             <div>
-                                <Button onClick={() => handleVisualiseSubmit()}>Визуализировать</Button>
+                                <Button disabled={!atrX || !atrY || isPending} onClick={() => handleVisualiseSubmit()}>Визуализировать</Button>
                             </div>
                         </div>
 
-                        <div>
-                            {heatmapData.length > 0 && <HeatMap data={heatmapData}/>}
+                        <div className="w-full">
+                            <div className="min-w-screen-lg">
+                                {heatmapData.length > 0 && <HeatMap data={heatmapData}/>}
+                            </div>
                         </div>
                     </div>
                 </DialogContent>
