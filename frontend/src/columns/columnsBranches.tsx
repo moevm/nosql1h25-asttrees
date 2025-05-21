@@ -4,7 +4,7 @@ import type {ApiEntityBranchModel} from "@/store/store.ts";
 import dayjs from "dayjs";
 import type {TypedColumnDef} from "@/lib/table.ts";
 import type {EntityField} from "@/lib/utils.ts";
-import {DateRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
+import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
 
 export const fieldsBranches: EntityField[] = [
     {
