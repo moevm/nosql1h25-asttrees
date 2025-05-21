@@ -109,10 +109,12 @@ function FileTableContent({repo, fileContent, fileAst}: {
                                     </TabsList>
                                 </Tabs>}
                             {selectedTab === "code" ? (
-                                <span className={"text-sm text-primary/60 font-medium leading-none py-3"}>Строк: {fileContent.lines} &middot; Байт: {fileContent.bytes}</span>
+                                <span
+                                    className={"text-sm text-primary/60 font-medium leading-none py-3"}>{!fileContent.isBinary && <>Строк: {fileContent.lines} &middot; </>}Байт: {fileContent.bytes}</span>
                             ) : (
                                 <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'} display={() => (
-                                    <span className={"text-sm text-primary/60 font-medium leading-none py-3"}>Узлов: {loaded(fileAst).data.astTree.nodes.length} &middot; Глубина: {loaded(fileAst).data.astTree.depth}</span>
+                                    <span
+                                        className={"text-sm text-primary/60 font-medium leading-none py-3"}>Узлов: {loaded(fileAst).data.astTree.nodes.length} &middot; Глубина: {loaded(fileAst).data.astTree.depth}</span>
                                 )}/>
                             )}
                         </div>
@@ -127,14 +129,19 @@ function FileTableContent({repo, fileContent, fileAst}: {
                                 <pre className="whitespace-pre-wrap text-sm">
                                     <code>
                                         <div className="grid grid-cols-[auto_1fr] gap-1">
-                                            {highlightedCode && highlightedCode.split('\n').map((line, index) => (
-                                                <React.Fragment key={index}>
-                                                    <span className="text-gray-500 text-right pr-4 font-mono select-none">
+                                            {
+                                                !fileContent.isBinary
+                                                    ? highlightedCode && highlightedCode.split('\n').map((line, index) => (
+                                                    <React.Fragment key={index}>
+                                                    <span
+                                                        className="text-gray-500 text-right pr-4 font-mono select-none">
                                                         {index + 1}
                                                     </span>
-                                                    <span dangerouslySetInnerHTML={{__html: line}}/>
-                                                </React.Fragment>
-                                            ))}
+                                                        <span dangerouslySetInnerHTML={{__html: line}}/>
+                                                    </React.Fragment>
+                                                ))
+                                                    : <span>Бинарный файл</span>
+                                            }
                                         </div>
                                     </code>
                                 </pre>
