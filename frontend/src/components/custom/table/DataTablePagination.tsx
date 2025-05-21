@@ -18,18 +18,29 @@ import React from "react";
 
 interface DataTablePaginationProps<TData> {
     table: Table<TData>
-    totalItems?: number // если есть totalElements из сервера
+    totalItems?: number,
+    size?: number,
+    number?: number,
+    totalPages?: number
 }
 
 export function DataTablePagination<TData>({
                                                table,
                                                totalItems,
+                                               size,
+                                               number,
+                                               totalPages,
                                            }: DataTablePaginationProps<TData>) {
-    const { pageIndex, pageSize } = table.getState().pagination
-    const pageCount = table.getPageCount()
+    const fallback = table.getState().pagination
+
+    const pageSize = size ?? fallback.pageSize
+    const pageIndex = number ?? fallback.pageIndex
+    const pageCount = totalPages ?? table.getPageCount()
 
     const canPreviousPage = pageIndex > 0
     const canNextPage = pageIndex < pageCount - 1
+
+    console.log(totalItems, size, number, totalPages)
 
     return (
         <div className="flex items-center justify-between px-2 py-2">
@@ -46,7 +57,7 @@ export function DataTablePagination<TData>({
                         }}
                     >
                         <SelectTrigger className="h-8 w-[70px]">
-                            <SelectValue placeholder={`${pageSize}`}/>
+                            <SelectValue placeholder={`${pageSize}`} />
                         </SelectTrigger>
                         <SelectContent side="top">
                             {[10, 20, 30, 40, 50].map((size) => (
@@ -71,7 +82,7 @@ export function DataTablePagination<TData>({
                                 disabled={!canPreviousPage}
                             >
                                 <span className="sr-only">Первая</span>
-                                <ChevronsLeft/>
+                                <ChevronsLeft />
                             </Button>
                             <Button
                                 variant="outline"
@@ -80,7 +91,7 @@ export function DataTablePagination<TData>({
                                 disabled={!canPreviousPage}
                             >
                                 <span className="sr-only">Назад</span>
-                                <ChevronLeft/>
+                                <ChevronLeft />
                             </Button>
                             <Button
                                 variant="outline"
@@ -89,7 +100,7 @@ export function DataTablePagination<TData>({
                                 disabled={!canNextPage}
                             >
                                 <span className="sr-only">Вперёд</span>
-                                <ChevronRight/>
+                                <ChevronRight />
                             </Button>
                             <Button
                                 variant="outline"
@@ -98,7 +109,7 @@ export function DataTablePagination<TData>({
                                 disabled={!canNextPage}
                             >
                                 <span className="sr-only">Последняя</span>
-                                <ChevronsRight/>
+                                <ChevronsRight />
                             </Button>
                         </div>
                     </>
