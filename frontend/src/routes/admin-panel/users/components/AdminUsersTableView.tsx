@@ -1,4 +1,4 @@
-import {columnsUser} from "@/columns/columnsUsers.tsx";
+import {columnsUser, fieldsUsers} from "@/columns/columnsUsers.tsx";
 import type {ApiUserModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
@@ -25,6 +25,8 @@ function AdminUsersTableView() {
     return (
         <RichTableView
             table={table}
+            entityType={fieldsUsers}
+            queryURLname={"users"}
             isLoading={isLoading}
             data={data}
             filterString={filterString}

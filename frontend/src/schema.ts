@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/users/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["statsUsers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/entities/users/query": {
         parameters: {
             query?: never;
@@ -30,6 +46,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["queryUsers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/repositories/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["statsRepositories"];
         delete?: never;
         options?: never;
         head?: never;
@@ -52,6 +84,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/commits/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["statsCommits"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/entities/commits/query": {
         parameters: {
             query?: never;
@@ -68,6 +116,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/branches/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["statsBranches"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/entities/branches/query": {
         parameters: {
             query?: never;
@@ -78,6 +142,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["queryBranches"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/ast_trees/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["statsAstTrees"];
         delete?: never;
         options?: never;
         head?: never;
@@ -442,12 +522,10 @@ export interface components {
             id?: string;
             username?: string;
         };
-        EntitySearchRequest: {
-            query?: string;
-            searchFields: string[];
-            pagination: components["schemas"]["Pagination"];
-            sort: components["schemas"]["SortOrder"][];
+        EntityStatsRequest: {
             filter: components["schemas"]["Filter"][];
+            xAxisField: string;
+            yAxisField: string;
         };
         Filter: {
             field?: string;
@@ -455,6 +533,22 @@ export interface components {
             params: {
                 [key: string]: Record<string, never>;
             };
+        };
+        EntityStatsDto: {
+            items?: components["schemas"]["Item"][];
+        };
+        Item: {
+            xValue?: Record<string, never>;
+            yValue?: Record<string, never>;
+            /** Format: int64 */
+            count?: number;
+        };
+        EntitySearchRequest: {
+            query?: string;
+            searchFields: string[];
+            pagination: components["schemas"]["Pagination"];
+            sort: components["schemas"]["SortOrder"][];
+            filter: components["schemas"]["Filter"][];
         };
         Pagination: {
             /** Format: int32 */
@@ -662,6 +756,30 @@ export interface operations {
             };
         };
     };
+    statsUsers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntityStatsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityStatsDto"];
+                };
+            };
+        };
+    };
     queryUsers: {
         parameters: {
             query?: never;
@@ -682,6 +800,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PagedModel"];
+                };
+            };
+        };
+    };
+    statsRepositories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntityStatsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityStatsDto"];
                 };
             };
         };
@@ -710,6 +852,30 @@ export interface operations {
             };
         };
     };
+    statsCommits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntityStatsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityStatsDto"];
+                };
+            };
+        };
+    };
     queryCommits: {
         parameters: {
             query?: never;
@@ -734,6 +900,30 @@ export interface operations {
             };
         };
     };
+    statsBranches: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntityStatsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityStatsDto"];
+                };
+            };
+        };
+    };
     queryBranches: {
         parameters: {
             query?: never;
@@ -754,6 +944,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PagedModel"];
+                };
+            };
+        };
+    };
+    statsAstTrees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntityStatsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityStatsDto"];
                 };
             };
         };

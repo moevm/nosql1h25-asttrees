@@ -20,10 +20,16 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/c
 import {DataTablePagination} from "@/components/custom/table/DataTablePagination.tsx";
 import {DataTableViewOptions} from "@/components/custom/table/DataTableViewOptions.tsx";
 import {getColumnTypeRelations, relationFullName} from "@/lib/table.ts";
+import {useAtomValue, useSetAtom} from "jotai/react";
+import {$currentEntitiesFieldsAtom, $currentUser, $showVisualizationDialogAtom} from "@/store/store.ts";
+import VisualizationDialog from "@/components/dialogs/VisualizationDialog.tsx";
+import type {EntityField} from "@/lib/utils.ts";
 
 interface RichTableViewProps<TData, TValue> {
     table: ReturnType<typeof useReactTable<TData>>;
     isLoading?: boolean;
+    entityType?: EntityField[];
+    queryURLname?: string;
     data?: {
         totalElements?: number,
         size?: number,
@@ -45,6 +51,8 @@ interface RichTableViewProps<TData, TValue> {
 function RichTableView<TData, TValue>({
     table,
     isLoading,
+    entityType,
+    queryURLname,
     data = {},
     settings = {},
     filterString = "",
@@ -59,6 +67,12 @@ function RichTableView<TData, TValue>({
 
     console.log(data)
     console.log(data?.page)
+
+    const setShowVisualizationDialog = useSetAtom($showVisualizationDialogAtom);
+    const currentEntitiesFields = useAtomValue($currentEntitiesFieldsAtom);
+    const setCurrentEntitiesFields = useSetAtom($currentEntitiesFieldsAtom);
+    setCurrentEntitiesFields(entityType);
+
 
     return (
         <div className={"flex w-full min-w-screen-sm max-w-screen-lg flex-col"}>
@@ -175,7 +189,9 @@ function RichTableView<TData, TValue>({
                 <div className="flex justify-center items-center gap-2 ml-auto">
                     <div>
                         {settings?.enableVisualization &&
-                            <Button size="sm" onClick={() => setShowDialogExport(true)}>
+                            <Button size="sm" onClick={() => {
+                                setShowVisualizationDialog(true);
+                            }}>
                                 <GitGraph/> Визуализация
                             </Button>}
                     </div>
@@ -240,6 +256,7 @@ function RichTableView<TData, TValue>({
                 <DataTablePagination table={table} totalItems={data?.page?.totalElements} number={data?.page?.number} size={data?.page?.size} totalPages={data?.page?.totalPages}/>
             </div>
 
+            <VisualizationDialog dataFields={currentEntitiesFields} queryURL={queryURLname as string} />
             {/*<ExportDialog*/}
             {/*    open={showDialogExport}*/}
             {/*    onOpenChange={setShowDialogExport}*/}

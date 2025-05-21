@@ -2,6 +2,7 @@ import {atom, createStore} from "jotai";
 import type {components} from "@/schema.ts";
 import {$api, $authToken, loadableQuery} from "@/api";
 import {atomWithQuery} from "jotai-tanstack-query";
+import type {EntityField} from "@/lib/utils.ts";
 
 export const store = createStore()
 
@@ -266,3 +267,9 @@ export const $fileAstQuery = atomWithQuery((get) => {
 export const $fileAst = loadableQuery($fileAstQuery)
 
 export const showRepoSettingsDialogAtom = atom(false);
+
+export const $showVisualizationDialogAtom = atom(false);
+
+export const $currentEntitiesFieldsAtom = atom<EntityField[] | null>(null);
+
+
