@@ -131,7 +131,7 @@ public class GitService {
 
                 var branchModelBuilder = BranchModel.builder()
                         .name(shortBranchName)
-                        .createdAt(Instant.now()); // TODO find first commit
+                        .createdAt(Instant.now());
 
                 boolean isDefault;
                 if (headObjectId != null && branchRef.getObjectId().equals(headObjectId)) {

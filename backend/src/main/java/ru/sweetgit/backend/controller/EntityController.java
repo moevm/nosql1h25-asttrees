@@ -1,18 +1,30 @@
 package ru.sweetgit.backend.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.util.StreamUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.sweetgit.backend.dto.ApiException;
+import ru.sweetgit.backend.dto.request.EntitySearchRequest;
 import ru.sweetgit.backend.dto.response.EntityBranchDto;
 import ru.sweetgit.backend.dto.response.EntityCommitDto;
 import ru.sweetgit.backend.dto.response.EntityRepositoryDto;
 import ru.sweetgit.backend.dto.response.EntityUserDto;
+import ru.sweetgit.backend.entity.EntitySearchDto;
+import ru.sweetgit.backend.entity.Filter;
+import ru.sweetgit.backend.entity.FilterKind;
 import ru.sweetgit.backend.mapper.EntityMapper;
 import ru.sweetgit.backend.service.EntityService;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,40 +32,97 @@ import java.util.List;
 public class EntityController {
     private final EntityService entityService;
     private final EntityMapper entityMapper;
+    private final ObjectMapper objectMapper;
+    @Qualifier("entityFilterMap")
+    private final Map<String, FilterKind> filterKindMap;
 
-    @GetMapping("/entities/users")
-    public ResponseEntity<List<EntityUserDto>> getUsers() {
-        return ResponseEntity.ok(
-                StreamUtils.createStreamFromIterator(entityService.getUserEntities().iterator())
-                        .map(entityMapper::toEntityDto)
-                        .toList()
+    @PostMapping("/entities/users")
+    public ResponseEntity<Page<EntityUserDto>> queryUsers(
+            @Valid @RequestBody EntitySearchRequest request
+    ) {
+        var searchDto = convert(request);
+        var page = entityService.getUserEntities(searchDto);
+        return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
+    }
+
+    @PostMapping("/entities/repositories")
+    public ResponseEntity<Page<EntityRepositoryDto>> querytRepositories(
+            @Valid @RequestBody EntitySearchRequest request
+    ) {
+        var searchDto = convert(request);
+        var page = entityService.getRepositoryEntities(searchDto);
+        return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
+    }
+
+    @PostMapping("/entities/branches")
+    public ResponseEntity<Page<EntityBranchDto>> queryBranches(
+            @Valid @RequestBody EntitySearchRequest request
+    ) {
+        var searchDto = convert(request);
+        var page = entityService.getBranchEntities(searchDto);
+        return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
+    }
+
+    @PostMapping("/entities/commits")
+    public ResponseEntity<Page<EntityCommitDto>> queryCommits(
+            @Valid @RequestBody EntitySearchRequest request
+    ) {
+        var searchDto = convert(request);
+        var page = entityService.getCommitEntities(searchDto);
+        return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
+    }
+
+    private EntitySearchDto convert(EntitySearchRequest request) {
+        return new EntitySearchDto(
+                request.query(),
+                request.searchFields(),
+                PageRequest.of(
+                        request.pagination().pageIndex(),
+                        request.pagination().pageSize(),
+                        Sort.by(
+                                request.sort().stream().map(order -> new Sort.Order(
+                                        order.asc() ? Sort.Direction.ASC : Sort.Direction.DESC,
+                                        order.field()
+                                )).toList()
+                        )
+                ),
+                request.filter().stream().map(this::convert).toList()
         );
     }
 
-    @GetMapping("/entities/repositories")
-    public ResponseEntity<List<EntityRepositoryDto>> getRepositories() {
-        return ResponseEntity.ok(
-                StreamUtils.createStreamFromIterator(entityService.getRepositoryEntities().iterator())
-                        .map(entityMapper::toEntityDto)
-                        .toList()
-        );
-    }
+    private Filter convert(EntitySearchRequest.Filter filter) {
+        var kind = filterKindMap.get(filter.kind());
+        if (kind == null) {
+            throw ApiException.badRequest().message("Фильтр не найден: " + filter.kind()).build();
+        }
 
-    @GetMapping("/entities/branches")
-    public ResponseEntity<List<EntityBranchDto>> getBranches() {
-        return ResponseEntity.ok(
-                StreamUtils.createStreamFromIterator(entityService.getBranchEntities().iterator())
-                        .map(entityMapper::toEntityDto)
-                        .toList()
-        );
-    }
+        var params = new HashMap<String, Object>();
+        kind.parameters().forEach((name, ref) -> {
+            if (!filter.params().containsKey(name)) {
+                throw ApiException.badRequest().message("Не указан параметр %s для фильтра %s %s".formatted(name, filter.kind(), filter.field())).build();
+            }
 
-    @GetMapping("/entities/commits")
-    public ResponseEntity<List<EntityCommitDto>> getCommits() {
-        return ResponseEntity.ok(
-                StreamUtils.createStreamFromIterator(entityService.getCommitEntities().iterator())
-                        .map(entityMapper::toEntityDto)
-                        .toList()
+            Object result;
+            try {
+                result = objectMapper.convertValue(
+                        filter.params().get(name),
+                        ref
+                );
+            } catch (IllegalArgumentException e) {
+                throw ApiException.badRequest().message("Неверный тип параметра %s для фильтра %s %s: ожидался %s".formatted(name, filter.kind(), filter.field(), ref)).build();
+            }
+
+            if (result == null) {
+                throw ApiException.badRequest().message("Не указан параметр %s для фильтра %s %s".formatted(name, filter.kind(), filter.field())).build();
+            }
+
+            params.put(name, result);
+        });
+
+        return new Filter(
+                kind,
+                filter.field(),
+                params
         );
     }
 }

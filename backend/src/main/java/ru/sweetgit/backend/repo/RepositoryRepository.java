@@ -5,11 +5,9 @@ import com.arangodb.springframework.annotation.Query;
 import com.arangodb.springframework.repository.ArangoRepository;
 import jakarta.annotation.Nullable;
 import org.springframework.data.repository.query.Param;
-import ru.sweetgit.backend.model.FullRepositoryModel;
 import ru.sweetgit.backend.model.RepositoryModel;
 import ru.sweetgit.backend.model.RepositoryViewModel;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface RepositoryRepository extends ArangoRepository<RepositoryModel, String> {
@@ -89,33 +87,4 @@ public interface RepositoryRepository extends ArangoRepository<RepositoryModel, 
             @Param("commitId") @Nullable String commitId,
             @Param("path") String path
     );
-
-    @Query("""
-        FOR repo IN #{#collection}
-            LET owner = DOCUMENT(repo.owner)
-            LET repoBranches = (
-                FOR branch IN branches
-                    FILTER branch.repository == repo._id
-                    RETURN 1
-            )
-            LET repoCommits = (
-                FOR branch IN branches
-                    FILTER branch.repository == repo._id
-                    FOR commit IN 1..1 OUTBOUND branch._id branch_commits
-                        RETURN DISTINCT commit._id
-            )
-            RETURN MERGE(
-                repo,
-                {
-                 id: repo._key,
-                 arangoId: repo._id,
-                },
-                {
-                 owner: owner,
-                 branchCount: LENGTH(repoBranches),
-                 commitCount: LENGTH(repoCommits)
-                }
-            )
-        """)
-    Collection<FullRepositoryModel> findAllFull();
 }
