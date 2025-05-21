@@ -257,7 +257,7 @@ function AuthorisationPage() {
 
     useEffect(() => {
         if (currentUser.state === 'hasData') {
-            navigate('/users/' + loaded(currentUser).data.id, { replace: true });
+            navigate('/users/' + loaded(currentUser).data.id, { replace: false });
         }
     }, [currentUser, navigate]);
 
@@ -268,7 +268,7 @@ function AuthorisationPage() {
     }, [tabParam, setTab]);
 
     useEffect(() => {
-        navigate(`/${tab}`, { replace: true });
+        navigate(`/${tab}`, { replace: false });
     }, [tab, navigate]);
 
     return (

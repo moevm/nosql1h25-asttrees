@@ -16,7 +16,7 @@ function CommitTable({repo, data}: {
                 {data?.map((item) => (
 
                     <tr
-                        onClick={() => navigate(`/users/${repo.owner?.id}/repo/${repo.repository?.id}/branch/${repo.branch?.id}/commit/${item.id}`, { replace: true })}
+                        onClick={() => navigate(`/users/${repo.owner?.id}/repo/${repo.repository?.id}/branch/${repo.branch?.id}/commit/${item.id}`, { replace: false })}
                         key={item.id}
                         className="hover:bg-accent cursor-pointer transition-colors"
                     >

@@ -24,14 +24,14 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
     const curUser = useAtomValue($currentUser)
 
     const handleDirectory = useCallback((name: string) => {
-        navigate(`?path=${(path === '' ? '' : (path + '/')) + name}`, { replace: true })
+        navigate(`?path=${(path === '' ? '' : (path + '/')) + name}`, { replace: false })
     }, [navigate, path])
 
     const handleReturn = useCallback(() => {
         if (path) {
             const lastSlashIndex = path.lastIndexOf('/');
             const newPath = lastSlashIndex !== -1 ? path.substring(0, lastSlashIndex) : '';
-            navigate(`?path=${newPath}`, { replace: true })
+            navigate(`?path=${newPath}`, { replace: false })
         }
     }, [navigate, path])
 
@@ -46,7 +46,7 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
         const userId = curUser?.data?.id
         const branchId = findBranchIdByName(newBranchName, data.branches)
         const repId = data.repository?.id
-        navigate(`/users/${userId}/repo/${repId}/branch/${branchId}/commit/latest`, { replace: true })
+        navigate(`/users/${userId}/repo/${repId}/branch/${branchId}/commit/latest`, { replace: false })
     }
 
     return (
@@ -115,7 +115,7 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                     <tr key={item.id} className="hover:bg-accent transition-colors cursor-pointer">
                         <td
                             className="py-2 px-4 border-t border-border flex items-center gap-2 cursor-pointer"
-                            onClick={item.type === "FILE" ? () => navigate(`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commit/${data.commit?.id}/file/${item.id}`, { replace: true }) : () => handleDirectory(item.name)}>
+                            onClick={item.type === "FILE" ? () => navigate(`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commit/${data.commit?.id}/file/${item.id}`, { replace: false }) : () => handleDirectory(item.name)}>
                             <div className="flex items-center gap-2">
                                 {item.type === "FILE" ? <File size={25}/> : <Folder size={25}/>}
                                 {item.name}

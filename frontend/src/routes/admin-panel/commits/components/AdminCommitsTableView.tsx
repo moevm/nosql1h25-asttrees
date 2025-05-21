@@ -36,7 +36,7 @@ function AdminCommitsTableView() {
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
                 rowClickHandler: (commit) => {
-                    navigate(`/admin/commits/${commit.id}`, { replace: true })
+                    navigate(`/admin/commits/${commit.id}`, { replace: false })
                 },
             }}
         />

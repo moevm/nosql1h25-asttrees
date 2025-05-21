@@ -36,7 +36,7 @@ function AdminReposTableView() {
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
                 rowClickHandler: (repo) => {
-                    navigate(`/admin/repos/${repo.id}`, { replace: true })
+                    navigate(`/admin/repos/${repo.id}`, { replace: false })
                 },
             }}
         />

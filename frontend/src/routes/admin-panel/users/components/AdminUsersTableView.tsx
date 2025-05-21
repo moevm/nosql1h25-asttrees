@@ -35,7 +35,7 @@ function AdminUsersTableView() {
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
                 rowClickHandler: (user) => {
-                    navigate(`/admin/users/${user.id}`, { replace: true })
+                    navigate(`/admin/users/${user.id}`, { replace: false })
                 },
             }}
         />
