@@ -25,6 +25,7 @@ import {Slot} from "@radix-ui/react-slot";
 import {Button} from "@/components/ui/button.tsx";
 import {Badge} from "@/components/ui/badge.tsx";
 import {Separator} from "@/components/ui/separator.tsx";
+import {Checkbox} from "@/components/ui/checkbox.tsx";
 
 /**
  * Props for MultiSelect component
@@ -249,16 +250,18 @@ export const MultiSelect = React.forwardRef<
                                             onSelect={() => toggleOption(option.value)}
                                             className="cursor-pointer"
                                         >
-                                            <div
-                                                className={cn(
-                                                    "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                                    isSelected
-                                                        ? "bg-primary text-primary-foreground"
-                                                        : "opacity-50 [&_svg]:invisible"
-                                                )}
-                                            >
-                                                <CheckIcon className="h-4 w-4"/>
-                                            </div>
+                                            <Checkbox className={"text-foreground"} checked={isSelected} />
+
+                                            {/*<div*/}
+                                            {/*    className={cn(*/}
+                                            {/*        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",*/}
+                                            {/*        isSelected*/}
+                                            {/*            ? "bg-primary text-primary-foreground"*/}
+                                            {/*            : "opacity-50 [&_svg]:invisible"*/}
+                                            {/*    )}*/}
+                                            {/*>*/}
+                                            {/*    <CheckIcon className="h-4 w-4"/>*/}
+                                            {/*</div>*/}
                                             {option.icon && (
                                                 <option.icon className="mr-2 h-4 w-4 text-muted-foreground"/>
                                             )}
