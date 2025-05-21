@@ -1,7 +1,6 @@
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
-    CheckboxRenderer,
     DateRenderer,
     MonoRenderer
 } from "@/components/custom/utils/ValueRenderers.tsx";
@@ -17,7 +16,6 @@ import {useAtomValue, useSetAtom} from "jotai/react";
 import {useEffect} from "react";
 import {loaded} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
-import {typesVisibilityType} from "@/lib/table.ts";
 
 function AdminAstTreePageContent(props: {
     data: ApiEntityAstTreeModel

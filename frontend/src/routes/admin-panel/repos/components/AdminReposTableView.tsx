@@ -16,7 +16,6 @@ function AdminReposTableView() {
     } = useServerTable<ApiEntityRepositoryModel>({
         columns: columnsRepos,
         queryUrl: "/entities/repositories",
-        searchFields: ["id", "name", "owner", "originalLink", "visibility", "createdAt", "branchCount", "commitCount"],
     });
 
     const navigate = useNavigate()

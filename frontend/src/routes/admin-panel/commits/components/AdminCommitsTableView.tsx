@@ -16,7 +16,6 @@ function AdminCommitsTableView() {
     } = useServerTable<ApiEntityCommitModel>({
         columns: columnsCommits,
         queryUrl: "/entities/commits",
-        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
     const navigate = useNavigate()

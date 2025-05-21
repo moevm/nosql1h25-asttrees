@@ -2,18 +2,54 @@ import {Checkbox} from "@/components/ui/checkbox.tsx";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
 import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
 import type {ApiEntityAstTreeModel} from "@/store/store.ts";
-import type {TypedColumnDef} from "@/lib/table.ts";
+import {type TypedColumnDef} from "@/lib/table.ts";
 import dayjs from "dayjs";
+import type {EntityField} from "@/lib/utils.ts";
+
+export const fieldsAstTrees: EntityField[] = [
+    {
+        id: "id",
+        name: "ID",
+        type: "string"
+    },
+    {
+        id: "hash",
+        name: "Hash",
+        type: "string"
+    },
+    {
+        id: "createdAt",
+        name: "Дата создания",
+        type: "date"
+    },
+    {
+        id: "depth",
+        name: "Глубина",
+        type: "int"
+    },
+    {
+        id: "size",
+        name: "Размер",
+        type: "int"
+    },
+    {
+        id: "commitFile.name",
+        name: "Название файла",
+        type: "string"
+    },
+    {
+        id: "commitFile.hash",
+        name: "Hash файла",
+        type: "string"
+    },
+];
 
 export const columnsAstTrees = [
     {
         id: "select",
         header: ({table}) => (
             <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
+                checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Выбрать всё"
             />
@@ -28,89 +64,43 @@ export const columnsAstTrees = [
         ),
         enableSorting: false,
         enableHiding: false,
-        meta: {
-            type: 'none'
-        }
+        meta: {type: "none"}
     },
     {
         accessorKey: "id",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="id"/>
-            )
-        },
-        meta: {
-            title: "id",
-            type: 'string',
-        },
-        cell: ({cell}) => <MonoRenderer value={cell.getValue()}/>
+        header: ({column}) => <DataTableColumnHeader column={column} title="id"/>,
+        meta: {title: "id", type: "string", field: "id"},
+        cell: ({cell}) => <MonoRenderer value={cell.getValue()}/>,
     },
     {
         accessorKey: "createdAt",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Дата создания"/>
-            )
-        },
-        accessorFn: (row) => {
-            return dayjs(row.createdAt);
-        },
-        meta: {
-            title: "Дата создания",
-            type: 'datetime',
-        },
-        cell: ({cell}) => <DateRenderer value={cell.getValue()}/>,
+        header: ({column}) => <DataTableColumnHeader column={column} title="Дата создания"/>,
+        meta: {title: "Дата создания", type: "datetime", field: "createdAt"},
+        accessorFn: (row) => dayjs(row.createdAt),
+        cell: ({cell}) => <DateRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "depth",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Глубина"/>
-            );
-        },
-        meta: {
-            title: "Глубина",
-            type: 'number',
-        },
+        header: ({column}) => <DataTableColumnHeader column={column} title="Глубина"/>,
+        meta: {title: "Глубина", type: "number", field: "depth"},
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "size",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Размер"/>
-            )
-        },
-        meta: {
-            title: "Размер",
-            type: 'number',
-        },
+        header: ({column}) => <DataTableColumnHeader column={column} title="Размер"/>,
+        meta: {title: "Размер", type: "number", field: "size"},
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "commitFile.name",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Название файла"/>
-            )
-        },
-        meta: {
-            title: "Название файла",
-            type: 'string',
-        },
+        header: ({column}) => <DataTableColumnHeader column={column} title="Название файла"/>,
+        meta: {title: "Название файла", type: "string", field: "commitFile.name"},
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "commitFile.hash",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Hash файла"/>
-            )
-        },
-        meta: {
-            title: "Hash файла",
-            type: 'string',
-        },
+        header: ({column}) => <DataTableColumnHeader column={column} title="Hash файла"/>,
+        meta: {title: "Hash файла", type: "string", field: "commitFile.hash"},
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
 ] as TypedColumnDef<ApiEntityAstTreeModel>[]
