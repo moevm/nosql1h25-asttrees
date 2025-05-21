@@ -5,11 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import ru.sweetgit.backend.entity.EntityQuery;
 import ru.sweetgit.backend.model.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 @Configuration
 public class EntityQueryConfiguration {
     @Bean
@@ -207,8 +202,8 @@ public class EntityQueryConfiguration {
         );
     }
 
-    @Bean
-    public Map<String, EntityQuery<?>> entityQueriesByName(List<EntityQuery<?>> entityQueries) {
-        return entityQueries.stream().collect(Collectors.toMap(EntityQuery::name, Function.identity()));
-    }
+//    @Bean
+//    public Map<String, EntityQuery<?>> entityQueriesByName(List<EntityQuery<?>> entityQueries) {
+//        return entityQueries.stream().collect(Collectors.toMap(EntityQuery::name, Function.identity()));
+//    }
 }
