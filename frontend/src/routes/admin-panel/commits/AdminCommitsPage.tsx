@@ -1,6 +1,7 @@
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import CommitsTableView from "@/routes/admin-panel/commits/components/AdminCommitsTableView.tsx";
 import {Label} from "@/components/ui/label.tsx";
+import React from "react";
 
 function AdminCommitsPage() {
 
