@@ -20,6 +20,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["queryUsers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/repositories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["querytRepositories"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/commits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["queryCommits"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/branches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["queryBranches"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/db/import": {
         parameters: {
             query?: never;
@@ -212,70 +276,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/entities/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getUsers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/entities/repositories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getRepositories_1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/entities/commits": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getCommits"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/entities/branches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getBranches"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -346,9 +346,47 @@ export interface components {
             id?: string;
             username?: string;
         };
+        EntitySearchRequest: {
+            query?: string;
+            searchFields: string[];
+            pagination: components["schemas"]["Pagination"];
+            sort: components["schemas"]["SortOrder"][];
+            filter: components["schemas"]["Filter"][];
+        };
+        Filter: {
+            field?: string;
+            kind: string;
+            params: {
+                [key: string]: Record<string, never>;
+            };
+        };
+        Pagination: {
+            /** Format: int32 */
+            pageIndex?: number;
+            /** Format: int32 */
+            pageSize?: number;
+        };
+        SortOrder: {
+            field?: string;
+            asc?: boolean;
+        };
+        PageMetadata: {
+            /** Format: int64 */
+            size?: number;
+            /** Format: int64 */
+            number?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int64 */
+            totalPages?: number;
+        };
+        PagedModel: {
+            content?: Record<string, never>[];
+            page?: components["schemas"]["PageMetadata"];
+        };
         AuthRegisterRequest: {
             username: string;
-            email?: string;
+            email: string;
             password: string;
         };
         UserDto: {
@@ -415,76 +453,6 @@ export interface components {
             commitFile?: components["schemas"]["CommitFileDto"];
             astTree?: components["schemas"]["AstTreeViewDto"];
         };
-        EntityUserDto: {
-            id?: string;
-            username?: string;
-            email?: string;
-            /** @enum {string} */
-            visibility?: "PUBLIC" | "PRIVATE";
-            /** Format: date-time */
-            createdAt?: string;
-            isAdmin?: boolean;
-            /** Format: int32 */
-            repositoryCount?: number;
-        };
-        EntityRepositoryDto: {
-            id?: string;
-            name?: string;
-            owner?: components["schemas"]["ShortUserDto"];
-            /** Format: uri */
-            originalLink?: string;
-            /** @enum {string} */
-            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: int32 */
-            branchCount?: number;
-            /** Format: int32 */
-            commitCount?: number;
-        };
-        EntityCommitDto: {
-            id?: string;
-            hash?: string;
-            author?: string;
-            email?: string;
-            message?: string;
-            /** Format: int32 */
-            filesChanged?: number;
-            /** Format: int32 */
-            linesAdded?: number;
-            /** Format: int32 */
-            linesRemoved?: number;
-            repository?: components["schemas"]["RepositoryWithOwnerDetailsDto"];
-            /** Format: int32 */
-            branchCount?: number;
-            /** Format: int32 */
-            fileCount?: number;
-            /** Format: int32 */
-            fileWithAstCount?: number;
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        RepositoryWithOwnerDetailsDto: {
-            id?: string;
-            name?: string;
-            owner?: components["schemas"]["ShortUserDto"];
-            /** Format: uri */
-            originalLink?: string;
-            /** @enum {string} */
-            visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        EntityBranchDto: {
-            id?: string;
-            name?: string;
-            repository?: components["schemas"]["RepositoryWithOwnerDetailsDto"];
-            isDefault?: boolean;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: int32 */
-            commitCount?: number;
-        };
     };
     responses: never;
     parameters: never;
@@ -514,6 +482,102 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RepositoryViewDto"];
+                };
+            };
+        };
+    };
+    queryUsers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntitySearchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PagedModel"];
+                };
+            };
+        };
+    };
+    querytRepositories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntitySearchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PagedModel"];
+                };
+            };
+        };
+    };
+    queryCommits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntitySearchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PagedModel"];
+                };
+            };
+        };
+    };
+    queryBranches: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntitySearchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PagedModel"];
                 };
             };
         };
@@ -820,86 +884,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["FileAstDto"];
-                };
-            };
-        };
-    };
-    getUsers: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["EntityUserDto"][];
-                };
-            };
-        };
-    };
-    getRepositories_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["EntityRepositoryDto"][];
-                };
-            };
-        };
-    };
-    getCommits: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["EntityCommitDto"][];
-                };
-            };
-        };
-    };
-    getBranches: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["EntityBranchDto"][];
                 };
             };
         };

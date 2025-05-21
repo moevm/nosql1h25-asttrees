@@ -13,88 +13,51 @@ import {Input} from "@/components/ui/input.tsx";
 import {MultiSelect} from "@/components/custom/multi-select/MultiSelect.tsx";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {CheckIcon, FileDown, FileUp, Filter, GitGraph, SettingsIcon} from "lucide-react";
+import {Filter, GitGraph, SettingsIcon} from "lucide-react";
 import {Label} from "@/components/ui/label.tsx";
-import {SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
+import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.tsx";
 import {DataTablePagination} from "@/components/custom/table/DataTablePagination.tsx";
 import {DataTableViewOptions} from "@/components/custom/table/DataTableViewOptions.tsx";
 import {getColumnTypeRelations, relationFullName} from "@/lib/table.ts";
 
-export interface ContextMenuConfig<TData> {
-    getLabel?: (rows: Row<TData>[]) => string;
-    items: (rows: Row<TData>[]) => React.ReactNode;
-}
-
 interface RichTableViewProps<TData, TValue> {
-    entries: TData[]; // состояние с данными
-    tableConfig: {
-        columns: ColumnDef<TData, TValue>[];
-        globalFilterFn?: any; // кастомный фильтр
-    };
+    table: ReturnType<typeof useReactTable<TData>>;
+    isLoading?: boolean;
+    data?: {
+        number: number,
+        size: number,
+        totalElements: number,
+    } | null;
     settings?: {
         enableSearch?: boolean;
-        enableVisualization?: boolean,
+        enableVisualization?: boolean;
         enableColumnVisibilityToggle?: boolean;
         rowClickHandler?: (data: TData) => void;
     };
-    onSelectionUpdated?: (data: Row<TData>[]) => void;
-}
-
-function Select(props: { children: ReactNode }) {
-    return null;
+    filterString?: string;
+    setFilterString?: (value: string) => void;
+    searchPosition?: string[];
+    setSearchPosition?: (value: string[]) => void;
 }
 
 function RichTableView<TData, TValue>({
-                                          entries,
-                                          tableConfig,
-                                          settings = {},
-                                          onSelectionUpdated
-                                      }: RichTableViewProps<TData, TValue>) {
-    console.info({
-        entries: entries
-    })
-    const data = entries;
+    table,
+    isLoading,
+    data = {},
+    settings = {},
+    filterString = "",
+    setFilterString = () => {},
+    searchPosition = [],
+    setSearchPosition = () => {}
+}: RichTableViewProps<TData, TValue>) {
 
-    const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [rowSelection, setRowSelection] = React.useState({});
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-    const [filterString, setFilterString] = React.useState<string>();
-    const [searchPosition, setSearchPosition] = React.useState<string[]>([]);
     const defaultGlobalFilter = (row, columnId, filterValue) => {
         return row.getValue(columnId)?.toString().toLowerCase().includes(filterValue.toLowerCase());
     };
 
-    const table = useReactTable<TData>({
-        data,
-        columns: tableConfig.columns,
-        state: {
-            sorting,
-            rowSelection,
-            columnVisibility,
-            columnFilters
-        },
-        onSortingChange: setSorting,
-        onRowSelectionChange: data => {
-            setRowSelection(data)
-            setTimeout(() => {
-                onSelectionUpdated?.(table.getSelectedRowModel().rows)
-            }, 0)
-        },
-        onColumnVisibilityChange: setColumnVisibility,
-        onColumnFiltersChange: setColumnFilters,
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        globalFilterFn: tableConfig.globalFilterFn || defaultGlobalFilter
-    });
-
-    useEffect(() => {
-        table.setGlobalFilter(filterString)
-    }, [filterString, table, searchPosition]);
-
+    console.log(data)
+    console.log(data?.page)
 
     return (
         <div className={"flex w-full min-w-screen-sm max-w-screen-lg flex-col"}>
@@ -104,13 +67,13 @@ function RichTableView<TData, TValue>({
                     <div className="flex gap-2 max-w-sm w-full">
                         <Input
                             placeholder={
-                                searchPosition.length
-                                    ? "Поиск по " + searchPosition.join(", ")
+                                !(searchPosition) || searchPosition.length
+                                    ? "Поиск по " + searchPosition?.join(", ")
                                     : "Выберите колонку для поиска"
                             }
                             value={filterString}
                             onChange={(event) => setFilterString(event.target.value)}
-                            disabled={searchPosition.length === 0}
+                            disabled={searchPosition?.length === 0}
                             className=""
                         />
                         <MultiSelect
@@ -236,15 +199,22 @@ function RichTableView<TData, TValue>({
                     </TableHeader>
 
                     <TableBody>
-                        {table.getRowModel().rows.length ? (
+                        {isLoading ? (
+                            <TableRow>
+                                <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
+                                    Загрузка...
+                                </TableCell>
+                            </TableRow>
+                        ) : table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
-                                    className={"cursor-pointer truncate max-w-screen-lg"}
+                                    className="cursor-pointer truncate max-w-screen-lg"
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
-                                    // TODO: проваливание здесь
                                     onClick={(e) => {
-                                        const isCheckboxClick = (e.target as HTMLElement).closest('.row-select-checkbox');
+                                        const isCheckboxClick = (
+                                            e.target as HTMLElement
+                                        ).closest(".row-select-checkbox");
                                         if (!isCheckboxClick && settings.rowClickHandler) {
                                             settings.rowClickHandler(row.original);
                                         }
@@ -259,14 +229,14 @@ function RichTableView<TData, TValue>({
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={tableConfig.columns.length} className="h-24 text-center">
+                                <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
                                     Не найдено
                                 </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
-                <DataTablePagination table={table}/>
+                <DataTablePagination table={table} totalItems={data?.page?.totalElements}/>
             </div>
 
             {/*<ExportDialog*/}

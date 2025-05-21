@@ -1,30 +1,45 @@
-import type {ApiEntityRepositoryModel} from "@/store/store.ts";
+import type {ApiEntityCommitModel, ApiEntityRepositoryModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {columnsCommits} from "@/columns/columnsCommits.tsx";
+import {useServerTable} from "@/hooks/useServerTable.tsx";
+import {columnsRepos} from "@/columns/columnsRepos.tsx";
 
-function AdminCommitsTableView(props: {
-    data: ApiEntityRepositoryModel[]
-}) {
+function AdminCommitsTableView() {
+    const {
+        table,
+        isLoading,
+        filterString,
+        setFilterString,
+        searchPosition,
+        data,
+        setSearchPosition,
+    } = useServerTable<ApiEntityCommitModel>({
+        columns: columnsCommits,
+        queryUrl: "/entities/commits",
+        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
+    });
+
+    console.log(data)
+
     return (
-        <>
-            <>
-                <RichTableView
-                    entries={props.data}
-                    tableConfig={{
-                        columns: columnsCommits
-                    }}
-                    settings={{
-                        enableSearch: true,
-                        enableVisualization: true,
-                        enableColumnVisibilityToggle: true,
-                        rowClickHandler: (user) => {
-                            // navigate(`/spaces/${selectedSpaceId}/dashboard/users/${user._id}`)
-                        }
-                    }}
-                />
-            </>
-        </>
-    )
+        <RichTableView
+            table={table}
+            isLoading={isLoading}
+            data={data}
+            filterString={filterString}
+            setFilterString={setFilterString}
+            searchPosition={searchPosition}
+            setSearchPosition={setSearchPosition}
+            settings={{
+                enableSearch: true,
+                enableVisualization: true,
+                enableColumnVisibilityToggle: true,
+                rowClickHandler: (user) => {
+                    // navigate(`/spaces/...`)
+                },
+            }}
+        />
+    );
 }
 
 export default AdminCommitsTableView
