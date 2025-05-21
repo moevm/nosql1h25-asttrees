@@ -50,7 +50,7 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
     }
 
     return (
-        <div>
+        <div className={'flex flex-col gap-2'}>
             <div>
                 <Select
                     defaultValue={selectedBranch}
