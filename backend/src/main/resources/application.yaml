@@ -1,6 +1,10 @@
 spring:
   application:
     name: backend
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 logging:
   level:
@@ -9,10 +13,10 @@ logging:
 arangodb:
   spring:
     data:
-      database: sweetgit-db
-      user: root
-      password: ''
-      hosts: localhost:8529
+      database: ${ARANGO_DB}
+      user: ${ARANGO_USER}
+      password: ${ARANGO_PASSWORD}
+      hosts: ${ARANGO_HOST}
 
 springdoc:
   api-docs:
@@ -21,13 +25,13 @@ springdoc:
     path: /docs
 
 jwt:
-  secret: saaI9zMtell9xbas423Tm0AirflZjD5NDbSKut3O2RSKT3WX+B42/Rr+YGb8S4uXRf7wp8HWNMcy5TsLR+yV/mGqpaVP/mt0N/jShm4323Y= # todo change on prod
-  expiration-ms: 86400000
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS}
 
 app:
   file-storage:
-    path: /Users/raregod/nosql1h25-asttrees/store
+    path: ${FILE_STORAGE_PATH}
   backup:
     executable:
-      dump: /Users/raregod/backDumpRestore/bin/arangodump
-      restore: /Users/raregod/backDumpRestore/bin/arangorestore
+      dump: ${ARANGO_DUMP}
+      restore: ${ARANGO_RESTORE}
