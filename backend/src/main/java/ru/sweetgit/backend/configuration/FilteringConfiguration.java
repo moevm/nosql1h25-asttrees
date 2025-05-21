@@ -137,6 +137,15 @@ public class FilteringConfiguration {
                         ))
                 ),
                 new FilterKind(
+                        "string_not_any_of",
+                        Map.of("value", new TypeReference<List<String>>() {}),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "LOWER(%s) NOT IN (FOR item IN %s RETURN LOWER(item))",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
                         "boolean_true",
                         Map.of(),
                         ((fieldName, parameters, varBinder) -> String.format(
