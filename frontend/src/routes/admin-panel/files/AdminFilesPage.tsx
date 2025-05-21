@@ -1,6 +1,7 @@
 import AdminFilesTableView, {generateMockFiles} from "@/routes/admin-panel/files/components/AdminFilesTableView.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
+import React from "react";
 
 function AdminFilesPage() {
     const data = generateMockFiles(30);
