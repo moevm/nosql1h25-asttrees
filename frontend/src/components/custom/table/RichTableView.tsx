@@ -57,12 +57,12 @@ function RichTableView<TData, TValue>({
                                       }: RichTableViewProps<TData, TValue>) {
 
     const setShowVisualizationDialog = useSetAtom($showVisualizationDialogAtom);
-    const currentEntitiesFields = useAtomValue($currentEntitiesFieldsAtom);
-    const setCurrentEntitiesFields = useSetAtom($currentEntitiesFieldsAtom);
-
-    useEffect(() => {
-        setCurrentEntitiesFields(entityType);
-    }, [entityType, setCurrentEntitiesFields]);
+    const currentEntitiesFields = entityType;
+    // const setCurrentEntitiesFields = useSetAtom($currentEntitiesFieldsAtom);
+    //
+    // useEffect(() => {
+    //     setCurrentEntitiesFields(entityType);
+    // }, [entityType, setCurrentEntitiesFields]);
 
     const searchableEntityFields = useMemo(() => {
         return entityType.filter(it => it.type === 'string')
