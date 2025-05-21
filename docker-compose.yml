@@ -2,7 +2,7 @@ services:
   db:
     image: arangodb/arangodb:3.12.4
     environment:
-      - ARANGO_ROOT_PASSWORD=${ARANGO_ROOT_PASSWORD}
+      - ARANGO_ROOT_PASSWORD=${ARANGO_PASSWORD}
     networks:
       - internal-net
     volumes:
@@ -18,7 +18,6 @@ services:
       - "8080:8080"
     environment:
       - ARANGO_DB=${ARANGO_DB}
-      - ARANGO_USER=${ARANGO_USER}
       - ARANGO_PASSWORD=${ARANGO_PASSWORD}
       - ARANGO_HOST=db:8529
       - JWT_SECRET=${JWT_SECRET}
