@@ -155,6 +155,7 @@ function FileTableContent({repo, fileContent, fileAst}: {
                                             disableEdit={true}
                                             disableDrop={true}
                                             width={'auto'}
+                                            childrenAccessor={d => [...d.children].reverse()}
                                             initialData={loaded(fileAst).data.astTree.nodes}
                                         >
                                             {AstNode}

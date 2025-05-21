@@ -41,7 +41,7 @@ export function DataTablePagination<TData>({
     const canNextPage = pageIndex < pageCount - 1
 
     return (
-        <div className="flex items-center justify-between px-2 py-2">
+        <div className="flex items-center justify-between px-2 py-2 bg-background">
             <div className="flex-1 text-sm text-muted-foreground pl-2">
                 Всего {totalItems ?? "…"} строк.
             </div>
