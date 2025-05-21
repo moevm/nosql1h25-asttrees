@@ -7,7 +7,6 @@ import AdminPanelLayout from "@/routes/admin-panel/AdminPanelLayout.tsx";
 import AdminUsersPage from "@/routes/admin-panel/users/AdminUsersPage.tsx";
 import AdminReposPage from "@/routes/admin-panel/repos/AdminReposPage.tsx";
 import AdminCommitsPage from "@/routes/admin-panel/commits/AdminCommitsPage.tsx";
-import FilesPage from "@/routes/admin-panel/files/FilesPage.tsx";
 import AdminAstTreesPage from "@/routes/admin-panel/ast-trees/AdminAstTreesPage.tsx";
 import AdminImportExportDBPage from "@/routes/admin-panel/import-export-db/AdminImportExportDBPage.tsx";
 import HeaderLayout from "@/routes/header-layout/HeaderLayout.tsx";
@@ -28,6 +27,8 @@ import FileLayout from "@/routes/user-panel/user/repo-panel/repo/commit-panel/co
 import FileViewPage
     from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/FileViewPage.tsx";
 import AdminBranchesPage from "@/routes/admin-panel/branches/AdminBranchesPage.tsx";
+import React from "react";
+import AdminFilesPage from "@/routes/admin-panel/files/AdminFilesPage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
@@ -60,7 +61,7 @@ createRoot(document.getElementById('root')!).render(
                                 <Route path="users" element={<AdminUsersPage/>}/>
                                 <Route path="repos" element={<AdminReposPage/>}/>
                                 <Route path="commits" element={<AdminCommitsPage/>}/>
-                                <Route path="files" element={<FilesPage/>}/>
+                                <Route path="files" element={<AdminFilesPage/>}/>
                                 <Route path="ast-trees" element={<AdminAstTreesPage/>}/>
                                 <Route path="import-export" element={<AdminImportExportDBPage/>}/>
                             </Route>
