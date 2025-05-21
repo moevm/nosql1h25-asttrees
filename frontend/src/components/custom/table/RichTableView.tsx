@@ -13,7 +13,7 @@ import {Input} from "@/components/ui/input.tsx";
 import {MultiSelect} from "@/components/custom/multi-select/MultiSelect.tsx";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {CheckIcon, FileDown, FileUp, Filter, SettingsIcon} from "lucide-react";
+import {CheckIcon, FileDown, FileUp, Filter, GitGraph, SettingsIcon} from "lucide-react";
 import {Label} from "@/components/ui/label.tsx";
 import {SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.tsx";
@@ -34,9 +34,7 @@ interface RichTableViewProps<TData, TValue> {
     };
     settings?: {
         enableSearch?: boolean;
-        enableExport?: boolean;
-        enableImport?: boolean;
-        // enableSelectFromFile?: boolean;
+        enableVisualization?: boolean,
         enableColumnVisibilityToggle?: boolean;
         rowClickHandler?: (data: TData) => void;
     };
@@ -64,11 +62,6 @@ function RichTableView<TData, TValue>({
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [filterString, setFilterString] = React.useState<string>();
     const [searchPosition, setSearchPosition] = React.useState<string[]>([]);
-
-    const [showDialogExport, setShowDialogExport] = React.useState<boolean>(false);
-    const [showDialogImport, setShowDialogImport] = React.useState<boolean>(false);
-    const [showDialogSelectFromFile, setShowDialogSelectFromFile] = React.useState<boolean>(false);
-
     const defaultGlobalFilter = (row, columnId, filterValue) => {
         return row.getValue(columnId)?.toString().toLowerCase().includes(filterValue.toLowerCase());
     };
@@ -106,9 +99,9 @@ function RichTableView<TData, TValue>({
     return (
         <div className={"flex w-full min-w-screen-sm max-w-screen-lg flex-col"}>
 
-            <div className="flex flex-col gap-2 w-full py-2">
+            <div className="flex flex-justify-between gap-2 w-full py-2">
                 {!(settings) || settings.enableSearch && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 max-w-sm w-full">
                         <Input
                             placeholder={
                                 searchPosition.length
@@ -118,7 +111,7 @@ function RichTableView<TData, TValue>({
                             value={filterString}
                             onChange={(event) => setFilterString(event.target.value)}
                             disabled={searchPosition.length === 0}
-                            className="max-w-sm"
+                            className=""
                         />
                         <MultiSelect
                             asChild
@@ -215,20 +208,11 @@ function RichTableView<TData, TValue>({
                     </div>
                 )}
 
-
-                <div className="flex justify-between">
-                    <div className="flex gap-2">
-                        {settings?.enableExport &&
-                            <Button variant="outline" size="sm" onClick={() => setShowDialogExport(true)}>
-                                <FileUp/> Экспорт
-                            </Button>}
-                        {settings?.enableImport &&
-                            <Button variant="outline" size="sm" onClick={() => setShowDialogImport(true)}>
-                                <FileDown/> Импорт
-                            </Button>}
-                        {/*settings?.enableSelectFromFile &&*/
-                            <Button variant="outline" size="sm" onClick={() => setShowDialogSelectFromFile(true)}>
-                                <CheckIcon/> Выделить из файла
+                <div className="flex justify-center items-center gap-2 ml-auto">
+                    <div>
+                        {settings?.enableVisualization &&
+                            <Button size="sm" onClick={() => setShowDialogExport(true)}>
+                                <GitGraph/> Визуализация
                             </Button>}
                     </div>
                     {settings?.enableColumnVisibilityToggle && <DataTableViewOptions table={table}/>}

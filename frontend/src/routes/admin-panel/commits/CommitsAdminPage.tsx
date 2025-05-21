@@ -3,6 +3,7 @@ import {$commits} from "@/store/store.ts";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {loaded} from "@/api";
 import CommitsTableView from "@/routes/admin-panel/commits/components/CommitsAdminTableView.tsx";
+import {Label} from "@/components/ui/label.tsx";
 
 function CommitsAdminPage() {
     const commits = useAtomValue($commits);
@@ -11,8 +12,8 @@ function CommitsAdminPage() {
         <BatchLoader states={[commits]}
                      loadingMessage={"Загрузка коммитов"}
                      display={() =>
-                         <div className={"flex flex-col m-6  py-4 ml-6"}>
-                             <span className={"text-4xl"}>Коммиты</span>
+                         <div className={"flex flex-col p-8"}>
+                             <Label className={"text-4xl"}>Коммиты</Label>
                              <CommitsTableView data={loaded(commits).data}></CommitsTableView>
                          </div>
                      }

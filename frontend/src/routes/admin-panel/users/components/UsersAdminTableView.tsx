@@ -17,9 +17,7 @@ function UsersAdminTableView(props: {
                 }}
                 settings={{
                     enableSearch: true,
-                    enableExport: true,
-                    enableImport: true,
-                    // enableSelectFromFile: true,
+                    enableVisualization: true,
                     enableColumnVisibilityToggle: true,
                     rowClickHandler: (user) => {
                         // navigate(`/spaces/${selectedSpaceId}/dashboard/users/${user._id}`)
