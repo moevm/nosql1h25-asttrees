@@ -4,21 +4,26 @@ import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.springframework.core.ArangoOperations;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.sweetgit.backend.entity.EntityQuery;
 import ru.sweetgit.backend.entity.EntitySearchDto;
+import ru.sweetgit.backend.entity.FilterKind;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EntityRepository {
     private final ArangoOperations operations;
+    @Qualifier("entityFilterMap")
+    private final Map<String, FilterKind> entityFilterMap;
 
     public <T> PageImpl<T> execute(
             EntityQuery<T> entityQuery,
@@ -40,16 +45,33 @@ public class EntityRepository {
         queryBuilder.append(entityQuery.selectPart()).append("\n");
         queryBuilder.append("LET resultDoc = ").append(entityQuery.mergePart()).append("\n");
 
+        Function<Object, String> varBinder = (value) -> {
+            var newBindVarName = "__param_" + (additionalBindVars.getAndIncrement());
+            bindVars.put(newBindVarName, value);
+            return "@" + newBindVarName;
+        };
+
         for (var filter : searchDto.filter()) {
             queryBuilder.append("FILTER ").append(filter.kind().builder().build(
                     "resultDoc." + filter.fieldName(),
                     filter.parameters(),
-                    (value) -> {
-                        var newBindVarName = "__param_" + (additionalBindVars.getAndIncrement());
-                        bindVars.put(newBindVarName, value);
-                        return "@" + newBindVarName;
-                    }
+                    varBinder
             )).append("\n");
+        }
+
+        if (StringUtils.hasText(searchDto.query()) && !searchDto.searchFields().isEmpty()) {
+            var searchFilter = entityFilterMap.get("string_contains");
+            queryBuilder.append("FILTER ");
+            queryBuilder.append(
+                    searchDto.searchFields().stream()
+                            .map(field -> searchFilter.builder().build(
+                                    "resultDoc." + field,
+                                    Map.of("value", searchDto.query()),
+                                    varBinder
+                            ))
+                            .map(clause -> "(" + clause + ')')
+                            .collect(Collectors.joining(" OR "))
+            );
         }
 
         if (searchDto.pageable().getSort().isSorted()) {
