@@ -90,6 +90,7 @@ export function defaultOnSuccessHandler() {
 }
 
 export function defaultOnErrorHandler(error: unknown, variables: unknown, context: unknown) {
-    console.log(`mutation error`, {error, variables, context})
+    console.log(`mutation error`, {variables, context})
+    console.error(error.stack)
     toast.error("Ошибка ", { description: errorMessage(error) })
 }

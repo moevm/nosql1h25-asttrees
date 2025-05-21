@@ -1,4 +1,3 @@
-
 import {
     ChevronLeft,
     ChevronRight,
@@ -6,7 +5,7 @@ import {
     ChevronsRight,
 } from "lucide-react"
 
-import {Button} from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
     Select,
     SelectContent,
@@ -14,86 +13,96 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import type {Table} from "@tanstack/react-table";
+import type { Table } from "@tanstack/react-table"
+import React from "react";
 
 interface DataTablePaginationProps<TData> {
     table: Table<TData>
+    totalItems?: number // если есть totalElements из сервера
 }
 
 export function DataTablePagination<TData>({
                                                table,
+                                               totalItems,
                                            }: DataTablePaginationProps<TData>) {
+    const { pageIndex, pageSize } = table.getState().pagination
+    const pageCount = table.getPageCount()
+
+    const canPreviousPage = pageIndex > 0
+    const canNextPage = pageIndex < pageCount - 1
+
     return (
         <div className="flex items-center justify-between px-2 py-2">
             <div className="flex-1 text-sm text-muted-foreground pl-2">
-                Всего {table.getFilteredRowModel().rows.length} строк.
+                Всего {totalItems ?? "…"} строк.
             </div>
             <div className="flex items-center space-x-6 lg:space-x-8">
                 <div className="flex items-center space-x-2">
                     <p className="text-sm font-medium">Строк на странице</p>
                     <Select
-                        value={`${table.getState().pagination.pageSize}`}
+                        value={`${pageSize}`}
                         onValueChange={(value) => {
                             table.setPageSize(Number(value))
                         }}
                     >
                         <SelectTrigger className="h-8 w-[70px]">
-                            <SelectValue placeholder={table.getState().pagination.pageSize}/>
+                            <SelectValue placeholder={`${pageSize}`}/>
                         </SelectTrigger>
                         <SelectContent side="top">
-                            {[10, 20, 30, 40, 50].map((pageSize) => (
-                                <SelectItem key={pageSize} value={`${pageSize}`}>
-                                    {pageSize}
+                            {[10, 20, 30, 40, 50].map((size) => (
+                                <SelectItem key={size} value={`${size}`}>
+                                    {size}
                                 </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </div>
 
-                {(1 !== table.getPageCount()) && <>
-                    <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-                        Стр. {table.getState().pagination.pageIndex + 1} из{" "}
-                        {table.getPageCount()}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Button
-                            variant="outline"
-                            className="hidden h-8 w-8 p-0 lg:flex"
-                            onClick={() => table.setPageIndex(0)}
-                            disabled={!table.getCanPreviousPage()}
-                        >
-                            <span className="sr-only">Перейти на первую страницу</span>
-                            <ChevronsLeft/>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="h-8 w-8 p-0"
-                            onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
-                        >
-                            <span className="sr-only">Перейти на предыдущую страницу</span>
-                            <ChevronLeft/>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="h-8 w-8 p-0"
-                            onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
-                        >
-                            <span className="sr-only">Go to next page</span>
-                            <ChevronRight/>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="hidden h-8 w-8 p-0 lg:flex"
-                            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                            disabled={!table.getCanNextPage()}
-                        >
-                            <span className="sr-only">Go to last page</span>
-                            <ChevronsRight/>
-                        </Button>
-                    </div>
-                </>}
+                {pageCount > 1 && (
+                    <>
+                        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                            Стр. {pageIndex + 1} из {pageCount}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Button
+                                variant="outline"
+                                className="hidden h-8 w-8 p-0 lg:flex"
+                                onClick={() => table.setPageIndex(0)}
+                                disabled={!canPreviousPage}
+                            >
+                                <span className="sr-only">Первая</span>
+                                <ChevronsLeft/>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="h-8 w-8 p-0"
+                                onClick={() => table.previousPage()}
+                                disabled={!canPreviousPage}
+                            >
+                                <span className="sr-only">Назад</span>
+                                <ChevronLeft/>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="h-8 w-8 p-0"
+                                onClick={() => table.nextPage()}
+                                disabled={!canNextPage}
+                            >
+                                <span className="sr-only">Вперёд</span>
+                                <ChevronRight/>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="hidden h-8 w-8 p-0 lg:flex"
+                                onClick={() => table.setPageIndex(pageCount - 1)}
+                                disabled={!canNextPage}
+                            >
+                                <span className="sr-only">Последняя</span>
+                                <ChevronsRight/>
+                            </Button>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     )

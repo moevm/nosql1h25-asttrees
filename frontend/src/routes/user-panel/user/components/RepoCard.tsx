@@ -5,12 +5,28 @@ import {Badge} from "@/components/ui/badge.tsx";
 import {useNavigate} from "react-router-dom";
 import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
 import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
-import {useEffect, useRef, useState} from "react";
 import type {ApiRepositoryModel} from "@/store/store.ts";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {$currentRepo, showRepoSettingsDialogAtom} from "@/store/store.ts";
-import {loaded} from "@/api";
 
+const formatDate = (isoDateString: string | undefined): string => {
+    if (!isoDateString) {
+        return "Дата неизвестна";
+    }
+    try {
+        const date = new Date(isoDateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(-2);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `Создан ${day}.${month}.${year} ${hours}:${minutes}`;
+    } catch (error) {
+        console.error("Ошибка форматирования даты:", error);
+        return "Неверный формат даты";
+    }
+};
 
 function RepoCard({repo}: { repo: ApiRepositoryModel }) {
     const nav = useNavigate();
@@ -20,48 +36,48 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
 
 
     return (
-        <div
-            className="transition-transform hover:scale-102 hover:cursor-pointer"
+        <Card
+            className="cursor-pointer"
             onClick={(e) => {
-
                 if (showRepoSettingsDialog) {
                     return;
                 }
                 nav(`repo/${repo.id}/branch/default/commit/latest`);
             }}
         >
-            <Card>
-                <CardContent>
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <CardTitle>
-                                <div className="flex items-center justify-between gap-2">
-                                    <Label>{repo.name}</Label>
-                                    <Badge>{repo.visibility}</Badge>
-                                </div>
-                            </CardTitle>
-                            <CardDescription>{repo.createdAt}</CardDescription>
-                        </div>
+            <CardContent>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>
+                            <div className="flex items-center justify-between gap-2">
+                                <Label>{repo.name}</Label>
+                                <Badge>
+                                    {repo.visibility === 'PRIVATE' ? 'Приватный' : repo.visibility === 'PUBLIC' ? 'Публичный' : repo.visibility}
+                                </Badge>
+                            </div>
+                        </CardTitle>
 
-                        <div>
-                            <Dialog open={showRepoSettingsDialog} onOpenChange={setShowRepoSettingsDialog}>
-                                <DialogTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                    >
-                                        Редактировать
-                                    </Button>
-                                </DialogTrigger>
-                                <UserRepoSettingsDialog repo={repo}/>
-                            </Dialog>
-                        </div>
+                        <CardDescription className="mt-4">{formatDate(repo.createdAt)}</CardDescription>
                     </div>
-                </CardContent>
-            </Card>
-        </div>
+                    <div>
+                        <Dialog open={showRepoSettingsDialog} onOpenChange={setShowRepoSettingsDialog}>
+                            <DialogTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                    }}
+                                    className="hover:cursor-pointer"
+                                >
+                                    Редактировать
+                                </Button>
+                            </DialogTrigger>
+                            <UserRepoSettingsDialog repo={repo}/>
+                        </Dialog>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
 

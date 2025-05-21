@@ -20,13 +20,18 @@ function AppSidebar() {
                             </NavLink>
                         </Button>
                         <Button asChild variant="ghost" className="justify-start px-3">
+                            <NavLink to="branches">
+                                Ветки
+                            </NavLink>
+                        </Button>
+                        <Button asChild variant="ghost" className="justify-start px-3">
                             <NavLink to="commits">
                                 Коммиты
                             </NavLink>
                         </Button>
                         <Button asChild variant="ghost" className="justify-start px-3">
                             <NavLink to="files">
-                                Файлы
+                                🚧 Файлы не тыкайте сюда 🚧
                             </NavLink>
                         </Button>
                         <Button asChild variant="ghost" className="justify-start px-3">

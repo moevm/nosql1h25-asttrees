@@ -1,14 +1,14 @@
 import {createRoot} from 'react-dom/client'
 import './index.css'
+import 'highlight.js/styles/intellij-light.css'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import AuthorisationPage from "@/routes/reg-auth-page/AuthorisationPage.tsx";
 import AdminPanelLayout from "@/routes/admin-panel/AdminPanelLayout.tsx";
-import UsersPage from "@/routes/admin-panel/users/UsersPage.tsx";
-import ReposAdminPage from "@/routes/admin-panel/repos/ReposAdminPage.tsx";
-import CommitsPage from "@/routes/admin-panel/commits/CommitsPage.tsx";
-import FilesPage from "@/routes/admin-panel/files/FilesPage.tsx";
-import AstTreesPage from "@/routes/admin-panel/ast-trees/AstTreesPage.tsx";
-import ImportExportDBPage from "@/routes/admin-panel/import-export-db/ImportExportDBPage.tsx";
+import AdminUsersPage from "@/routes/admin-panel/users/AdminUsersPage.tsx";
+import AdminReposPage from "@/routes/admin-panel/repos/AdminReposPage.tsx";
+import AdminCommitsPage from "@/routes/admin-panel/commits/AdminCommitsPage.tsx";
+import AdminAstTreesPage from "@/routes/admin-panel/ast-trees/AdminAstTreesPage.tsx";
+import AdminImportExportDBPage from "@/routes/admin-panel/import-export-db/AdminImportExportDBPage.tsx";
 import HeaderLayout from "@/routes/header-layout/HeaderLayout.tsx";
 import UserPage from "@/routes/user-panel/user/UserPage.tsx";
 import RepoViewPage from "@/routes/user-panel/user/repo-panel/repo/RepoViewPage.tsx";
@@ -26,6 +26,14 @@ import CommitLayout from "@/routes/user-panel/user/repo-panel/repo/commit-panel/
 import FileLayout from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/FileLayout.tsx";
 import FileViewPage
     from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/FileViewPage.tsx";
+import AdminBranchesPage from "@/routes/admin-panel/branches/AdminBranchesPage.tsx";
+import React from "react";
+import AdminFilesPage from "@/routes/admin-panel/files/AdminFilesPage.tsx";
+import AdminUserPage from "@/routes/admin-panel/users/user/AdminUserPage.tsx";
+import AdminRepoPage from "@/routes/admin-panel/repos/repo/AdminRepoPage.tsx";
+import AdminBranchPage from "@/routes/admin-panel/branches/branch/AdminBranchPage.tsx";
+import AdminCommitPage from "@/routes/admin-panel/commits/commit/AdminCommitPage.tsx";
+import AdminAstTreePage from "@/routes/admin-panel/ast-trees/ast-tree/AdminAstTreePage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
@@ -54,12 +62,18 @@ createRoot(document.getElementById('root')!).render(
 
                             <Route path="admin" element={<AdminPanelLayout/>}>
                                 <Route index element={<Navigate to="users" replace/>}/>
-                                <Route path="users" element={<UsersPage/>}/>
-                                <Route path="repos" element={<ReposAdminPage/>}/>
-                                <Route path="commits" element={<CommitsPage/>}/>
-                                <Route path="files" element={<FilesPage/>}/>
-                                <Route path="ast-trees" element={<AstTreesPage/>}/>
-                                <Route path="import-export" element={<ImportExportDBPage/>}/>
+                                <Route path="branches" element={<AdminBranchesPage/>}/>
+                                <Route path="branches/:adminBranchId" element={<AdminBranchPage/>}/>
+                                <Route path="users" element={<AdminUsersPage/>}/>
+                                <Route path="users/:adminUserId" element={<AdminUserPage/>}/>
+                                <Route path="repos" element={<AdminReposPage/>}/>
+                                <Route path="repos/:adminRepoId" element={<AdminRepoPage/>}/>
+                                <Route path="commits" element={<AdminCommitsPage/>}/>
+                                <Route path="commits/:adminCommitId" element={<AdminCommitPage/>}/>
+                                <Route path="files" element={<AdminFilesPage/>}/>
+                                <Route path="ast-trees" element={<AdminAstTreesPage/>}/>
+                                <Route path="ast-trees/:adminAstTreeId" element={<AdminAstTreePage/>}/>
+                                <Route path="import-export" element={<AdminImportExportDBPage/>}/>
                             </Route>
                         </Route>
                     </Routes>

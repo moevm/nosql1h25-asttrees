@@ -2,7 +2,7 @@ package ru.sweetgit.backend.dto.response;
 
 import java.time.OffsetDateTime;
 
-public record FullUserDto(
+public record EntityUserDto(
         String id,
         String username,
         String email,

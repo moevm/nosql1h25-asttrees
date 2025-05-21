@@ -55,7 +55,7 @@ public class UserController {
     @PatchMapping("/users/me")
     @IsAuthenticated
     ResponseEntity<UserDto> updateRepository(
-            @RequestBody UpdateCurrentUserRequest request,
+            @Valid @RequestBody UpdateCurrentUserRequest request,
             @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
         if ((request.newPassword() == null) != (request.oldPassword() == null)) {

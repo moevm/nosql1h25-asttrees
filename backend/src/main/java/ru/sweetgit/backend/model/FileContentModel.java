@@ -13,5 +13,5 @@ public class FileContentModel {
     CommitFileModel commitFile;
     CommitFileMetadataModel metadata;
     byte[] content;
-    boolean hasAst;
+    Boolean hasAst;
 }

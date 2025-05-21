@@ -65,7 +65,7 @@ public class RepositoryController {
     @IsAuthenticated
     ResponseEntity<RepositoryDto> updateRepository(
             @PathVariable("repoId") String repoId,
-            @RequestBody UpdateRepositoryRequest request,
+            @Valid @RequestBody UpdateRepositoryRequest request,
             @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
         var repo = repositoryService.getById(repoId)

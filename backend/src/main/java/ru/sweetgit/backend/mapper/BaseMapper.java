@@ -1,6 +1,9 @@
 package ru.sweetgit.backend.mapper;
 
 import org.mapstruct.Mapper;
+import ru.sweetgit.backend.model.CommitFileModel;
+import ru.sweetgit.backend.model.CommitModel;
+import ru.sweetgit.backend.model.UserModel;
 
 import java.net.URI;
 import java.time.Instant;
@@ -22,5 +25,17 @@ public interface BaseMapper {
 
     default URI map(String string) {
          return URI.create(string);
+    }
+
+    default String mapCommit(CommitModel model) {
+        return model.getId();
+    }
+
+    default String mapParent(CommitFileModel parent) {
+        return parent.getId();
+    }
+
+    default String mapUserModel(UserModel model) {
+         return model.getId();
     }
 }
