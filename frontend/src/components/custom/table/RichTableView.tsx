@@ -8,7 +8,7 @@ import {Input} from "@/components/ui/input.tsx";
 import {MultiSelect} from "@/components/custom/multi-select/MultiSelect.tsx";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {Filter, GitGraph, SettingsIcon} from "lucide-react";
+import {Filter, GitGraph, SettingsIcon, Zap} from "lucide-react";
 import {Label} from "@/components/ui/label.tsx";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.tsx";
@@ -179,7 +179,7 @@ function RichTableView<TData, TValue>({
                             <Button size="sm" onClick={() => {
                                 setShowVisualizationDialog(true);
                             }}>
-                                <GitGraph/> Визуализация
+                                <Zap/> <Zap/> Визуализация
                             </Button>
                         }
                     </div>
