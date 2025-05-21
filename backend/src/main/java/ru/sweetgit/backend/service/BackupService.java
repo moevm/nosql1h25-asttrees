@@ -47,7 +47,7 @@ public class BackupService {
                     "--output-directory",
                     tempDir.toAbsolutePath().toString(),
                     "--compress-output"
-            ), Duration.ofMinutes(1));
+            ), Duration.ofMinutes(30));
             if (!executionResult.isSuccess()) {
                 throw ApiException.builder(
                         HttpStatus.INTERNAL_SERVER_ERROR,
