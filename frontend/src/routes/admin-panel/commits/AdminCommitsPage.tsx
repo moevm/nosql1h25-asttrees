@@ -1,20 +1,16 @@
-import {useAtomValue} from "jotai/react";
-import {$commits} from "@/store/store.ts";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
-import {loaded} from "@/api";
 import CommitsTableView from "@/routes/admin-panel/commits/components/AdminCommitsTableView.tsx";
 import {Label} from "@/components/ui/label.tsx";
 
 function AdminCommitsPage() {
-    const commits = useAtomValue($commits);
 
     return (
-        <BatchLoader states={[commits]}
+        <BatchLoader states={[]}
                      loadingMessage={"Загрузка коммитов"}
                      display={() =>
                          <div className={"flex flex-col p-8"}>
                              <Label className={"text-4xl"}>Коммиты</Label>
-                             <CommitsTableView data={loaded(commits).data}></CommitsTableView>
+                             <CommitsTableView></CommitsTableView>
                          </div>
                      }
         />

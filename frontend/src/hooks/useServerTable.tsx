@@ -54,10 +54,10 @@ interface UseServerTableOptions<T> {
 }
 
 export function useGetTableDataQuery(queryURL: string) {
-    return $api.useMutation('post', `${queryURL}`, {
+    return $api.useMutation('post', `${queryURL}/query`, {
         onSuccess(data) {
             if (data) {
-                toast.success('что то произошло!')
+                toast.success('Данные успешно загружены!')
             }
         },
         onError: defaultOnErrorHandler
