@@ -18,8 +18,8 @@ import {Label} from "@/components/ui/label.tsx";
 import {SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.tsx";
 import {DataTablePagination} from "@/components/custom/table/DataTablePagination.tsx";
-import {getColumnTypeRelations, relationFullName} from "@/columns/columnsUsers.tsx";
 import {DataTableViewOptions} from "@/components/custom/table/DataTableViewOptions.tsx";
+import {getColumnTypeRelations, relationFullName} from "@/lib/table.ts";
 
 export interface ContextMenuConfig<TData> {
     getLabel?: (rows: Row<TData>[]) => string;

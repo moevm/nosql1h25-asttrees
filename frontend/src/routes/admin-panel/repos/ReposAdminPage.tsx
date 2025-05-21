@@ -10,7 +10,13 @@ function ReposAdminPage() {
     return (
         <BatchLoader states={[repos]}
                      loadingMessage={"Загрузка репозиториев"}
-                     display={() => <ReposTableView data={loaded(repos).data}></ReposTableView>}/>
+                     display={() =>
+                         <div className={"flex flex-col m-6  py-4 ml-6"}>
+                             <span className={"text-4xl"}>Репозитории</span>
+                             <ReposTableView data={loaded(repos).data}></ReposTableView>
+                         </div>
+                     }
+        />
     );
 }
 
