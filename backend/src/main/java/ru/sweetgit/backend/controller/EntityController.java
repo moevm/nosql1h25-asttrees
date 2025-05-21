@@ -8,9 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.request.EntitySearchRequest;
 import ru.sweetgit.backend.dto.response.EntityBranchDto;
@@ -24,6 +22,7 @@ import ru.sweetgit.backend.mapper.EntityMapper;
 import ru.sweetgit.backend.service.EntityService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,7 +35,7 @@ public class EntityController {
     @Qualifier("entityFilterMap")
     private final Map<String, FilterKind> filterKindMap;
 
-    @PostMapping("/entities/users")
+    @PostMapping("/entities/users/query")
     public ResponseEntity<Page<EntityUserDto>> queryUsers(
             @Valid @RequestBody EntitySearchRequest request
     ) {
@@ -45,8 +44,21 @@ public class EntityController {
         return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
     }
 
-    @PostMapping("/entities/repositories")
-    public ResponseEntity<Page<EntityRepositoryDto>> querytRepositories(
+    @GetMapping("/entities/users/{userId}")
+    public ResponseEntity<EntityUserDto> getUser(
+            @PathVariable String userId
+    ) {
+        var searchDto = queryById(userId);
+        var page = entityService.getUserEntities(searchDto);
+
+        var entity = page.stream().findFirst()
+                .orElseThrow(() -> ApiException.notFound("Пользователь", "id", userId).build());
+
+        return ResponseEntity.ok(entityMapper.toEntityDto(entity));
+    }
+
+    @PostMapping("/entities/repositories/query")
+    public ResponseEntity<Page<EntityRepositoryDto>> queryRepositories(
             @Valid @RequestBody EntitySearchRequest request
     ) {
         var searchDto = convert(request);
@@ -54,7 +66,20 @@ public class EntityController {
         return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
     }
 
-    @PostMapping("/entities/branches")
+    @GetMapping("/entities/repositories/{repositoryId}")
+    public ResponseEntity<EntityRepositoryDto> getRepository(
+            @PathVariable String repositoryId
+    ) {
+        var searchDto = queryById(repositoryId);
+        var page = entityService.getRepositoryEntities(searchDto);
+
+        var entity = page.stream().findFirst()
+                .orElseThrow(() -> ApiException.notFound("Репозиторий", "id", repositoryId).build());
+
+        return ResponseEntity.ok(entityMapper.toEntityDto(entity));
+    }
+
+    @PostMapping("/entities/branches/query")
     public ResponseEntity<Page<EntityBranchDto>> queryBranches(
             @Valid @RequestBody EntitySearchRequest request
     ) {
@@ -63,13 +88,58 @@ public class EntityController {
         return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
     }
 
-    @PostMapping("/entities/commits")
+
+    @GetMapping("/entities/branches/{branchId}")
+    public ResponseEntity<EntityBranchDto> getBranch(
+            @PathVariable String branchId
+    ) {
+        var searchDto = queryById(branchId);
+        var page = entityService.getBranchEntities(searchDto);
+
+        var entity = page.stream().findFirst()
+                .orElseThrow(() -> ApiException.notFound("Ветка", "id", branchId).build());
+
+        return ResponseEntity.ok(entityMapper.toEntityDto(entity));
+    }
+
+    @PostMapping("/entities/commits/query")
     public ResponseEntity<Page<EntityCommitDto>> queryCommits(
             @Valid @RequestBody EntitySearchRequest request
     ) {
         var searchDto = convert(request);
         var page = entityService.getCommitEntities(searchDto);
         return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
+    }
+
+
+
+    @GetMapping("/entities/commits/{commitId}")
+    public ResponseEntity<EntityCommitDto> getCommit(
+            @PathVariable String commitId
+    ) {
+        var searchDto = queryById(commitId);
+        var page = entityService.getCommitEntities(searchDto);
+
+        var entity = page.stream().findFirst()
+                .orElseThrow(() -> ApiException.notFound("Коммит", "id", commitId).build());
+
+        return ResponseEntity.ok(entityMapper.toEntityDto(entity));
+    }
+
+    private EntitySearchDto queryById(String id) {
+        return convert(new EntitySearchRequest(
+                "",
+                List.of(),
+                new EntitySearchRequest.Pagination(0, 1),
+                List.of(),
+                List.of(
+                        new EntitySearchRequest.Filter(
+                                "id",
+                                "string_equals",
+                                Map.of("value", id)
+                        )
+                )
+        ));
     }
 
     private EntitySearchDto convert(EntitySearchRequest request) {
