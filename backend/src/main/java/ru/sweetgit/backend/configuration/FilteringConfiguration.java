@@ -19,13 +19,92 @@ public class FilteringConfiguration {
                         "string_equals",
                         Map.of("value", new TypeReference<String>() {
                         }),
-                        (fieldName, parameters, varBinder) -> String.format("%s == %s", fieldName, varBinder.apply(parameters.get("value")))
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s == %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
                 ),
                 new FilterKind(
                         "int_equals",
                         Map.of("value", new TypeReference<Long>() {
                         }),
-                        (fieldName, parameters, varBinder) -> String.format("%s == %s", fieldName, varBinder.apply(parameters.get("value")))
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s == %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "int_not_equals",
+                        Map.of("value", new TypeReference<Long>() {
+                        }),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s != %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "int_ge",
+                        Map.of("value", new TypeReference<Long>() {
+                        }),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s >= %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "int_gt",
+                        Map.of("value", new TypeReference<Long>() {
+                        }),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s > %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "int_le",
+                        Map.of("value", new TypeReference<Long>() {
+                        }),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s <= %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "int_lt",
+                        Map.of("value", new TypeReference<Long>() {
+                        }),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s < %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "int_any_of",
+                        Map.of("value", new TypeReference<List<Long>>() {
+                        }),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s in %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "int_between",
+                        Map.of("from", new TypeReference<Long>() {},
+                                "to", new TypeReference<Long>() {}),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s in %s..%s",
+                                fieldName,
+                                varBinder.apply(parameters.get("from")),
+                                varBinder.apply(parameters.get("to"))
+                        ))
                 )
         );
     }
