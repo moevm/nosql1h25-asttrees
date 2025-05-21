@@ -2,10 +2,10 @@ import {useAtomValue} from "jotai/react";
 import {$repos} from "@/store/store.ts";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {loaded} from "@/api";
-import ReposAdminTableView from "@/routes/admin-panel/repos/components/ReposAdminTableView.tsx";
+import AdminReposTableView from "@/routes/admin-panel/repos/components/AdminReposTableView.tsx";
 import {Label} from "@/components/ui/label.tsx";
 
-function ReposAdminPage() {
+function AdminReposPage() {
     const repos = useAtomValue($repos);
 
     return (
@@ -14,11 +14,11 @@ function ReposAdminPage() {
                      display={() =>
                          <div className={"flex flex-col p-8"}>
                              <Label className={"text-4xl"}>Репозитории</Label>
-                             <ReposAdminTableView data={loaded(repos).data}></ReposAdminTableView>
+                             <AdminReposTableView data={loaded(repos).data}></AdminReposTableView>
                          </div>
                      }
         />
     );
 }
 
-export default ReposAdminPage;
+export default AdminReposPage;

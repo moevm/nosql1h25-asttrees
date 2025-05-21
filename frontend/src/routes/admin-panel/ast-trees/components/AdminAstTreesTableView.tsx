@@ -1,9 +1,9 @@
-import type {ApiEntityBranchModel} from "@/store/store.ts";
+import type {ApiEntityRepositoryModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
-import {columnsBranches} from "@/columns/columnsBranches.tsx";
+import {columnsAstTrees} from "@/columns/columnsAstTrees.tsx";
 
-function BranchesAdminPage(props: {
-    data: ApiEntityBranchModel[]
+function AdminAstTreesTableView(props: {
+    data: ApiEntityRepositoryModel[]
 }) {
     return (
         <>
@@ -11,13 +11,13 @@ function BranchesAdminPage(props: {
                 <RichTableView
                     entries={props.data}
                     tableConfig={{
-                        columns: columnsBranches
+                        columns: columnsAstTrees
                     }}
                     settings={{
                         enableSearch: true,
                         enableVisualization: true,
                         enableColumnVisibilityToggle: true,
-                        rowClickHandler: () => {
+                        rowClickHandler: (user) => {
                             // navigate(`/spaces/${selectedSpaceId}/dashboard/users/${user._id}`)
                         }
                     }}
@@ -27,4 +27,4 @@ function BranchesAdminPage(props: {
     )
 }
 
-export default BranchesAdminPage
+export default AdminAstTreesTableView
