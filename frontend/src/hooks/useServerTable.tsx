@@ -159,7 +159,7 @@ export function useServerTable<T>({
     }, [path]);
 
     useEffect(() => {
-        if (!initialized) return;
+        if (!initialized && path) return;
 
         const mappedSorting = sorting.map((s) => {
             const col = table.getAllColumns().find((c) => c.id === s.id);
