@@ -84,15 +84,21 @@ public class EntityQueryConfiguration {
                             )
                             LET repoDoc = DOCUMENT(oneBranchForCommit.repository)
                             LET ownerDocForRepo = DOCUMENT(repoDoc.owner)
-                        
+
                             LET branchesLinkedToCommit = (
                                 FOR b_node IN 1..1 INBOUND c._id branch_commits
                                     RETURN 1
                             )
+                            
+                            LET commitFiles = (
+                               FOR file in commit_files
+                                   FILTER file.commit == c._id
+                                   RETURN file
+                            )
+                            
                             LET filesWithAstCount = COUNT(
-                                FOR fileId IN c.rootFiles
-                                    LET commitFileDoc = DOCUMENT(fileId)
-                                    FILTER commitFileDoc != null AND DOCUMENT(CONCAT("ast_trees/", commitFileDoc.hash)) != null
+                                FOR commitFileDoc in commitFiles
+                                    FILTER DOCUMENT(CONCAT("ast_trees/", commitFileDoc.hash)) != null
                                     RETURN 1
                             )
                         """,
@@ -115,7 +121,7 @@ public class EntityQueryConfiguration {
                                     }
                                 ),
                                 branchCount: LENGTH(branchesLinkedToCommit),
-                                fileCount: LENGTH(c.rootFiles),
+                                fileCount: LENGTH(commitFiles),
                                 fileWithAstCount: filesWithAstCount
                             }
                         )
@@ -165,15 +171,15 @@ public class EntityQueryConfiguration {
                 """
                         FOR ast_tree IN ast_trees
                             LET rootNodeDoc = DOCUMENT(ast_tree.rootNode)
-
+                        
                             LET traversalData = (
                                 FOR v, e, p IN 0..10000 OUTBOUND rootNodeDoc ast_parents
                                     RETURN { depth: LENGTH(p.edges) }
                             )
-
+                        
                             LET treeDepth = LENGTH(traversalData) == 0 ? 0 : MAX(traversalData[*].depth)
                             LET treeSize = LENGTH(traversalData)
-
+                        
                             LET commitFileDoc = FIRST(
                                 FOR cf IN commit_files
                                     FILTER cf.hash == ast_tree._key

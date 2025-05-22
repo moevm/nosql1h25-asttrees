@@ -38,7 +38,7 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
                 console.info((e.target as HTMLElement).tagName)
                 if ((e.target as HTMLElement).tagName !== 'BUTTON') {
                     console.info('nav')
-                    nav(`repo/${repo.id}/branch/default/commit/latest`, {replace: true});
+                    nav(`repo/${repo.id}/branch/default/commit/latest`, {replace: false});
                 }
             }}
         >

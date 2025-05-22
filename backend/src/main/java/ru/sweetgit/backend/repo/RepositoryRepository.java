@@ -4,14 +4,14 @@ package ru.sweetgit.backend.repo;
 import com.arangodb.springframework.annotation.Query;
 import com.arangodb.springframework.repository.ArangoRepository;
 import jakarta.annotation.Nullable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import ru.sweetgit.backend.model.RepositoryModel;
 import ru.sweetgit.backend.model.RepositoryViewModel;
 
-import java.util.List;
-
 public interface RepositoryRepository extends ArangoRepository<RepositoryModel, String> {
-    List<RepositoryModel> findAllByOwnerId(String ownerId);
+    Page<RepositoryModel> findAllByOwnerId(Pageable pageable, String ownerId);
 
     @Query("""
             LET repoModel = DOCUMENT(CONCAT("repositories/", @repositoryId))
