@@ -87,3 +87,24 @@
 *, *::before, *::after {
   box-sizing: border-box;
 }
+
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.ProgressRoot {
+  position: relative;
+  overflow: hidden;
+  height: 4px;
+}
+
+.ProgressIndicator {
+  background: var(--primary);
+  height: 100%;
+  width: 100%;
+}
