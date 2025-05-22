@@ -78,6 +78,7 @@ export function useServerTable<T>({
     const [searchFields, setSearchFields] = useState<string[]>([]);
     const [sortingForQuery, setSortingForQuery] = useState<EntityField[]>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [initialized, setInitialized] = useState(false);
     const setPath = useSetAtom($path);
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -129,7 +130,7 @@ export function useServerTable<T>({
     }), [searchQuery, globalFilter, searchFields, pagination, sortingForQuery, columnFilters]);
 
     useEffect(() => {
-        if (!path) return;
+        if (!path || initialized) return;
         const params = new URLSearchParams(path);
 
         const query = params.get('query') ?? '';
@@ -153,9 +154,13 @@ export function useServerTable<T>({
         setSorting(sort);
         setColumnFilters(filters);
         setPagination({ pageIndex, pageSize });
+
+        setInitialized(true);
     }, [path]);
 
     useEffect(() => {
+        if (!initialized) return;
+
         const mappedSorting = sorting.map((s) => {
             const col = table.getAllColumns().find((c) => c.id === s.id);
             return {
@@ -191,7 +196,7 @@ export function useServerTable<T>({
                 },
             }
         );
-    }, [searchQuery, globalFilter, sorting, columnFilters, pagination, searchFields]);
+    }, [initialized, searchQuery, globalFilter, sorting, columnFilters, pagination, searchFields]);
 
     return {
         data,
