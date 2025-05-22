@@ -55,6 +55,7 @@ interface RichTableViewProps<TData, TValue> {
     setFilterString: (value: string) => void;
     searchPosition: string[];
     setSearchPosition: (value: string[]) => void;
+    buttonsSlot?: () => React.ReactNode;
 }
 
 function RichTableView<TData, TValue>({
@@ -68,7 +69,8 @@ function RichTableView<TData, TValue>({
                                           filterString,
                                           setFilterString,
                                           searchPosition,
-                                          setSearchPosition
+                                          setSearchPosition,
+                                          buttonsSlot
                                       }: RichTableViewProps<TData, TValue>) {
 
     const setShowVisualizationDialog = useSetAtom($showVisualizationDialog);
@@ -195,6 +197,7 @@ function RichTableView<TData, TValue>({
                 )}
 
                 <div className="flex justify-center items-center gap-2 ml-auto">
+                    {buttonsSlot && buttonsSlot()}
                     <div>
                         {settings?.enableVisualization &&
                             <Button size="sm" onClick={() => {

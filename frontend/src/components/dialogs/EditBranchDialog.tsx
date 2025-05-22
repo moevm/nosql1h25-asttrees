@@ -1,7 +1,7 @@
 import {useAtom} from "jotai";
 import {
     $adminBranch,
-    $showEditBranchDialog, type ApiEntityBranchModel
+    $showEditBranchDialog, type ApiEntityBranchModel, type ApiEntityUserModel
 } from "@/store/store.ts";
 import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog.tsx";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
@@ -21,63 +21,47 @@ import {Calendar} from "@/components/ui/calendar.tsx";
 import { ru } from 'date-fns/locale';
 import {format} from "date-fns";
 import {cn} from "@/lib/utils.ts";
-
-const formSchema = z.object({
-    name: z.string().min(1, "Обязательное поле"),
-    repoId: z.string().min(1, "Обязательное поле"),
-    createdAt: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' || arg instanceof Date) {
-                const date = new Date(arg);
-                return isNaN(date.getTime()) ? undefined : date;
-            }
-            return undefined;
-        },
-        z.date({
-            required_error: "Дата создания обязательна",
-            invalid_type_error: "Некорректный формат даты",
-        })
-    ),
-    isDefault: z.boolean()
-});
+import {branchSchema, getInitialDate, repoSchema} from "@/lib/formSchemas.ts";
 
 function EditBranchContent(props: {
-    data: ApiEntityBranchModel
+    data: ApiEntityBranchModel,
+    onSave?: (data: z.infer<typeof branchSchema>) => void
 }) {
     const [open, setOpen] = useAtom($showEditBranchDialog)
+    const today = new Date();
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            name: props.data.name,
-            repoId: props.data.repository?.id,
-            createdAt: props.data.createdAt,
-            isDefault: props.data.isDefault,
-        },
+    const initialFormValues = {
+        name: props.data?.name || '',
+        repoId: props.data?.repository?.id || '',
+        createdAt: getInitialDate(props.data?.createdAt),
+        isDefault: props.data?.isDefault ?? false,
+    };
+
+    const form = useForm<z.infer<typeof branchSchema>>({
+        resolver: zodResolver(branchSchema),
+        defaultValues: initialFormValues
     });
 
     useEffect(() => {
         if (open) {
-            form.reset({
-                name: props.data.name,
-                repoId: props.data.repository?.id,
-                createdAt: props.data.createdAt,
-                isDefault: props.data.isDefault,
-            });
+            form.reset(initialFormValues);
         }
-    }, [open, form, props.data.name, props.data.repository?.id, props.data.createdAt, props.data.isDefault]);
+    }, [open]);
 
-    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const onSubmit = async (data: z.infer<typeof branchSchema>) => {
         console.log(data)
+        if (props.onSave) {
+            props.onSave(data)
+        }
         setOpen(false)
     };
 
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Изменить ветку</DialogTitle>
+                    <DialogTitle>{props.data ? "Изменить ветку" : "Создать ветку"}</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -142,6 +126,7 @@ function EditBranchContent(props: {
                                                 onSelect={field.onChange}
                                                 initialFocus
                                                 locale={ru}
+                                                toDate={today}
                                             />
                                         </PopoverContent>
                                     </Popover>
@@ -169,7 +154,7 @@ function EditBranchContent(props: {
                         />
 
                         <DialogFooter className={"flex w-full justify-between"}>
-                            <Button type="submit">Изменить</Button>
+                            <Button type="submit">{props.data ? "Изменить" : "Создать"}</Button>
                             <div className={"ml-auto"}>
                                 <DialogClose asChild>
                                     <Button variant="outline">Отмена</Button>
@@ -183,16 +168,12 @@ function EditBranchContent(props: {
     )
 }
 
-function EditBranchDialog() {
-    const adminBranch = useAtomValue($adminBranch)
-
+function EditBranchDialog(props: {
+    data?: ApiEntityBranchModel,
+    onSave?: (data: z.infer<typeof branchSchema>) => void
+}) {
     return (
-        <BatchLoader states={[adminBranch]}
-                     loadingMessage={"Загрузка ветки"}
-                     display={() =>
-                         <EditBranchContent data={loaded(adminBranch).data}/>
-                     }
-        />
+        <EditBranchContent data={props.data} onSave={props.onSave}/>
     )
 }
 
