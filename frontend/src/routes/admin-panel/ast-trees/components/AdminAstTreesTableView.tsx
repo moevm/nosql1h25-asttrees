@@ -8,6 +8,7 @@ function AdminAstTreesTableView() {
     const {
         table,
         isLoading,
+        isPending,
         filterString,
         setFilterString,
         searchPosition,
@@ -26,6 +27,7 @@ function AdminAstTreesTableView() {
                 <RichTableView
                     table={table}
                     isLoading={isLoading}
+                    isPending={isPending}
                     data={data}
                     entityType={fieldsAstTrees}
                     queryURLname={"ast_trees"}

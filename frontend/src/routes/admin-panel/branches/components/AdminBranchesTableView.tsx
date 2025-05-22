@@ -8,6 +8,7 @@ function AdminBranchesTableView() {
     const {
         table,
         isLoading,
+        isPending,
         filterString,
         setFilterString,
         searchPosition,
@@ -24,6 +25,7 @@ function AdminBranchesTableView() {
         <RichTableView
             table={table}
             isLoading={isLoading}
+            isPending={isPending}
             entityType={fieldsBranches}
             queryURLname={"branches"}
             data={data}

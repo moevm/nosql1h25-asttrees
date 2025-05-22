@@ -14,6 +14,9 @@ import {useEffect, useMemo, useState} from "react";
 import { $api, defaultOnErrorHandler } from "@/api";
 import {toast} from "sonner";
 import type {EntityField} from "@/lib/utils.ts";
+import {useAtomValue, useSetAtom} from "jotai/react";
+import {$path} from "@/store/store.ts";
+import {useNavigate, useSearchParams} from "react-router-dom";
 
 type SortItem = {
     field: string;
@@ -75,6 +78,11 @@ export function useServerTable<T>({
     const [searchFields, setSearchFields] = useState<string[]>([]);
     const [sortingForQuery, setSortingForQuery] = useState<EntityField[]>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const setPath = useSetAtom($path);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const path = useAtomValue($path);
+
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: defaultPageSize,
@@ -82,6 +90,7 @@ export function useServerTable<T>({
 
     const [data, setData] = useState<ServerResponse<T> | null>(null);
     const { mutate, isPending } = useGetTableDataQuery<T>(queryUrl);
+    const navigate = useNavigate();
 
     const table = useReactTable({
         data: data?.content ?? [],
@@ -120,6 +129,33 @@ export function useServerTable<T>({
     }), [searchQuery, globalFilter, searchFields, pagination, sortingForQuery, columnFilters]);
 
     useEffect(() => {
+        if (!path) return;
+        const params = new URLSearchParams(path);
+
+        const query = params.get('query') ?? '';
+        const fields = params.get('fields')?.split(',') ?? [];
+        const sort = params.get('sort')?.split(',').map(part => {
+            const [field, dir] = part.split(':');
+            return { id: field, desc: dir === 'desc' };
+        }) ?? [];
+
+        const filters = params.get('filters')?.split(',').map(item => {
+            const [keyKind, val] = item.split('=');
+            const [field, kind] = keyKind.split(':');
+            return { id: field, value: decodeURIComponent(val) };
+        }) ?? [];
+
+        const pageIndex = parseInt(params.get('page') ?? '0', 10);
+        const pageSize = parseInt(params.get('size') ?? '10', 10);
+
+        setSearchQuery(query);
+        setSearchFields(fields);
+        setSorting(sort);
+        setColumnFilters(filters);
+        setPagination({ pageIndex, pageSize });
+    }, [path]);
+
+    useEffect(() => {
         const mappedSorting = sorting.map((s) => {
             const col = table.getAllColumns().find((c) => c.id === s.id);
             return {
@@ -130,28 +166,41 @@ export function useServerTable<T>({
 
         setSortingForQuery(mappedSorting as EntityField[]);
 
+        const urlParams = new URLSearchParams();
+        if (searchQuery) urlParams.set("query", searchQuery);
+        if (searchFields.length) urlParams.set("fields", searchFields.join(","));
+        if (mappedSorting.length)
+            urlParams.set("sort", mappedSorting.map(s => `${s.field}:${s.asc ? "asc" : "desc"}`).join(","));
+        if (columnFilters.length)
+            urlParams.set("filters", columnFilters.map(f =>
+                `${f.id}:${typeof f.value === "number" ? "number" : "string"}=${encodeURIComponent(f.value)}`
+            ).join(","));
+        urlParams.set("page", String(pagination.pageIndex));
+        urlParams.set("size", String(pagination.pageSize));
+
+
         mutate(
             { body: { ...queryBody, sort: mappedSorting } },
             {
                 onSuccess: (res) => {
+                    console.info('setData', {res})
                     setData(res as ServerResponse<T>);
+                    urlParams.set('path', urlParams.toString());
+                    setSearchParams(urlParams);
+                    console.log(urlParams)
                 },
             }
         );
-    }, [searchQuery, globalFilter, sorting, columnFilters, pagination]);
+    }, [searchQuery, globalFilter, sorting, columnFilters, pagination, searchFields]);
 
     return {
         data,
         table,
-        isLoading: isPending,
+        isLoading: data?.content?.length ? false : isPending,
+        isPending: isPending,
         filterString: searchQuery,
         setFilterString: setSearchQuery,
         searchPosition: searchFields,
         setSearchPosition: setSearchFields,
-        refetch: () =>
-            mutate(
-                { body: queryBody },
-                { onSuccess: (res) => setData(res as ServerResponse<T>) }
-            ),
     };
 }

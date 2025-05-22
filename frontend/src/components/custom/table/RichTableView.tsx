@@ -16,9 +16,23 @@ import {DataTablePagination} from "@/components/custom/table/DataTablePagination
 import {DataTableViewOptions} from "@/components/custom/table/DataTableViewOptions.tsx";
 import {getColumnTypeRelations, relationFullName} from "@/lib/table.ts";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {$currentEntitiesFieldsAtom, $showVisualizationDialogAtom} from "@/store/store.ts";
+import {$currentEntitiesFieldsAtom, $path, $showVisualizationDialogAtom} from "@/store/store.ts";
 import VisualizationDialog from "@/components/dialogs/VisualizationDialog.tsx";
 import type {EntityField} from "@/lib/utils.ts";
+import * as Progress from '@radix-ui/react-progress'
+
+const ProgressDemo = () => {
+    return (
+        <Progress.Root className="ProgressRoot">
+            <Progress.Indicator
+                className="ProgressIndicator"
+                style={
+                    { animation: "progress-indeterminate 1000ms infinite linear" }
+                }
+            />
+        </Progress.Root>
+    );
+};
 
 interface RichTableViewProps<TData, TValue> {
     table: ReturnType<typeof useReactTable<TData>>;
@@ -46,6 +60,7 @@ interface RichTableViewProps<TData, TValue> {
 function RichTableView<TData, TValue>({
                                           table,
                                           isLoading,
+                                          isPending,
                                           entityType,
                                           queryURLname,
                                           data = {},
@@ -58,11 +73,17 @@ function RichTableView<TData, TValue>({
 
     const setShowVisualizationDialog = useSetAtom($showVisualizationDialogAtom);
     const currentEntitiesFields = entityType;
-    // const setCurrentEntitiesFields = useSetAtom($currentEntitiesFieldsAtom);
-    //
-    // useEffect(() => {
-    //     setCurrentEntitiesFields(entityType);
-    // }, [entityType, setCurrentEntitiesFields]);
+    const setPath = useSetAtom($path)
+    const curEntities = useAtomValue($currentEntitiesFieldsAtom)
+    const setCurrentEntitiesFields = useSetAtom($currentEntitiesFieldsAtom);
+
+    useEffect(() => {
+        setCurrentEntitiesFields(entityType);
+    }, [entityType, setCurrentEntitiesFields]);
+
+    useEffect(() => {
+        setPath("");
+    }, [curEntities]);
 
     const searchableEntityFields = useMemo(() => {
         return entityType.filter(it => it.type === 'string')
@@ -202,8 +223,14 @@ function RichTableView<TData, TValue>({
                             </TableRow>
                         ))}
                     </TableHeader>
-
                     <TableBody>
+
+                            <TableRow className={"border-none"}>
+                                <TableCell colSpan={table.getAllColumns().length} className={"h-[4px] p-0"}>
+                                    {isPending && <ProgressDemo />}
+                                </TableCell>
+                            </TableRow>
+
                         {isLoading ? (
                             <TableRow>
                                 <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">

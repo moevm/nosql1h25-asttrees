@@ -8,6 +8,7 @@ function AdminReposTableView() {
     const {
         table,
         isLoading,
+        isPending,
         filterString,
         setFilterString,
         searchPosition,
@@ -24,6 +25,7 @@ function AdminReposTableView() {
         <RichTableView
             table={table}
             isLoading={isLoading}
+            isPending={isPending}
             entityType={fieldsRepos}
             queryURLname={"repositories"}
             data={data}

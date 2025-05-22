@@ -8,6 +8,7 @@ function AdminUsersTableView() {
     const {
         table,
         isLoading,
+        isPending,
         filterString,
         setFilterString,
         searchPosition,
@@ -25,6 +26,7 @@ function AdminUsersTableView() {
             entityType={fieldsUsers}
             queryURLname={"users"}
             isLoading={isLoading}
+            isPending={isPending}
             data={data}
             filterString={filterString}
             setFilterString={setFilterString}
