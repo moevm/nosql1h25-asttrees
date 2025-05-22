@@ -2,12 +2,14 @@ package ru.sweetgit.backend.service;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
 import ru.sweetgit.backend.dto.request.UpdateRepositoryRequest;
 import ru.sweetgit.backend.model.*;
-import ru.sweetgit.backend.repo.*;
+import ru.sweetgit.backend.repo.RepositoryRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +19,6 @@ import java.util.Optional;
 public class RepositoryService {
     private final RepositoryRepository repositoryRepository;
     private final BranchService branchService;
-    private final CommitService commitService;
     private final CommitFileService commitFileService;
     private final FileStorageService fileStorageService;
     private final AstTreeService astTreeService;
@@ -27,7 +28,10 @@ public class RepositoryService {
     }
 
     public List<RepositoryModel> getRepositoriesForUser(UserModel user) {
-        return repositoryRepository.findAllByOwnerId(user.getId());
+        return repositoryRepository.findAllByOwnerId(
+                PageRequest.of(0, 10000, Sort.by(Sort.Order.desc("createdAt"))), // TODO add page support
+                user.getId()
+        ).toList();
     }
 
 

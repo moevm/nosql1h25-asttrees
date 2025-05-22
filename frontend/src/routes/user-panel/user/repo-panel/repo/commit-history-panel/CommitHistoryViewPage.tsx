@@ -12,6 +12,7 @@ import {Label} from "@/components/ui/label.tsx";
 import CommitTable from "@/routes/user-panel/user/repo-panel/repo/commit-history-panel/components/CommitTable.tsx";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {loaded} from "@/api";
+import {Link} from "react-router-dom";
 
 function CommitHistoryViewPage() {
     const currentRepo = useAtomValue($currentRepo)!
@@ -25,21 +26,22 @@ function CommitHistoryViewPage() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href={`/users/${currentRepo.data.owner.id}`}>
-                                        <div className="flex items-center justify-between gap-1">
+                                    <BreadcrumbLink asChild>
+                                        <Link className="flex items-center justify-between gap-1" to={`/users/${currentRepo.data.owner.id}`}>
                                             <UserIcon/>
                                             <Label>{currentRepo.data.owner.username}</Label>
-                                        </div>
+                                        </Link>
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator/>
                                 <BreadcrumbItem>
                                     <BreadcrumbLink
-                                        href={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
-                                        <div className="flex items-center justify-between gap-1">
+                                        asChild
+                                    >
+                                        <Link className="flex items-center justify-between gap-1" to={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
                                             <Package/>
                                             <Label>{currentRepo.data.repository.name}</Label>
-                                        </div>
+                                        </Link>
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator/>

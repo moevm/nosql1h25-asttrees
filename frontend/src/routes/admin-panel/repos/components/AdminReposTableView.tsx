@@ -1,13 +1,16 @@
-import type {ApiEntityRepositoryModel, ApiUserModel} from "@/store/store.ts";
+import {$showEditRepoDialog, type ApiEntityRepositoryModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
-import {columnsRepos} from "@/columns/columnsRepos.tsx";
+import {columnsRepos, fieldsRepos} from "@/columns/columnsRepos.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
-import {columnsUser} from "@/columns/columnsUsers.tsx";
+import {useNavigate} from "react-router-dom";
+import {Button} from "@/components/ui/button.tsx";
+import {useSetAtom} from "jotai/react";
 
 function AdminReposTableView() {
     const {
         table,
         isLoading,
+        isPending,
         filterString,
         setFilterString,
         searchPosition,
@@ -16,15 +19,18 @@ function AdminReposTableView() {
     } = useServerTable<ApiEntityRepositoryModel>({
         columns: columnsRepos,
         queryUrl: "/entities/repositories",
-        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
-    console.log(data)
+    const navigate = useNavigate()
+    const setShowEditRepoDialog = useSetAtom($showEditRepoDialog)
 
     return (
         <RichTableView
             table={table}
             isLoading={isLoading}
+            isPending={isPending}
+            entityType={fieldsRepos}
+            queryURLname={"repositories"}
             data={data}
             filterString={filterString}
             setFilterString={setFilterString}
@@ -34,10 +40,15 @@ function AdminReposTableView() {
                 enableSearch: true,
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
-                rowClickHandler: (user) => {
-                    // navigate(`/spaces/...`)
+                rowClickHandler: (repo) => {
+                    navigate(`/admin/repos/${repo.id}`, { replace: false })
                 },
             }}
+            buttonsSlot={() => (
+                <Button size="sm" onClick={() => {setShowEditRepoDialog(true)}}>
+                    Создать репозиторий
+                </Button>
+            )}
         />
     );
 }

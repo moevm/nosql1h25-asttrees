@@ -5,11 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import ru.sweetgit.backend.entity.EntityQuery;
 import ru.sweetgit.backend.model.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 @Configuration
 public class EntityQueryConfiguration {
     @Bean
@@ -17,20 +12,20 @@ public class EntityQueryConfiguration {
         return new EntityQuery<>(
                 "users",
                 FullUserModel.class,
+                "FOR entity IN users",
                 """
-                        FOR u IN users
                             LET repoCount = LENGTH(
                             FOR r IN repositories
-                                FILTER r.owner == u._id
+                                FILTER r.owner == entity._id
                                 RETURN 1
                             )
                         """,
                 """
                         MERGE(
-                            u,
+                            entity,
                             {
-                             id: u._key,
-                             arangoId: u._id,
+                             id: entity._key,
+                             arangoId: entity._id,
                              repositoryCount: repoCount
                             }
                         )
@@ -43,27 +38,27 @@ public class EntityQueryConfiguration {
         return new EntityQuery<>(
                 "repositories",
                 FullRepositoryModel.class,
+                "FOR entity IN repositories",
                 """
-                        FOR repo IN repositories
-                            LET owner = DOCUMENT(repo.owner)
+                            LET owner = DOCUMENT(entity.owner)
                             LET repoBranches = (
                                 FOR branch IN branches
-                                    FILTER branch.repository == repo._id
+                                    FILTER branch.repository == entity._id
                                     RETURN 1
                             )
                             LET repoCommits = (
                                 FOR branch IN branches
-                                    FILTER branch.repository == repo._id
+                                    FILTER branch.repository == entity._id
                                     FOR commit IN 1..1 OUTBOUND branch._id branch_commits
                                         RETURN DISTINCT commit._id
                             )
                         """,
                 """
                         MERGE(
-                            repo,
+                            entity,
                             {
-                             id: repo._key,
-                             arangoId: repo._id,
+                             id: entity._key,
+                             arangoId: entity._id,
                             },
                             {
                              owner: owner,
@@ -80,10 +75,10 @@ public class EntityQueryConfiguration {
         return new EntityQuery<>(
                 "commits",
                 FullCommitModel.class,
+                "FOR entity IN commits",
                 """
-                        FOR c IN commits
                             LET oneBranchForCommit = FIRST(
-                                FOR branch_node IN 1..1 INBOUND c._id branch_commits
+                                FOR branch_node IN 1..1 INBOUND entity._id branch_commits
                                     LIMIT 1
                                     RETURN branch_node
                             )
@@ -91,22 +86,28 @@ public class EntityQueryConfiguration {
                             LET ownerDocForRepo = DOCUMENT(repoDoc.owner)
                         
                             LET branchesLinkedToCommit = (
-                                FOR b_node IN 1..1 INBOUND c._id branch_commits
+                                FOR b_node IN 1..1 INBOUND entity._id branch_commits
                                     RETURN 1
                             )
+                        
+                            LET commitFiles = (
+                               FOR file in commit_files
+                                   FILTER file.commit == entity._id
+                                   RETURN file
+                            )
+                        
                             LET filesWithAstCount = COUNT(
-                                FOR fileId IN c.rootFiles
-                                    LET commitFileDoc = DOCUMENT(fileId)
-                                    FILTER commitFileDoc != null AND DOCUMENT(CONCAT("ast_trees/", commitFileDoc.hash)) != null
+                                FOR commitFileDoc in commitFiles
+                                    FILTER DOCUMENT(CONCAT("ast_trees/", commitFileDoc.hash)) != null
                                     RETURN 1
                             )
                         """,
                 """
                         MERGE(
-                            c,
+                            entity,
                             {
-                                id: c._key,
-                                arangoId: c._id
+                                id: entity._key,
+                                arangoId: entity._id
                             },
                             {
                                 repository: MERGE(
@@ -120,7 +121,7 @@ public class EntityQueryConfiguration {
                                     }
                                 ),
                                 branchCount: LENGTH(branchesLinkedToCommit),
-                                fileCount: LENGTH(c.rootFiles),
+                                fileCount: LENGTH(commitFiles),
                                 fileWithAstCount: filesWithAstCount
                             }
                         )
@@ -133,20 +134,20 @@ public class EntityQueryConfiguration {
         return new EntityQuery<>(
                 "branches",
                 FullBranchModel.class,
+                "FOR entity IN branches",
                 """
-                        FOR b IN branches
-                            LET repoDoc = DOCUMENT(b.repository)
+                            LET repoDoc = DOCUMENT(entity.repository)
                             LET commitsForThisBranch = (
-                                FOR commitNode IN 1..1 OUTBOUND b._id branch_commits
+                                FOR commitNode IN 1..1 OUTBOUND entity._id branch_commits
                                     RETURN 1
                             )
                         """,
                 """
                         MERGE(
-                            b,
+                            entity,
                             {
-                                id: b._key,
-                                arangoId: b._id,
+                                id: entity._key,
+                                arangoId: entity._id,
                             },
                             {
                                 repository: MERGE(
@@ -167,31 +168,31 @@ public class EntityQueryConfiguration {
         return new EntityQuery<>(
                 "ast_trees",
                 FullAstTreeModel.class,
+                "FOR entity IN ast_trees",
                 """
-                        FOR ast_tree IN ast_trees
-                            LET rootNodeDoc = DOCUMENT(ast_tree.rootNode)
-
+                            LET rootNodeDoc = DOCUMENT(entity.rootNode)
+                        
                             LET traversalData = (
                                 FOR v, e, p IN 0..10000 OUTBOUND rootNodeDoc ast_parents
                                     RETURN { depth: LENGTH(p.edges) }
                             )
-
+                        
                             LET treeDepth = LENGTH(traversalData) == 0 ? 0 : MAX(traversalData[*].depth)
                             LET treeSize = LENGTH(traversalData)
-
+                        
                             LET commitFileDoc = FIRST(
                                 FOR cf IN commit_files
-                                    FILTER cf.hash == ast_tree._key
+                                    FILTER cf.hash == entity._key
                                     LIMIT 1
                                     RETURN cf
                             )
                         """,
                 """
                         MERGE(
-                            ast_tree,
+                            entity,
                             {
-                                id: ast_tree._key,         // Map _key to id
-                                arangoId: ast_tree._id,    // Map _id to arangoId
+                                id: entity._key,         // Map _key to id
+                                arangoId: entity._id,    // Map _id to arangoId
                                 depth: treeDepth,
                                 size: treeSize,
                                 commitFile: MERGE(
@@ -207,8 +208,8 @@ public class EntityQueryConfiguration {
         );
     }
 
-    @Bean
-    public Map<String, EntityQuery<?>> entityQueriesByName(List<EntityQuery<?>> entityQueries) {
-        return entityQueries.stream().collect(Collectors.toMap(EntityQuery::name, Function.identity()));
-    }
+//    @Bean
+//    public Map<String, EntityQuery<?>> entityQueriesByName(List<EntityQuery<?>> entityQueries) {
+//        return entityQueries.stream().collect(Collectors.toMap(EntityQuery::name, Function.identity()));
+//    }
 }

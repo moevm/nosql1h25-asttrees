@@ -1,6 +1,6 @@
 import {$api, defaultOnErrorHandler} from "@/api";
 import {toast} from "sonner";
-import {showRepoSettingsDialogAtom} from "@/store/store.ts";
+import {$showRepoSettingsDialog} from "@/store/store.ts";
 import {useSetAtom} from "jotai/react";
 
 export function useAddRepoMutation() {
@@ -16,7 +16,7 @@ export function useAddRepoMutation() {
 }
 
 export function useChangeRepoMutation(id: string) {
-    const setShowRepoSettingsDialog = useSetAtom(showRepoSettingsDialogAtom);
+    const setShowRepoSettingsDialog = useSetAtom($showRepoSettingsDialog);
     return $api.useMutation('patch', `/repositories/${id}`, {
         onSuccess(data) {
             if (data) {

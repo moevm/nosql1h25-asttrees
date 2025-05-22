@@ -15,15 +15,17 @@ import {type Loadable} from "jotai/utils";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {loaded} from "@/api";
 import {type NodeRendererProps, Tree} from 'react-arborist';
+import {cva} from "class-variance-authority";
+import {cn} from "@/lib/utils.ts";
 
 
 function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     return (
         <div className="pb-5">
             <table
-                className="min-w-full table-fixed border-separate border-spacing-0 border rounded-2xl overflow-hidden border-gray-200">
+                className="min-w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border">
                 <thead>
-                <tr className="bg-[#F1F5F9]">
+                <tr className="bg-slate-100">
                     <th className="flex justify-between text-left py-2 px-4 gap-2">
                         <div className={"flex justify-center gap-2"}>
                             <Label className={"font-bold"}>
@@ -35,15 +37,15 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
                         </div>
 
                         <div className={"flex justify-center gap-2"}>
-                            <Label className={"text-primary/60"}>
-                                {repo.commit?.hash}
+                            <Label className={"text-primary/60 font-mono"}>
+                                {repo.commit?.hash && String(repo.commit?.hash).substring(0, 6)}
                             </Label>
                             <Label className={"text-primary/60"}>
                                 {new Date(repo.commit?.createdAt)?.toLocaleDateString("ru-RU")}
                             </Label>
                             <Link
                                 to={`/users/${repo.owner?.id}/repo/${repo.repository?.id}/branch/${repo.branch?.id}/commits`}>
-                                <Button variant="ghost" className={"hover:cursor-pointer hover:underline"}>
+                                <Button variant="ghost">
                                     <History/> История коммитов
                                 </Button>
                             </Link>
@@ -56,10 +58,25 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     )
 }
 
+const hashCode = (str: string) => {
+    let hash = 0,
+        i, chr;
+    if (str.length === 0) return hash;
+    for (i = 0; i < str.length; i++) {
+        chr = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0;
+    }
+    return hash;
+}
+
+const getBadgeStyle = (name: string) => {
+    return {
+        'backgroundColor': `var(--chart-${Math.abs(hashCode(name)) % 5 + 1})`
+    }
+}
+
 function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
-    console.info({
-        node
-    })
     const {id, data} = node
     const {label, type} = data
     return (
@@ -67,14 +84,14 @@ function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
             style={style}
             ref={dragHandle}
             onClick={() => node.toggle()}
-            className={"font-mono hover:bg-secondary rounded-md cursor-pointer flex items-center gap-2 text-sm"}
+            className={"font-mono hover:bg-accent/50 rounded cursor-pointer flex items-center gap-2 text-sm"}
         >
             <span style={{width: 16, height: 16}}>
                  {node.children?.length !== 0 && (
                      node.isOpen ? <ChevronDown size={16}/> : <ChevronUp size={16}/>
                  )}
             </span>
-            <span className={"rounded-full bg-slate-800 text-background px-2 py-0.5"}>{type}</span>
+            <span className={"rounded-full text-background px-2 py-0.5"} style={getBadgeStyle(type)}>{type}</span>
             <span>{label}</span>
         </div>
     );
@@ -98,35 +115,33 @@ function FileTableContent({repo, fileContent, fileAst}: {
     return (
         <div>
             <RepoHeader repo={repo}/>
-            {/*TODO избавиться от табличной верстки*/}
             <table
-                className="min-w-full table-fixed border-separate border-spacing-0 border rounded-2xl overflow-hidden border-gray-200">
+                className="min-w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border">
                 <thead>
-                {/*TODO вынести цвет в tailwind переменную*/}
-                <tr className="bg-[#F1F5F9]">
+                <tr className="bg-slate-100">
                     <th className="flex justify-between text-left py-2 px-4 gap-2 items-center">
                         <div className={"flex justify-center gap-2 items-center"}>
                             {fileContent.hasAst &&
-                                <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab} className="w-[300px]">
+                                <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
                                     <TabsList className="grid w-full grid-cols-2">
-                                        <TabsTrigger value="code"
-                                                     className="hover:bg-gray-200 transition-colors duration-200">Код</TabsTrigger>
-                                        <TabsTrigger value="AST"
-                                                     className="hover:bg-gray-200 transition-colors duration-200">AST</TabsTrigger>
+                                        <TabsTrigger value="code">Код</TabsTrigger>
+                                        <TabsTrigger value="AST">AST</TabsTrigger>
                                     </TabsList>
                                 </Tabs>}
                             {selectedTab === "code" ? (
-                                <span>Строк: {fileContent.lines} &middot; Байт: {fileContent.bytes}</span>
+                                <span
+                                    className={"text-sm text-primary/60 font-medium leading-none py-3"}>{!fileContent.isBinary && <>Строк: {fileContent.lines} &middot; </>}Байт: {fileContent.bytes}</span>
                             ) : (
                                 <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'} display={() => (
-                                    <span>Узлов: {loaded(fileAst).data.astTree.nodes.length} &middot; Глубина: {loaded(fileAst).data.astTree.depth}</span>
+                                    <span
+                                        className={"text-sm text-primary/60 font-medium leading-none py-3"}>Узлов: {loaded(fileAst).data.astTree.nodes.length} &middot; Глубина: {loaded(fileAst).data.astTree.depth}</span>
                                 )}/>
                             )}
                         </div>
                     </th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-background border-t border-border">
                 {selectedTab === "code" ? (
                     <tr>
                         <td colSpan={2}>
@@ -134,14 +149,19 @@ function FileTableContent({repo, fileContent, fileAst}: {
                                 <pre className="whitespace-pre-wrap text-sm">
                                     <code>
                                         <div className="grid grid-cols-[auto_1fr] gap-1">
-                                            {highlightedCode && highlightedCode.split('\n').map((line, index) => (
-                                                <React.Fragment key={index}>
-                                                    <span className="text-gray-500 text-right pr-4 font-mono select-none">
+                                            {
+                                                !fileContent.isBinary
+                                                    ? highlightedCode && highlightedCode.split('\n').map((line, index) => (
+                                                    <React.Fragment key={index}>
+                                                    <span
+                                                        className="text-gray-500 text-right pr-4 font-mono select-none">
                                                         {index + 1}
                                                     </span>
-                                                    <span dangerouslySetInnerHTML={{__html: line}}/>
-                                                </React.Fragment>
-                                            ))}
+                                                        <span dangerouslySetInnerHTML={{__html: line}}/>
+                                                    </React.Fragment>
+                                                ))
+                                                    : <span>Бинарный файл</span>
+                                            }
                                         </div>
                                     </code>
                                 </pre>
@@ -162,6 +182,7 @@ function FileTableContent({repo, fileContent, fileAst}: {
                                             disableEdit={true}
                                             disableDrop={true}
                                             width={'auto'}
+                                            childrenAccessor={d => [...d.children].reverse()}
                                             initialData={loaded(fileAst).data.astTree.nodes}
                                         >
                                             {AstNode}

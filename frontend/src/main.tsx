@@ -29,6 +29,11 @@ import FileViewPage
 import AdminBranchesPage from "@/routes/admin-panel/branches/AdminBranchesPage.tsx";
 import React from "react";
 import AdminFilesPage from "@/routes/admin-panel/files/AdminFilesPage.tsx";
+import AdminUserPage from "@/routes/admin-panel/users/user/AdminUserPage.tsx";
+import AdminRepoPage from "@/routes/admin-panel/repos/repo/AdminRepoPage.tsx";
+import AdminBranchPage from "@/routes/admin-panel/branches/branch/AdminBranchPage.tsx";
+import AdminCommitPage from "@/routes/admin-panel/commits/commit/AdminCommitPage.tsx";
+import AdminAstTreePage from "@/routes/admin-panel/ast-trees/ast-tree/AdminAstTreePage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
@@ -58,11 +63,16 @@ createRoot(document.getElementById('root')!).render(
                             <Route path="admin" element={<AdminPanelLayout/>}>
                                 <Route index element={<Navigate to="users" replace/>}/>
                                 <Route path="branches" element={<AdminBranchesPage/>}/>
+                                <Route path="branches/:adminBranchId" element={<AdminBranchPage/>}/>
                                 <Route path="users" element={<AdminUsersPage/>}/>
+                                <Route path="users/:adminUserId" element={<AdminUserPage/>}/>
                                 <Route path="repos" element={<AdminReposPage/>}/>
+                                <Route path="repos/:adminRepoId" element={<AdminRepoPage/>}/>
                                 <Route path="commits" element={<AdminCommitsPage/>}/>
+                                <Route path="commits/:adminCommitId" element={<AdminCommitPage/>}/>
                                 <Route path="files" element={<AdminFilesPage/>}/>
                                 <Route path="ast-trees" element={<AdminAstTreesPage/>}/>
+                                <Route path="ast-trees/:adminAstTreeId" element={<AdminAstTreePage/>}/>
                                 <Route path="import-export" element={<AdminImportExportDBPage/>}/>
                             </Route>
                         </Route>

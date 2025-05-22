@@ -4,6 +4,8 @@ import org.mapstruct.Mapper;
 import ru.sweetgit.backend.dto.response.*;
 import ru.sweetgit.backend.model.*;
 
+import java.util.List;
+
 @Mapper(config = MapperConfigImpl.class, uses = {
         AstMapper.class,
         BranchMapper.class,
@@ -22,4 +24,8 @@ public abstract class EntityMapper {
     public abstract EntityCommitDto toEntityDto(FullCommitModel fullCommitModel);
 
     public abstract EntityAstTreeDto toEntityDto(FullAstTreeModel model);
+
+    public EntityStatsDto toEntityDto(List<StatsEntryModel> list) {
+        return new EntityStatsDto(list.stream().map(model -> new EntityStatsDto.Item(model.getXAxisValue(), model.getYAxisValue(), model.getCount())).toList());
+    }
 }

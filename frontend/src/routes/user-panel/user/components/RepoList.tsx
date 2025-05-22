@@ -12,11 +12,18 @@ import RepoCard from "@/routes/user-panel/user/components/RepoCard.tsx";
 import {useMemo, useState} from "react";
 import UserSettingsDialog from "@/components/dialogs/UserSettingsDialog.tsx";
 import UserAddRepoDialog from "@/components/dialogs/UserAddRepoDialog.tsx";
-import type {ApiRepositoryModel} from "@/store/store.ts";
+import {type ApiRepositoryModel, $showRepoSettingsDialog, $repoSettingsDialogRepo} from "@/store/store.ts";
+import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
+import {Dialog} from "@/components/ui/dialog.tsx";
+import {useAtom} from "jotai/index";
+import {useAtomValue} from "jotai/react";
 
 function RepoList({data}: { data: ApiRepositoryModel[] }) {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
+
+    const [showRepoSettingsDialog, setShowRepoSettingsDialog] = useAtom($showRepoSettingsDialog)
+    const selectedRepo = useAtomValue($repoSettingsDialogRepo)
 
     const reposPerPage = 10;
 
@@ -49,6 +56,10 @@ function RepoList({data}: { data: ApiRepositoryModel[] }) {
 
     return (
         <div className="flex flex-col gap-2">
+            <Dialog open={showRepoSettingsDialog} onOpenChange={setShowRepoSettingsDialog}>
+                {selectedRepo && <UserRepoSettingsDialog repo={selectedRepo!}/>}
+            </Dialog>
+
             <div className={"flex justify-between gap-1"}>
                 <Label className={"text-xl font-bold"}>Репозитории</Label>
                 <div className={"ml-auto flex justify-center"}>

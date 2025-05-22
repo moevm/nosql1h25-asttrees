@@ -6,13 +6,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.request.EntitySearchRequest;
+import ru.sweetgit.backend.dto.request.EntityStatsRequest;
 import ru.sweetgit.backend.dto.response.*;
 import ru.sweetgit.backend.entity.EntitySearchDto;
+import ru.sweetgit.backend.entity.EntityStatsRequestDto;
 import ru.sweetgit.backend.entity.Filter;
 import ru.sweetgit.backend.entity.FilterKind;
 import ru.sweetgit.backend.mapper.EntityMapper;
@@ -41,6 +44,15 @@ public class EntityController {
         return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
     }
 
+    @PostMapping("/entities/users/stats")
+    public ResponseEntity<EntityStatsDto> statsUsers(
+            @Valid @RequestBody EntityStatsRequest request
+    ) {
+        var searchDto = convert(request);
+        var result = entityService.getUserEntityStats(searchDto);
+        return ResponseEntity.ok(entityMapper.toEntityDto(result));
+    }
+
     @GetMapping("/entities/users/{userId}")
     public ResponseEntity<EntityUserDto> getUser(
             @PathVariable String userId
@@ -61,6 +73,15 @@ public class EntityController {
         var searchDto = convert(request);
         var page = entityService.getRepositoryEntities(searchDto);
         return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
+    }
+
+    @PostMapping("/entities/repositories/stats")
+    public ResponseEntity<EntityStatsDto> statsRepositories(
+            @Valid @RequestBody EntityStatsRequest request
+    ) {
+        var searchDto = convert(request);
+        var result = entityService.getRepositoryEntityStats(searchDto);
+        return ResponseEntity.ok(entityMapper.toEntityDto(result));
     }
 
     @GetMapping("/entities/repositories/{repositoryId}")
@@ -85,6 +106,14 @@ public class EntityController {
         return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
     }
 
+    @PostMapping("/entities/branches/stats")
+    public ResponseEntity<EntityStatsDto> statsBranches(
+            @Valid @RequestBody EntityStatsRequest request
+    ) {
+        var searchDto = convert(request);
+        var result = entityService.getBranchEntityStats(searchDto);
+        return ResponseEntity.ok(entityMapper.toEntityDto(result));
+    }
 
     @GetMapping("/entities/branches/{branchId}")
     public ResponseEntity<EntityBranchDto> getBranch(
@@ -108,6 +137,15 @@ public class EntityController {
         return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
     }
 
+
+    @PostMapping("/entities/commits/stats")
+    public ResponseEntity<EntityStatsDto> statsCommits(
+            @Valid @RequestBody EntityStatsRequest request
+    ) {
+        var searchDto = convert(request);
+        var result = entityService.getCommitEntityStats(searchDto);
+        return ResponseEntity.ok(entityMapper.toEntityDto(result));
+    }
 
     @GetMapping("/entities/commits/{commitId}")
     public ResponseEntity<EntityCommitDto> getCommit(
@@ -133,6 +171,15 @@ public class EntityController {
     }
 
 
+    @PostMapping("/entities/ast_trees/stats")
+    public ResponseEntity<EntityStatsDto> statsAstTrees(
+            @Valid @RequestBody EntityStatsRequest request
+    ) {
+        var searchDto = convert(request);
+        var result = entityService.getAstTreeEntityStats(searchDto);
+        return ResponseEntity.ok(entityMapper.toEntityDto(result));
+    }
+
     @GetMapping("/entities/ast_trees/{astTreeId}")
     public ResponseEntity<EntityAstTreeDto> getAstTree(
             @PathVariable String astTreeId
@@ -147,19 +194,27 @@ public class EntityController {
     }
 
     private EntitySearchDto queryById(String id) {
-        return convert(new EntitySearchRequest(
+        return new EntitySearchDto(
                 "",
                 List.of(),
-                new EntitySearchRequest.Pagination(0, 1),
+                PageRequest.of(0, 1),
                 List.of(),
-                List.of(
-                        new EntitySearchRequest.Filter(
-                                "id",
-                                "string_equals",
-                                Map.of("value", id)
-                        )
-                )
-        ));
+                id
+        );
+    }
+
+    private EntityStatsRequestDto convert(EntityStatsRequest request) {
+        return new EntityStatsRequestDto(
+                new EntitySearchDto(
+                        "",
+                        List.of(),
+                        Pageable.unpaged(),
+                        request.filter().stream().map(this::convert).toList(),
+                        null
+                ),
+                request.xAxisField(),
+                request.yAxisField()
+        );
     }
 
     private EntitySearchDto convert(EntitySearchRequest request) {
@@ -176,7 +231,8 @@ public class EntityController {
                                 )).toList()
                         )
                 ),
-                request.filter().stream().map(this::convert).toList()
+                request.filter().stream().map(this::convert).toList(),
+                null
         );
     }
 

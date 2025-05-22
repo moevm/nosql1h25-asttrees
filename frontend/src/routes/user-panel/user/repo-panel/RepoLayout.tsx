@@ -10,6 +10,10 @@ function RepoLayout() {
 
     useEffect(() => {
         setRepoId(repoId!)
+        return () => {
+            console.log('leaving repo layout')
+            setRepoId(null)
+        }
     }, [setRepoId, repoId]);
 
     const branchId = useParams()['branchId']
@@ -30,7 +34,6 @@ function RepoLayout() {
     const setPath = useSetAtom($path)
 
     useEffect(() => {
-        console.info('useEffect', path)
         setPath(path)
     }, [setPath, path]);
 

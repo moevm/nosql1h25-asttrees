@@ -25,26 +25,6 @@ public class AstTreeService {
         return astTreeRepository.findNonExistingKeys(keysToCheck);
     }
 
-    public List<AstTreeModel> saveAstTrees(Map<String, JsonNode> newAstTrees) {
-        var savedTrees = new ArrayList<AstTreeModel>();
-        for (Map.Entry<String, JsonNode> entry : newAstTrees.entrySet()) {
-            String fileHash = entry.getKey();
-            JsonNode rootJsonNode = entry.getValue();
-
-            var savedRootAstNode = saveNodeAndItsChildrenRecursive(rootJsonNode, null);
-
-            AstTreeModel treeToSave = AstTreeModel.builder()
-                    .fileHash(fileHash)
-                    .createdAt(Instant.now())
-                    .rootNode(savedRootAstNode)
-                    .build();
-
-            AstTreeModel savedTree = astTreeRepository.save(treeToSave);
-            savedTrees.add(savedTree);
-        }
-        return savedTrees;
-    }
-
     public Optional<AstTreeViewModel> getFileAstTree(String hash) {
         return Optional.ofNullable(astTreeRepository.viewAstTree(hash));
     }
@@ -53,28 +33,87 @@ public class AstTreeService {
         return astTreeRepository.existsById(hash);
     }
 
-    private AstNodeModel saveNodeAndItsChildrenRecursive(JsonNode currentJsonNode, AstNodeModel parentDbNode) {
-        var savedCurrentDbNode = astNodeRepository.save(
-                AstNodeModel.builder()
-                        .label(currentJsonNode.path("label").asText(""))
-                        .type(currentJsonNode.path("type").asText(""))
-                        .build()
-        );
+    public List<AstTreeModel> saveAstTrees(Map<String, JsonNode> newAstTrees) {
+        var allNodesToSave = new ArrayList<AstNodeModel>();
+        var allEdgesToSave = new ArrayList<AstParentModel>();
+        var astTreeModelsToSave = new ArrayList<AstTreeModel>();
+        var keyToNodeMap = new HashMap<String, AstNodeModel>();
 
-        if (parentDbNode != null) {
-            var edge = AstParentModel.builder()
-                    .from(parentDbNode)
-                    .to(savedCurrentDbNode)
+        for (var entry : newAstTrees.entrySet()) {
+            var fileHash = entry.getKey();
+            var rootJsonNode = entry.getValue();
+
+            AstNodeModel rootDbNode = collectNodesAndEdgesRecursiveWithClientIds(
+                    rootJsonNode,
+                    null,
+                    allNodesToSave,
+                    allEdgesToSave,
+                    keyToNodeMap
+            );
+
+            AstTreeModel treeToSave = AstTreeModel.builder()
+                    .fileHash(fileHash)
+                    .createdAt(Instant.now())
+                    .rootNode(rootDbNode)
                     .build();
-            astParentRepository.save(edge);
+            astTreeModelsToSave.add(treeToSave);
         }
 
-        JsonNode childrenArray = currentJsonNode.path("children");
+        if (!allNodesToSave.isEmpty()) {
+            astNodeRepository.saveAll(allNodesToSave);
+        }
+
+        if (!allEdgesToSave.isEmpty()) {
+            astParentRepository.saveAll(allEdgesToSave);
+        }
+
+        var savedTrees = new ArrayList<AstTreeModel>();
+        if (!astTreeModelsToSave.isEmpty()) {
+            Iterable<AstTreeModel> savedTreeIterable = astTreeRepository.saveAll(astTreeModelsToSave);
+            savedTreeIterable.forEach(savedTrees::add);
+        }
+
+        return savedTrees;
+    }
+
+    private AstNodeModel collectNodesAndEdgesRecursiveWithClientIds(
+            JsonNode currentJsonNode,
+            AstNodeModel parentNodeModel,
+            List<AstNodeModel> allNodesToSave,
+            List<AstParentModel> allEdgesToSave,
+            Map<String, AstNodeModel> keyToNodeMap
+    ) {
+
+        var generatedNodeKey = UUID.randomUUID().toString();
+
+        var currentNodeModel = AstNodeModel.builder()
+                .arangoId(generatedNodeKey)
+                .label(currentJsonNode.path("label").asText(""))
+                .type(currentJsonNode.path("type").asText(""))
+                .build();
+        allNodesToSave.add(currentNodeModel);
+        keyToNodeMap.put(generatedNodeKey, currentNodeModel);
+
+        if (parentNodeModel != null) {
+            var edge = AstParentModel.builder()
+                    .from(parentNodeModel)
+                    .to(currentNodeModel)
+                    .build();
+            allEdgesToSave.add(edge);
+        }
+
+        var childrenArray = currentJsonNode.path("children");
         if (childrenArray.isArray() && !childrenArray.isEmpty()) {
-            for (JsonNode childJsonNode : childrenArray) {
-                saveNodeAndItsChildrenRecursive(childJsonNode, savedCurrentDbNode);
+            for (var childJsonNode : childrenArray) {
+                collectNodesAndEdgesRecursiveWithClientIds(
+                        childJsonNode,
+                        currentNodeModel,
+                        allNodesToSave,
+                        allEdgesToSave,
+                        keyToNodeMap
+                );
             }
         }
-        return savedCurrentDbNode;
+        return currentNodeModel;
     }
 }

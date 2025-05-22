@@ -8,7 +8,7 @@ import {
 import {Folder, Package, Settings, UserIcon} from "lucide-react";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {
-    $currentRepo, $path, type ApiRepositoryViewModel, showRepoSettingsDialogAtom,
+    $currentRepo, $path, type ApiRepositoryModel, type ApiRepositoryViewModel, $showRepoSettingsDialog
 } from "@/store/store.ts";
 import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 import {Label} from "@/components/ui/label.tsx";
@@ -17,10 +17,11 @@ import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import React from "react";
 import {Dialog, DialogTrigger} from "@/components/ui/dialog.tsx";
 import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
+import {Link} from "react-router-dom";
 
 function RepoViewPage() {
-    const showRepoSettingsDialog = useAtomValue(showRepoSettingsDialogAtom);
-    const setShowRepoSettingsDialog = useSetAtom(showRepoSettingsDialogAtom);
+    const showRepoSettingsDialog = useAtomValue($showRepoSettingsDialog);
+    const setShowRepoSettingsDialog = useSetAtom($showRepoSettingsDialog);
 
     const currentRepo = useAtomValue($currentRepo)!
     const path = useAtomValue($path)!
@@ -33,21 +34,22 @@ function RepoViewPage() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href={`/users/${currentRepo.data.owner.id}`}>
-                                        <div className="flex items-center justify-between gap-1">
+                                    <BreadcrumbLink asChild>
+                                        <Link className="flex items-center justify-between gap-1"
+                                              to={`/users/${currentRepo.data.owner.id}`}>
                                             <UserIcon/>
                                             <Label>{currentRepo.data.owner.username}</Label>
-                                        </div>
+                                        </Link>
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator/>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink
-                                        href={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
-                                        <div className="flex items-center justify-between gap-1">
+                                    <BreadcrumbLink asChild>
+                                        <Link className="flex items-center justify-between gap-1"
+                                              to={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
                                             <Package/>
                                             <Label>{currentRepo.data.repository.name}</Label>
-                                        </div>
+                                        </Link>
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
 
@@ -67,11 +69,13 @@ function RepoViewPage() {
                                                         </BreadcrumbPage>
                                                     ) : (
                                                         <BreadcrumbLink
-                                                            href={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}?path=${path.split('/').slice(0, index + 1).join('/')}`}>
-                                                            <div className="flex items-center justify-between gap-1">
+                                                            asChild
+                                                        >
+                                                            <Link className="flex items-center justify-between gap-1"
+                                                                  to={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}?path=${path.split('/').slice(0, index + 1).join('/')}`}>
                                                                 <Folder/>
                                                                 <Label>{segment}</Label>
-                                                            </div>
+                                                            </Link>
                                                         </BreadcrumbLink>
                                                     )}
                                                 </BreadcrumbItem>
@@ -89,7 +93,7 @@ function RepoViewPage() {
                                         <Settings/> Настройки
                                     </Button>
                                 </DialogTrigger>
-                                <UserRepoSettingsDialog repo={currentRepo?.data as ApiRepositoryViewModel}/>
+                                <UserRepoSettingsDialog repo={currentRepo?.data?.repository as ApiRepositoryModel}/>
                             </Dialog>
                         </div>
                     </div>

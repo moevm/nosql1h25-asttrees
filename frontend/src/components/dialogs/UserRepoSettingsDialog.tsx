@@ -24,14 +24,11 @@ const formSchema = z.object({
     name: z.string().min(3, "Минимум 3 символа"),
 });
 
-function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
-
+function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryModel}) {
     const [visibility, setVisibility] = useState<string>("public")
-    console.log(repo)
 
     useEffect(() => {
         setVisibility(repo.visibility);
-        console.log(repo.visibility)
     }, [repo]);
 
 
@@ -49,9 +46,6 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
     });
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-
-        console.log(values, visibility)
-
         mutate({
             body: {
                 name: values.name,
@@ -77,7 +71,7 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
                             <FormItem>
                                 <FormLabel>URL</FormLabel>
                                 <FormControl>
-                                    <Input readOnly={true} className={"bg-muted"} placeholder="Введите URL репозитория" {...field} />
+                                    <Input disabled={true} className={"bg-muted"} placeholder="Введите URL репозитория" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -103,18 +97,17 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
 
                         <Button
                             type={"button"}
-                            variant={`${visibility === "PUBLIC" ? "" : "ghost"}`}
+                            variant={`${visibility === "PUBLIC" ? "default" : "ghost"}`}
                             className={`flex gap-2 justify-start text-left p-6  w-full`}
                             onClick={() => {
                                 setVisibility("PUBLIC");
-                                console.log(visibility)}}>
+                            }}>
 
                             <div className={"flex justify-between items-center gap-2"}>
                                 <Eye className=""/>
                                 <div className="flex flex-col gap-1">
                                     <Label className="font-bold">Публичный</Label>
-                                    <Label className="text-primary/60">Любой человек может просматревать ваши
-                                        репозитории</Label>
+                                    <Label className="opacity-75">Любой человек</Label>
                                 </div>
                             </div>
 
@@ -122,17 +115,17 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
 
                         <Button
                             type={"button"}
-                            variant={`${visibility === "PROTECTED" ? "" : "ghost"}`}
+                            variant={`${visibility === "PROTECTED" ? "default" : "ghost"}`}
                             className={`flex gap-2 justify-start text-left p-6 w-full`}
                             onClick={() => {
                                 setVisibility("PROTECTED");
-                                console.log(visibility)}}>
+                            }}>
 
                             <div className={"flex justify-between items-center gap-2"}>
                                 <Shield className="mt-1"/>
                                 <div className="flex flex-col gap-1">
                                     <Label className="font-bold">Защищенный</Label>
-                                    <Label className="text-primary/60">Авторизованные пользователи</Label>
+                                    <Label className="opacity-75">Авторизованные пользователи</Label>
                                 </div>
                             </div>
 
@@ -140,17 +133,17 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryViewModel}) {
 
                         <Button
                             type={"button"}
-                            variant={`${visibility === "PRIVATE" ? "" : "ghost"}`}
+                            variant={`${visibility === "PRIVATE" ? "default" : "ghost"}`}
                             className={`flex gap-2 justify-start text-left p-6 w-full`}
                             onClick={() => {
                                 setVisibility("PRIVATE");
-                                console.log(visibility)}}>
+                            }}>
 
                             <div className={"flex justify-between items-center gap-2"}>
                                 <EyeOff className="mt-1"/>
                                 <div className="flex flex-col gap-1">
                                     <Label className="font-bold">Приватный</Label>
-                                    <Label className="text-primary/60">Только я</Label>
+                                    <Label className="opacity-75">Только я</Label>
                                 </div>
                             </div>
 

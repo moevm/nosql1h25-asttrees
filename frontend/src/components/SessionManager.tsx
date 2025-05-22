@@ -13,10 +13,6 @@ export function SessionManager() {
     const queryClient = useQueryClient();
 
     useEffect(() => {
-        console.info({
-            token,
-            currentUserLoadable
-        })
         if (token && currentUserLoadable.state === 'hasError') {
             console.error(
                 "Session invalid or /users/me fetch failed. Clearing token and redirecting to login.",

@@ -15,7 +15,7 @@ export const BatchLoader = ({states, loadingMessage, display}: {
     }
     const someLoading = states.some(it => it.state === 'loading')
     if (someLoading) {
-        return <div>{loadingMessage}</div>
+        return <div className={"flex w-full h-full items-center justify-center"}>{loadingMessage}</div>
     }
     return <>{display()}</>
 }

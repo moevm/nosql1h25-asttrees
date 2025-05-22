@@ -36,7 +36,7 @@ function AppSidebar() {
                         </Button>
                         <Button asChild variant="ghost" className="justify-start px-3">
                             <NavLink to="ast-trees">
-                                🚧 AST-деревья не тыкайте сюда 🚧
+                                AST-деревья
                             </NavLink>
                         </Button>
                         <Button asChild variant="ghost" className="justify-start px-3">

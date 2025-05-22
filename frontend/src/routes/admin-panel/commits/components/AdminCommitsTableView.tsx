@@ -1,13 +1,16 @@
-import type {ApiEntityCommitModel, ApiEntityRepositoryModel} from "@/store/store.ts";
+import {$showEditCommitDialog, type ApiEntityCommitModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
-import {columnsCommits} from "@/columns/columnsCommits.tsx";
+import {columnsCommits, fieldsCommits} from "@/columns/columnsCommits.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
-import {columnsRepos} from "@/columns/columnsRepos.tsx";
+import {useNavigate} from "react-router-dom";
+import {Button} from "@/components/ui/button.tsx";
+import {useSetAtom} from "jotai/react";
 
 function AdminCommitsTableView() {
     const {
         table,
         isLoading,
+        isPending,
         filterString,
         setFilterString,
         searchPosition,
@@ -16,15 +19,18 @@ function AdminCommitsTableView() {
     } = useServerTable<ApiEntityCommitModel>({
         columns: columnsCommits,
         queryUrl: "/entities/commits",
-        searchFields: ["id", "username", "email", "visibility", "createdAt", "isAdmin", "repositoryCount"],
     });
 
-    console.log(data)
+    const navigate = useNavigate()
+    const setShowEditCommitDialog = useSetAtom($showEditCommitDialog)
 
     return (
         <RichTableView
             table={table}
             isLoading={isLoading}
+            isPending={isPending}
+            entityType={fieldsCommits}
+            queryURLname={"commits"}
             data={data}
             filterString={filterString}
             setFilterString={setFilterString}
@@ -34,10 +40,15 @@ function AdminCommitsTableView() {
                 enableSearch: true,
                 enableVisualization: true,
                 enableColumnVisibilityToggle: true,
-                rowClickHandler: (user) => {
-                    // navigate(`/spaces/...`)
+                rowClickHandler: (commit) => {
+                    navigate(`/admin/commits/${commit.id}`, { replace: false })
                 },
             }}
+            buttonsSlot={() => (
+                <Button size="sm" onClick={() => {setShowEditCommitDialog(true)}}>
+                    Создать коммит
+                </Button>
+            )}
         />
     );
 }
