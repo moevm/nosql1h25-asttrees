@@ -17,7 +17,7 @@ function AdminPanelLayout() {
     }, [setPath, path]);
 
     return (
-        <div className="">
+        <div>
             <SidebarProvider>
                 <AppSidebar/>
                 <main>

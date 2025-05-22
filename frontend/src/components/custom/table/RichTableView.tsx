@@ -8,7 +8,7 @@ import {Input} from "@/components/ui/input.tsx";
 import {MultiSelect} from "@/components/custom/multi-select/MultiSelect.tsx";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {ChartNetwork, Filter, GitGraph, SettingsIcon, Zap} from "lucide-react";
+import {ChartNetwork, Filter, SettingsIcon} from "lucide-react";
 import {Label} from "@/components/ui/label.tsx";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.tsx";
@@ -16,7 +16,7 @@ import {DataTablePagination} from "@/components/custom/table/DataTablePagination
 import {DataTableViewOptions} from "@/components/custom/table/DataTableViewOptions.tsx";
 import {getColumnTypeRelations, relationFullName} from "@/lib/table.ts";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {$currentEntitiesFieldsAtom, $path, $showVisualizationDialogAtom} from "@/store/store.ts";
+import {$currentEntitiesFieldsAtom, $path, $showVisualizationDialog} from "@/store/store.ts";
 import VisualizationDialog from "@/components/dialogs/VisualizationDialog.tsx";
 import type {EntityField} from "@/lib/utils.ts";
 import * as Progress from '@radix-ui/react-progress'
@@ -71,7 +71,7 @@ function RichTableView<TData, TValue>({
                                           setSearchPosition
                                       }: RichTableViewProps<TData, TValue>) {
 
-    const setShowVisualizationDialog = useSetAtom($showVisualizationDialogAtom);
+    const setShowVisualizationDialog = useSetAtom($showVisualizationDialog);
     const currentEntitiesFields = entityType;
     const setPath = useSetAtom($path)
     const curEntities = useAtomValue($currentEntitiesFieldsAtom)
