@@ -85,8 +85,8 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                         </div>
 
                         <div className={"flex justify-center gap-2"}>
-                            <Label className={"text-primary/60"}>
-                                {data.commit?.hash}
+                            <Label className={"text-primary/60 font-mono"}>
+                                {data.commit?.hash && String(data.commit?.hash).substring(0, 6)}
                             </Label>
                             <Label className={"text-primary/60"}>
                                 {new Date(data.commit?.createdAt)?.toLocaleDateString("ru-RU")}

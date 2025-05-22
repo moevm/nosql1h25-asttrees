@@ -2,7 +2,8 @@
 @import "tw-animate-css";
 
 @theme inline {
-  --font-sans: "Geologica", "sans-serif";
+  --font-sans: "Geologica";
+  --font-mono: "Azeret Mono";
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

@@ -6,6 +6,7 @@ import {useNavigate} from "react-router-dom";
 import {$repoSettingsDialogRepo, type ApiRepositoryModel} from "@/store/store.ts";
 import {$showRepoSettingsDialog} from "@/store/store.ts";
 import {useSetAtom} from "jotai/react";
+import {cn} from "@/lib/utils.ts";
 
 const formatDate = (isoDateString: string | undefined): string => {
     if (!isoDateString) {
@@ -45,10 +46,16 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
                 <div className="flex justify-between items-center">
                     <div>
                         <CardTitle>
-                            <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
                                 <Label>{repo.name}</Label>
-                                <Badge>
-                                    {repo.visibility === 'PRIVATE' ? 'Приватный' : repo.visibility === 'PUBLIC' ? 'Публичный' : repo.visibility}
+                                <Badge className={cn({
+                                    'bg-red-600': repo.visibility === 'PRIVATE',
+                                    'bg-green-600': repo.visibility === 'PUBLIC',
+                                    'bg-orange-600': repo.visibility === 'PROTECTED',
+                                })}>
+                                    {repo.visibility === 'PRIVATE' && 'Приватный'}
+                                    {repo.visibility === 'PUBLIC' && 'Публичный'}
+                                    {repo.visibility === 'PROTECTED' && 'Защищенный'}
                                 </Badge>
                             </div>
                         </CardTitle>

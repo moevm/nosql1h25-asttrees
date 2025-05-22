@@ -15,6 +15,8 @@ import {type Loadable} from "jotai/utils";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {loaded} from "@/api";
 import {type NodeRendererProps, Tree} from 'react-arborist';
+import {cva} from "class-variance-authority";
+import {cn} from "@/lib/utils.ts";
 
 
 function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
@@ -35,8 +37,8 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
                         </div>
 
                         <div className={"flex justify-center gap-2"}>
-                            <Label className={"text-primary/60"}>
-                                {repo.commit?.hash}
+                            <Label className={"text-primary/60 font-mono"}>
+                                {repo.commit?.hash && String(repo.commit?.hash).substring(0, 6)}
                             </Label>
                             <Label className={"text-primary/60"}>
                                 {new Date(repo.commit?.createdAt)?.toLocaleDateString("ru-RU")}
@@ -56,6 +58,30 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     )
 }
 
+const hashCode = (str: string) => {
+    let hash = 0,
+        i, chr;
+    if (str.length === 0) return hash;
+    for (i = 0; i < str.length; i++) {
+        chr = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0;
+    }
+    return hash;
+}
+
+const getBadgeStyle = (name: string) => {
+    //   --color-chart-1: var(--chart-1);
+    //   --color-chart-2: var(--chart-2);
+    //   --color-chart-3: var(--chart-3);
+    //   --color-chart-4: var(--chart-4);
+    //   --color-chart-5: var(--chart-5);
+
+    return {
+        'backgroundColor': `var(--chart-${Math.abs(hashCode(name)) % 5 + 1})`
+    }
+}
+
 function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
     const {id, data} = node
     const {label, type} = data
@@ -71,7 +97,7 @@ function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
                      node.isOpen ? <ChevronDown size={16}/> : <ChevronUp size={16}/>
                  )}
             </span>
-            <span className={"rounded-full bg-slate-800 text-background px-2 py-0.5"}>{type}</span>
+            <span className={"rounded-full text-background px-2 py-0.5"} style={getBadgeStyle(type)}>{type}</span>
             <span>{label}</span>
         </div>
     );

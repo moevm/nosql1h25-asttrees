@@ -21,21 +21,21 @@ function CommitTable({repo, data}: {
                         className="hover:bg-accent cursor-pointer transition-colors"
                     >
                         <td className="py-4 px-4 border-b border-gray-200 w-1/4">
-                            <Label className="font-bold whitespace-nowrap hover:cursor-pointer">
+                            <Label className="font-bold whitespace-nowrap ">
                                 {item.author}
                             </Label>
                         </td>
                         <td className="py-2 px-4 border-b border-gray-200 w-2/4">
-                            <Label className="text-primary/60 whitespace-nowrap hover:cursor-pointer">
+                            <Label className="text-primary/60 whitespace-nowrap ">
                                 {item.message}
                             </Label>
                         </td>
                         <td className="py-2 px-4 border-b border-gray-200 w-1/4">
                             <div className="flex justify-end items-center gap-4">
-                                <Label className="text-primary/60 whitespace-nowrap hover:cursor-pointer">
-                                    {item.hash}
+                                <Label className="text-primary/60 whitespace-nowrap font-mono">
+                                    {String(item.hash).substring(0, 6)}
                                 </Label>
-                                <Label className="text-primary/60 whitespace-nowrap hover:cursor-pointer">
+                                <Label className="text-primary/60 whitespace-nowrap w-[90px]">
                                     {new Date(item.createdAt)?.toLocaleDateString("ru-RU")}
                                 </Label>
                             </div>
