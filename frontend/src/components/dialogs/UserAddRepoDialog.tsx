@@ -33,7 +33,6 @@ const formSchema = z.object({
 function UserAddRepoDialog() {
     const [open, setOpen] = useState(false);
     const [visibility, setVisibility] = useState<string>("public");
-
     const {
         mutate,
         isPending,
@@ -58,7 +57,6 @@ function UserAddRepoDialog() {
     }, [isSuccess, open, setOpen]);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values, visibility)
         mutate({
             body: {
                 originalLink: values.url,
@@ -88,8 +86,8 @@ function UserAddRepoDialog() {
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <Button onClick={() => handleOpenChange(true)} className="ml-auto flex justify-center gap-2">
-                    <Package/> Добавить в репозиторий
+                <Button className="ml-auto flex justify-center gap-2">
+                    <Package/> Импортировать репозиторий
                 </Button>
             </DialogTrigger>
 
@@ -107,92 +105,92 @@ function UserAddRepoDialog() {
                 }}
             >
                 <DialogHeader>
-                    <DialogTitle>Добавить репозиторий</DialogTitle>
+                    <DialogTitle>Импортировать репозиторий</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="url"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>URL</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Введите URL репозитория" {...field} disabled={isPending} />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Название</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Введите название" {...field} disabled={isPending} />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-
-                        <div className="flex flex-col gap-2 items-start">
-                            <Label className="font-bold">Публичность</Label>
-                            <Label className="text-primary/60">Кто может просматривать этот репозиторий</Label>
-                            {visibilityOptions.map(option => {
-                                const IconComponent = option.icon;
-                                return (
-                                    <Button
-                                        key={option.value}
-                                        type="button"
-                                        variant={visibility === option.value ? "secondary" : "ghost"}
-                                        className="flex gap-2 justify-start text-left p-6 w-full"
-                                        onClick={() => setVisibility(option.value)}
-                                        disabled={isPending}
-                                    >
-                                        <div className="flex justify-between items-center gap-2">
-                                            <IconComponent className={option.value !== "public" ? "mt-1" : ""} />
-                                            <div className="flex flex-col gap-1">
-                                                <Label className="font-bold">{option.label}</Label>
-                                                <Label className="text-primary/60">{option.description}</Label>
-                                            </div>
-                                        </div>
-                                    </Button>
-                                );
-                            })}
-                        </div>
-
-                        <DialogFooter className={"flex w-full justify-between"}>
-                            <Button
-                                type="submit"
-                                className="hover:cursor-pointer"
-                                disabled={isPending || !form.formState.isValid}
-                            >
-                                {isPending ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Импорт...
-                                    </>
-                                ) : (
-                                    "Импортировать"
+                    <fieldset disabled={isPending} className="space-y-4"> {/* className="space-y-4" перенесен с form */}
+                        <form onSubmit={form.handleSubmit(onSubmit)}>
+                            <FormField
+                                control={form.control}
+                                name="url"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormLabel>URL</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Введите URL репозитория" {...field} />
+                                        </FormControl>
+                                        <FormMessage/>
+                                    </FormItem>
                                 )}
-                            </Button>
-                            <div className={"ml-auto"}>
-                                <Button
-                                    variant="outline"
-                                    type="button"
-                                    onClick={() => handleOpenChange(false)}
-                                    className="hover:cursor-pointer"
-                                    disabled={isPending}
-                                >
-                                    Отмена
-                                </Button>
+                            />
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormLabel>Название</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Введите название" {...field} />
+                                        </FormControl>
+                                        <FormMessage/>
+                                    </FormItem>
+                                )}
+                            />
+
+                            <div className="flex flex-col gap-2 items-start">
+                                <Label className="font-bold">Публичность</Label>
+                                <Label className="text-primary/60">Кто может просматривать этот репозиторий</Label>
+                                {visibilityOptions.map(option => {
+                                    const IconComponent = option.icon;
+                                    return (
+                                        <Button
+                                            key={option.value}
+                                            type="button"
+                                            variant={visibility === option.value ? "secondary" : "ghost"}
+                                            className="flex gap-2 justify-start text-left p-6 w-full"
+                                            onClick={() => setVisibility(option.value)}
+                                        >
+                                            <div className="flex justify-between items-center gap-2">
+                                                <IconComponent className={option.value !== "public" ? "mt-1" : ""} />
+                                                <div className="flex flex-col gap-1">
+                                                    <Label className="font-bold">{option.label}</Label>
+                                                    <Label className="text-primary/60">{option.description}</Label>
+                                                </div>
+                                            </div>
+                                        </Button>
+                                    );
+                                })}
                             </div>
-                        </DialogFooter>
-                    </form>
+
+                            <DialogFooter className={"flex w-full justify-between"}>
+                                <Button
+                                    type="submit"
+                                    className="hover:cursor-pointer"
+                                    disabled={isPending || !form.formState.isValid}
+                                >
+                                    {isPending ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Импорт...
+                                        </>
+                                    ) : (
+                                        "Импортировать"
+                                    )}
+                                </Button>
+                                <div className={"ml-auto"}>
+                                    <Button
+                                        variant="outline"
+                                        type="button"
+                                        onClick={() => handleOpenChange(false)}
+                                        className="hover:cursor-pointer"
+                                    >
+                                        Отмена
+                                    </Button>
+                                </div>
+                            </DialogFooter>
+                        </form>
+                    </fieldset>
                 </Form>
             </DialogContent>
         </Dialog>
