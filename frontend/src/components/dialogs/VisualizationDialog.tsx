@@ -1,6 +1,6 @@
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog.tsx";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {$showVisualizationDialogAtom} from "@/store/store.ts";
+import {$showVisualizationDialog} from "@/store/store.ts";
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
@@ -23,8 +23,8 @@ function useVisualiseQuery(queryURL: string) {
 
 function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[], queryURL: string}) {
 
-    const showDialog = useAtomValue($showVisualizationDialogAtom);
-    const setShowDialog = useSetAtom($showVisualizationDialogAtom);
+    const showDialog = useAtomValue($showVisualizationDialog);
+    const setShowDialog = useSetAtom($showVisualizationDialog);
 
     const [atrX, setAtrX] = useState<string | undefined>(null);
     const [atrY, setAtrY] = useState<string | undefined>(null);

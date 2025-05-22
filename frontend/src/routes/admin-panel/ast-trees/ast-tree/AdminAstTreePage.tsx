@@ -6,7 +6,7 @@ import {
 } from "@/components/custom/utils/ValueRenderers.tsx";
 import {
     $adminAstTree,
-    $adminAstTreeId,
+    $adminAstTreeId, $showEditAstTreeDialog,
     type ApiEntityAstTreeModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
@@ -16,34 +16,41 @@ import {useAtomValue, useSetAtom} from "jotai/react";
 import {useEffect} from "react";
 import {loaded} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
+import EditAstTreeDialog from "@/components/dialogs/EditAstTreeDialog.tsx";
 
 function AdminAstTreePageContent(props: {
     data: ApiEntityAstTreeModel
 }) {
+    const setShowEditAstTreeDialog = useSetAtom($showEditAstTreeDialog)
     return (
-        <div className="flex flex-col py-6 mx-6">
-            <div className="flex flex-col gap-2">
-                <Label className={"text-3xl"}>{props.data.commitFile?.name}</Label>
+        <>
+            <EditAstTreeDialog/>
+            <div className="flex flex-col py-6 mx-6">
+                <div className="flex flex-col gap-2">
+                    <Label className={"text-3xl"}>{props.data.commitFile?.name}</Label>
 
-                <EntityCard
-                    items={[
-                        ['id', <MonoRenderer value={props.data.id}/>],
-                        ['Дата создания', <DateRenderer value={dayjs(props.data.createdAt)}/>],
-                        ['Глубина', props.data.depth],
-                        ['Размер', props.data.size],
-                        ['Название файла', props.data.commitFile?.name],
-                        ['Hash файла', props.data.commitFile?.hash],
-                    ]}
-                />
-                <div className={"flex justify-between gap-6"}>
-                    <div className="flex justify-between gap-2">
-                        <Button variant="outline">
-                            Настройка AST-дерева
-                        </Button>
+                    <EntityCard
+                        items={[
+                            ['id', <MonoRenderer value={props.data.id}/>],
+                            ['Дата создания', <DateRenderer value={dayjs(props.data.createdAt)}/>],
+                            ['Глубина', props.data.depth],
+                            ['Размер', props.data.size],
+                            ['Название файла', props.data.commitFile?.name],
+                            ['Hash файла', props.data.commitFile?.hash],
+                        ]}
+                    />
+                    <div className={"flex justify-between gap-6"}>
+                        <div className="flex justify-between gap-2">
+                            <Button variant="outline" onClick={() => {
+                                setShowEditAstTreeDialog(true)
+                            }}>
+                                Настройка AST-дерева
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 

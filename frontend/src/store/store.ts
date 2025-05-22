@@ -267,9 +267,12 @@ export const $fileAstQuery = atomWithQuery((get) => {
 export const $fileAst = loadableQuery($fileAstQuery)
 
 export const $showRepoSettingsDialog = atom(false);
+export const $showVisualizationDialog = atom(false);
+export const $showEditUserDialog = atom(false)
+export const $showEditRepoDialog = atom(false)
+export const $showEditBranchDialog = atom(false)
+export const $showEditCommitDialog = atom(false)
+export const $showEditAstTreeDialog = atom(false)
+export const $showEditFileDialog = atom(false)
 export const $repoSettingsDialogRepo = atom<ApiRepositoryModel | null>(null)
-export const $showVisualizationDialogAtom = atom(false);
-
 export const $currentEntitiesFieldsAtom = atom<EntityField[] | null>(null);
-
-

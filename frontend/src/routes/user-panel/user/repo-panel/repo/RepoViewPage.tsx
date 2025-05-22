@@ -8,7 +8,7 @@ import {
 import {Folder, Package, Settings, UserIcon} from "lucide-react";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {
-    $currentRepo, $path, type ApiRepositoryModel, type ApiRepositoryViewModel, $showRepoSettingsDialog,
+    $currentRepo, $path, type ApiRepositoryModel, type ApiRepositoryViewModel, $showRepoSettingsDialog
 } from "@/store/store.ts";
 import RepoFileTable from "@/routes/user-panel/user/repo-panel/repo/components/RepoFileTable.tsx";
 import {Label} from "@/components/ui/label.tsx";
@@ -35,7 +35,8 @@ function RepoViewPage() {
                             <BreadcrumbList>
                                 <BreadcrumbItem>
                                     <BreadcrumbLink asChild>
-                                        <Link className="flex items-center justify-between gap-1" to={`/users/${currentRepo.data.owner.id}`}>
+                                        <Link className="flex items-center justify-between gap-1"
+                                              to={`/users/${currentRepo.data.owner.id}`}>
                                             <UserIcon/>
                                             <Label>{currentRepo.data.owner.username}</Label>
                                         </Link>
@@ -44,7 +45,8 @@ function RepoViewPage() {
                                 <BreadcrumbSeparator/>
                                 <BreadcrumbItem>
                                     <BreadcrumbLink asChild>
-                                        <Link className="flex items-center justify-between gap-1" to={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
+                                        <Link className="flex items-center justify-between gap-1"
+                                              to={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}`}>
                                             <Package/>
                                             <Label>{currentRepo.data.repository.name}</Label>
                                         </Link>
@@ -69,7 +71,8 @@ function RepoViewPage() {
                                                         <BreadcrumbLink
                                                             asChild
                                                         >
-                                                            <Link className="flex items-center justify-between gap-1" to={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}?path=${path.split('/').slice(0, index + 1).join('/')}`}>
+                                                            <Link className="flex items-center justify-between gap-1"
+                                                                  to={`/users/${currentRepo.data.owner.id}/repo/${currentRepo.data.repository.id}/branch/${currentRepo.data.branch.id}/commit/${currentRepo.data.commit.id}?path=${path.split('/').slice(0, index + 1).join('/')}`}>
                                                                 <Folder/>
                                                                 <Label>{segment}</Label>
                                                             </Link>
