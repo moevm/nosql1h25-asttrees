@@ -1,6 +1,5 @@
 import {useAtom} from "jotai";
 import {
-    $adminRepo,
     $showEditRepoDialog,
     type ApiEntityRepositoryModel
 } from "@/store/store.ts";
@@ -13,75 +12,55 @@ import {CalendarIcon, Eye, EyeOff, Shield} from "lucide-react";
 import * as z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {useAtomValue} from "jotai/react";
-import {loaded} from "@/api";
-import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {useEffect} from "react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {Calendar} from "@/components/ui/calendar.tsx";
 import { ru } from 'date-fns/locale';
 import {format} from "date-fns";
 import {cn} from "@/lib/utils.ts";
+import {getInitialDate, repoSchema} from "@/lib/formSchemas.ts";
 
-const formSchema = z.object({
-    name: z.string().min(1, "Обязательное поле"),
-    ownerId: z.string().min(1, "Обязательное поле"),
-    visibility: z.enum(["PUBLIC", "PRIVATE", "PROTECTED"]),
-    createdAt: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' || arg instanceof Date) {
-                const date = new Date(arg);
-                return isNaN(date.getTime()) ? undefined : date;
-            }
-            return undefined;
-        },
-        z.date({
-            required_error: "Дата создания обязательна",
-            invalid_type_error: "Некорректный формат даты",
-        })
-    ),
-    originalLink: z.string().url(),
-});
 
 function EditRepoContent(props: {
-    data: ApiEntityRepositoryModel
+    data?: ApiEntityRepositoryModel,
+    onSave?: (data: z.infer<typeof repoSchema>) => void
 }) {
     const [open, setOpen] = useAtom($showEditRepoDialog)
+    const today = new Date();
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            name: props.data.name,
-            ownerId: props.data.owner?.id,
-            visibility: props.data.visibility,
-            createdAt: props.data.createdAt,
-            originalLink: props.data.originalLink,
-        },
+    const initialFormValues = {
+        name: props.data?.name || '',
+        ownerId: props.data?.owner?.id || '',
+        visibility: props.data?.visibility || 'PUBLIC',
+        createdAt: getInitialDate(props.data?.createdAt),
+        originalLink: props.data?.originalLink || '',
+    };
+
+    const form = useForm<z.infer<typeof repoSchema>>({
+        resolver: zodResolver(repoSchema),
+        defaultValues: initialFormValues
     });
 
     useEffect(() => {
         if (open) {
-            form.reset({
-                name: props.data.name,
-                ownerId: props.data.owner?.id,
-                visibility: props.data.visibility,
-                createdAt: props.data.createdAt,
-                originalLink: props.data.originalLink,
-            });
+            form.reset(initialFormValues);
         }
-    }, [open, form, props.data.name, props.data.owner?.id, props.data.visibility, props.data.createdAt, props.data.originalLink]);
+    }, [open]);
 
-    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const onSubmit = async (data: z.infer<typeof repoSchema>) => {
         console.log(data)
+        if (props.onSave) {
+            props.onSave(data)
+        }
         setOpen(false)
     };
 
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Изменить репозиторий</DialogTitle>
+                    <DialogTitle>{props.data ? "Изменить репозиторий" : "Создать репозиторий"}</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -202,6 +181,7 @@ function EditRepoContent(props: {
                                                 onSelect={field.onChange}
                                                 initialFocus
                                                 locale={ru}
+                                                toDate={today}
                                             />
                                         </PopoverContent>
                                     </Popover>
@@ -225,7 +205,7 @@ function EditRepoContent(props: {
                         />
 
                         <DialogFooter className={"flex w-full justify-between"}>
-                            <Button type="submit">Изменить</Button>
+                            <Button type="submit">{props.data ? "Изменить" : "Создать"}</Button>
                             <div className={"ml-auto"}>
                                 <DialogClose asChild>
                                     <Button variant="outline">Отмена</Button>
@@ -239,16 +219,13 @@ function EditRepoContent(props: {
     )
 }
 
-function EditRepoDialog() {
-    const adminRepo = useAtomValue($adminRepo)
+function EditRepoDialog(props: {
+    data?: ApiEntityRepositoryModel,
+    onSave?: (data: z.infer<typeof repoSchema>) => void
+}) {
 
     return (
-        <BatchLoader states={[adminRepo]}
-                     loadingMessage={"Загрузка репозитория"}
-                     display={() =>
-                         <EditRepoContent data={loaded(adminRepo).data}/>
-                     }
-        />
+        <EditRepoContent data={props.data} onSave={props.onSave}/>
     )
 }
 

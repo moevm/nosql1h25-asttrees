@@ -24,7 +24,7 @@ function AdminCommitPageContent(props: {
     const setShowEditCommitDialog = useSetAtom($showEditCommitDialog)
     return (
         <>
-            <EditCommitDialog/>
+            <EditCommitDialog data={props.data}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
                     <Label className={"text-3xl"}>{props.data.hash}</Label>

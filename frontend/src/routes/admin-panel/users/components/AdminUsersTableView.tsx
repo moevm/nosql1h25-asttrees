@@ -1,8 +1,10 @@
 import {columnsUser, fieldsUsers} from "@/columns/columnsUsers.tsx";
-import type {ApiUserModel} from "@/store/store.ts";
+import {$showEditUserDialog, type ApiUserModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
 import {useNavigate} from "react-router-dom";
+import {Button} from "@/components/ui/button.tsx";
+import {useSetAtom} from "jotai/react";
 
 function AdminUsersTableView() {
     const {
@@ -19,6 +21,7 @@ function AdminUsersTableView() {
         queryUrl: "/entities/users",
     });
     const navigate = useNavigate()
+    const setShowEditUserDialog = useSetAtom($showEditUserDialog)
 
     return (
         <RichTableView
@@ -40,6 +43,11 @@ function AdminUsersTableView() {
                     navigate(`/admin/users/${user.id}`, { replace: false })
                 },
             }}
+            buttonsSlot={() => (
+                <Button size="sm" onClick={() => {setShowEditUserDialog(true)}}>
+                    Создать пользователя
+                </Button>
+            )}
         />
     );
 }

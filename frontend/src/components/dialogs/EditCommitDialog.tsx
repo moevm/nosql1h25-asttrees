@@ -1,6 +1,5 @@
 import {useAtom} from "jotai";
 import {
-    $adminCommit,
     $showEditCommitDialog, type ApiEntityCommitModel
 } from "@/store/store.ts";
 import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog.tsx";
@@ -11,124 +10,58 @@ import {CalendarIcon} from "lucide-react";
 import * as z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {useAtomValue} from "jotai/react";
-import {loaded} from "@/api";
-import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {useEffect} from "react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {Calendar} from "@/components/ui/calendar.tsx";
 import {ru} from 'date-fns/locale';
 import {format} from "date-fns";
 import {cn} from "@/lib/utils.ts";
+import {commitSchema, getInitialDate} from "@/lib/formSchemas.ts";
 
-const formSchema = z.object({
-    hash: z.string().min(1, "Обязательное поле"),
-    author: z.string().min(1, "Обязательное поле"),
-    email: z.string().email("Некорректный email"),
-    message: z.string().min(1, "Обязательное поле"),
-    filesChanged: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' && arg.trim() === '') {
-                return undefined;
-            }
-            return arg;
-        },
-        z.coerce.number({
-            required_error: "Обязательное поле",
-            invalid_type_error: "Обязательное поле",
-        })
-            .int("Ожидается целое число")
-            .nonnegative("Ожидается положительное число")
-    ),
-    linesAdded: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' && arg.trim() === '') {
-                return undefined;
-            }
-            return arg;
-        },
-        z.coerce.number({
-            required_error: "Обязательное поле",
-            invalid_type_error: "Обязательное поле",
-        })
-            .int("Ожидается целое число")
-            .nonnegative("Ожидается положительное число")
-    ),
-    linesRemoved: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' && arg.trim() === '') {
-                return undefined;
-            }
-            return arg;
-        },
-        z.coerce.number({
-            required_error: "Обязательное поле",
-            invalid_type_error: "Обязательное поле",
-        })
-            .int("Ожидается целое число")
-            .nonnegative("Ожидается положительное число")
-    ),
-    createdAt: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' || arg instanceof Date) {
-                const date = new Date(arg);
-                return isNaN(date.getTime()) ? undefined : date;
-            }
-            return undefined;
-        },
-        z.date({
-            required_error: "Дата создания обязательна",
-            invalid_type_error: "Некорректный формат даты",
-        })
-    ),
-});
 
 function EditCommitContent(props: {
-    data: ApiEntityCommitModel
+    data?: ApiEntityCommitModel,
+    onSave?: (data: z.infer<typeof commitSchema>) => void
 }) {
     const [open, setOpen] = useAtom($showEditCommitDialog)
+    const today = new Date();
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            hash: props.data.hash,
-            author: props.data.author,
-            email: props.data.email,
-            message: props.data.message,
-            filesChanged: props.data.filesChanged,
-            linesAdded: props.data.linesAdded,
-            linesRemoved: props.data.linesRemoved,
-            createdAt: props.data.createdAt,
-        },
+    const initialFormValues = {
+        hash: props.data?.hash || '',
+        author: props.data?.author || '',
+        email: props.data?.email || '',
+        message: props.data?.message || '',
+        filesChanged: props.data?.filesChanged ?? 0,
+        linesAdded: props.data?.linesAdded ?? 0,
+        linesRemoved: props.data?.linesRemoved ?? 0,
+        createdAt: getInitialDate(props.data?.createdAt),
+    };
+
+    const form = useForm<z.infer<typeof commitSchema>>({
+        resolver: zodResolver(commitSchema),
+        defaultValues: initialFormValues,
     });
 
     useEffect(() => {
         if (open) {
-            form.reset({
-                hash: props.data.hash,
-                author: props.data.author,
-                email: props.data.email,
-                message: props.data.message,
-                filesChanged: props.data.filesChanged,
-                linesAdded: props.data.linesAdded,
-                linesRemoved: props.data.linesRemoved,
-                createdAt: props.data.createdAt,
-            });
+            form.reset(initialFormValues);
         }
-    }, [open, form, props.data.hash, props.data.author, props.data.email, props.data.message, props.data.filesChanged, props.data.linesAdded, props.data.linesRemoved, props.data.createdAt]);
+    }, [open]);
 
-    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const onSubmit = async (data: z.infer<typeof commitSchema>) => {
         console.log(data)
+        if (props.onSave) {
+            props.onSave(data)
+        }
         setOpen(false)
     };
 
 
     return (
-        // TODO слишком большой диалог, вылазит за границы экрана
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Изменить коммит</DialogTitle>
+                    <DialogTitle>{props.data ? "Изменить коммит" : "Создать коммит"}</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -264,6 +197,7 @@ function EditCommitContent(props: {
                                                 onSelect={field.onChange}
                                                 initialFocus
                                                 locale={ru}
+                                                toDate={today}
                                             />
                                         </PopoverContent>
                                     </Popover>
@@ -273,7 +207,7 @@ function EditCommitContent(props: {
                         />
 
                         <DialogFooter className={"flex w-full justify-between"}>
-                            <Button type="submit">Изменить</Button>
+                            <Button type="submit">{props.data ? "Изменить" : "Создать"}</Button>
                             <div className={"ml-auto"}>
                                 <DialogClose asChild>
                                     <Button variant="outline">Отмена</Button>
@@ -287,16 +221,12 @@ function EditCommitContent(props: {
     )
 }
 
-function EditCommitDialog() {
-    const adminCommit = useAtomValue($adminCommit)
-
+function EditCommitDialog(props: {
+    data?: ApiEntityCommitModel,
+    onSave?: (data: z.infer<typeof commitSchema>) => void
+}) {
     return (
-        <BatchLoader states={[adminCommit]}
-                     loadingMessage={"Загрузка коммита"}
-                     display={() =>
-                         <EditCommitContent data={loaded(adminCommit).data}/>
-                     }
-        />
+        <EditCommitContent data={props.data} onSave={props.onSave}/>
     )
 }
 

@@ -27,7 +27,7 @@ function AdminUserPageContent(props: {
     const setShowEditUserDialog = useSetAtom($showEditUserDialog)
     return (
         <>
-            <EditUserDialog/>
+            <EditUserDialog data={props.data}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
                     <Label className={"text-3xl"}>{props.data.username}</Label>

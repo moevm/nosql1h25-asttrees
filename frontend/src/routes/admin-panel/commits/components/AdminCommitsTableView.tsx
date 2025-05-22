@@ -1,8 +1,10 @@
-import type {ApiEntityCommitModel} from "@/store/store.ts";
+import {$showEditCommitDialog, type ApiEntityCommitModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {columnsCommits, fieldsCommits} from "@/columns/columnsCommits.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
 import {useNavigate} from "react-router-dom";
+import {Button} from "@/components/ui/button.tsx";
+import {useSetAtom} from "jotai/react";
 
 function AdminCommitsTableView() {
     const {
@@ -20,6 +22,7 @@ function AdminCommitsTableView() {
     });
 
     const navigate = useNavigate()
+    const setShowEditCommitDialog = useSetAtom($showEditCommitDialog)
 
     return (
         <RichTableView
@@ -41,6 +44,11 @@ function AdminCommitsTableView() {
                     navigate(`/admin/commits/${commit.id}`, { replace: false })
                 },
             }}
+            buttonsSlot={() => (
+                <Button size="sm" onClick={() => {setShowEditCommitDialog(true)}}>
+                    Создать коммит
+                </Button>
+            )}
         />
     );
 }

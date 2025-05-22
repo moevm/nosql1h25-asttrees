@@ -2,7 +2,7 @@ import {useAtom} from "jotai";
 import {
     $adminAstTree,
     $showEditAstTreeDialog,
-    type ApiEntityAstTreeModel
+    type ApiEntityAstTreeModel, type ApiEntityBranchModel
 } from "@/store/store.ts";
 import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog.tsx";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
@@ -21,89 +21,47 @@ import {Calendar} from "@/components/ui/calendar.tsx";
 import { ru } from 'date-fns/locale';
 import {format} from "date-fns";
 import {cn} from "@/lib/utils.ts";
-
-const formSchema = z.object({
-    depth: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' && arg.trim() === '') {
-                return undefined;
-            }
-            return arg;
-        },
-        z.coerce.number({
-            required_error: "Обязательное поле",
-            invalid_type_error: "Обязательное поле",
-        })
-            .int("Ожидается целое число")
-            .nonnegative("Ожидается положительное число")
-    ),
-    size: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' && arg.trim() === '') {
-                return undefined;
-            }
-            return arg;
-        },
-        z.coerce.number({
-            required_error: "Обязательное поле",
-            invalid_type_error: "Обязательное поле",
-        })
-            .int("Ожидается целое число")
-            .nonnegative("Ожидается положительное число")
-    ),
-    commitFileId: z.string().min(1, "Обязательное поле"),
-    createdAt: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' || arg instanceof Date) {
-                const date = new Date(arg);
-                return isNaN(date.getTime()) ? undefined : date;
-            }
-            return undefined;
-        },
-        z.date({
-            required_error: "Дата создания обязательна",
-            invalid_type_error: "Некорректный формат даты",
-        })
-    ),
-});
+import {astTreeSchema, branchSchema, getInitialDate} from "@/lib/formSchemas.ts";
 
 function EditAstTreeContent(props: {
-    data: ApiEntityAstTreeModel
+    data?: ApiEntityAstTreeModel,
+    onSave?: (data: z.infer<typeof astTreeSchema>) => void
 }) {
     const [open, setOpen] = useAtom($showEditAstTreeDialog)
+    const today = new Date();
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            depth: props.data.depth,
-            size: props.data.size,
-            commitFileId: props.data.commitFile?.id,
-            createdAt: props.data.createdAt,
-        },
+    const initialFormValues = {
+        depth: props.data?.depth ?? 0,
+        size: props.data?.size ?? 0,
+        commitFileId: props.data?.commitFile?.id || '',
+        createdAt: getInitialDate(props.data?.createdAt),
+    };
+
+    const form = useForm<z.infer<typeof astTreeSchema>>({
+        resolver: zodResolver(astTreeSchema),
+        defaultValues: initialFormValues,
     });
 
     useEffect(() => {
         if (open) {
-            form.reset({
-                depth: props.data.depth,
-                size: props.data.size,
-                commitFileId: props.data.commitFile?.id,
-                createdAt: props.data.createdAt,
-            });
+            form.reset(initialFormValues);
         }
-    }, [open, form, props.data.depth, props.data.size, props.data.commitFile?.id, props.data.createdAt]);
+    }, [open]);
 
-    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const onSubmit = async (data: z.infer<typeof astTreeSchema>) => {
         console.log(data)
+        if (props.onSave) {
+            props.onSave(data)
+        }
         setOpen(false)
     };
 
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Изменить AST-дерево</DialogTitle>
+                    <DialogTitle>{props.data ? "Изменить AST-дерево" : "Создать AST-дерево"}</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -183,6 +141,7 @@ function EditAstTreeContent(props: {
                                                 onSelect={field.onChange}
                                                 initialFocus
                                                 locale={ru}
+                                                toDate={today}
                                             />
                                         </PopoverContent>
                                     </Popover>
@@ -192,7 +151,7 @@ function EditAstTreeContent(props: {
                         />
 
                         <DialogFooter className={"flex w-full justify-between"}>
-                            <Button type="submit">Изменить</Button>
+                            <Button type="submit">{props.data ? "Изменить" : "Создать"}</Button>
                             <div className={"ml-auto"}>
                                 <DialogClose asChild>
                                     <Button variant="outline">Отмена</Button>
@@ -206,16 +165,12 @@ function EditAstTreeContent(props: {
     )
 }
 
-function EditAstTreeDialog() {
-    const adminAstTree = useAtomValue($adminAstTree)
-
+function EditAstTreeDialog(props: {
+    data?: ApiEntityAstTreeModel,
+    onSave?: (data: z.infer<typeof astTreeSchema>) => void
+}) {
     return (
-        <BatchLoader states={[adminAstTree]}
-                     loadingMessage={"Загрузка AST-дерева"}
-                     display={() =>
-                         <EditAstTreeContent data={loaded(adminAstTree).data}/>
-                     }
-        />
+        <EditAstTreeContent data={props.data} onSave={props.onSave}/>
     )
 }
 

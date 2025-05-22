@@ -1,8 +1,10 @@
-import type {ApiEntityRepositoryModel} from "@/store/store.ts";
+import {$showEditRepoDialog, type ApiEntityRepositoryModel} from "@/store/store.ts";
 import RichTableView from "@/components/custom/table/RichTableView.tsx";
 import {columnsRepos, fieldsRepos} from "@/columns/columnsRepos.tsx";
 import {useServerTable} from "@/hooks/useServerTable.tsx";
 import {useNavigate} from "react-router-dom";
+import {Button} from "@/components/ui/button.tsx";
+import {useSetAtom} from "jotai/react";
 
 function AdminReposTableView() {
     const {
@@ -20,6 +22,7 @@ function AdminReposTableView() {
     });
 
     const navigate = useNavigate()
+    const setShowEditRepoDialog = useSetAtom($showEditRepoDialog)
 
     return (
         <RichTableView
@@ -41,6 +44,11 @@ function AdminReposTableView() {
                     navigate(`/admin/repos/${repo.id}`, { replace: false })
                 },
             }}
+            buttonsSlot={() => (
+                <Button size="sm" onClick={() => {setShowEditRepoDialog(true)}}>
+                    Создать репозиторий
+                </Button>
+            )}
         />
     );
 }

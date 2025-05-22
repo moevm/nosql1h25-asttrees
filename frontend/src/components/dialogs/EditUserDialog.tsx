@@ -1,5 +1,5 @@
 import {useAtom} from "jotai";
-import {$adminUser, $showEditUserDialog, type ApiEntityUserModel} from "@/store/store.ts";
+import {$showEditUserDialog, type ApiEntityUserModel} from "@/store/store.ts";
 import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog.tsx";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import {Input} from "@/components/ui/input.tsx";
@@ -9,76 +9,56 @@ import {CalendarIcon, Eye, EyeOff} from "lucide-react";
 import * as z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {useAtomValue} from "jotai/react";
-import {loaded} from "@/api";
-import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import {useEffect} from "react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {Calendar} from "@/components/ui/calendar.tsx";
-import { ru } from 'date-fns/locale';
+import {ru} from 'date-fns/locale';
 import {format} from "date-fns";
 import {cn} from "@/lib/utils.ts";
-
-const formSchema = z.object({
-    username: z.string().min(1, "Обязательное поле"),
-    email: z.string().email("Некорректный email"),
-    visibility: z.enum(["PUBLIC", "PRIVATE"]),
-    createdAt: z.preprocess(
-        (arg) => {
-            if (typeof arg === 'string' || arg instanceof Date) {
-                const date = new Date(arg);
-                return isNaN(date.getTime()) ? undefined : date;
-            }
-            return undefined;
-        },
-        z.date({
-            required_error: "Дата создания обязательна",
-            invalid_type_error: "Некорректный формат даты",
-        })
-    ),
-    isAdmin: z.boolean(),
-});
+import {getInitialDate, userSchema} from "@/lib/formSchemas.ts";
 
 function EditUserContent(props: {
-    data: ApiEntityUserModel
+    data?: ApiEntityUserModel,
+    onSave?: (data: z.infer<typeof userSchema>) => void
 }) {
     const [open, setOpen] = useAtom($showEditUserDialog)
+    const today = new Date();
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            username: props.data.username,
-            email: props.data.email,
-            visibility: props.data.visibility,
-            createdAt: props.data.createdAt,
-            isAdmin: props.data.isAdmin,
-        },
+    const initialFormValues = {
+        username: props.data?.username || '',
+        email: props.data?.email || '',
+        visibility: props.data?.visibility || 'PUBLIC',
+        isAdmin: props.data?.isAdmin ?? false,
+        repositoryCount: props.data?.repositoryCount ?? 0,
+        createdAt: getInitialDate(props.data?.createdAt),
+    };
+
+    const form = useForm<z.infer<typeof userSchema>>({
+        resolver: zodResolver(userSchema),
+        defaultValues: initialFormValues
     });
 
     useEffect(() => {
         if (open) {
-            form.reset({
-                username: props.data.username,
-                email: props.data.email,
-                visibility: props.data.visibility,
-                createdAt: props.data.createdAt,
-                isAdmin: props.data.isAdmin,
-            });
+            form.reset(initialFormValues);
         }
-    }, [open, form, props.data.username, props.data.email, props.data.visibility, props.data.createdAt, props.data.isAdmin]);
+    }, [open]);
 
-    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const onSubmit = async (data: z.infer<typeof userSchema>) => {
         console.log(data)
+        if (props.onSave) {
+            props.onSave(data)
+        }
         setOpen(false)
     };
 
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Изменить пользователя</DialogTitle>
+                    <DialogTitle>{props.data ? "Изменить пользователя" : "Создать пользователя"}</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -152,7 +132,7 @@ function EditUserContent(props: {
                         <FormField
                             control={form.control}
                             name="createdAt"
-                            render={({ field }) => (
+                            render={({field}) => (
                                 <FormItem className="flex flex-col">
                                     {/*TODO: выделение при наведении на лейбл Дата создания*/}
                                     <FormLabel>Дата создания</FormLabel>
@@ -166,9 +146,9 @@ function EditUserContent(props: {
                                                         !field.value && "text-muted-foreground"
                                                     )}
                                                 >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    <CalendarIcon className="mr-2 h-4 w-4"/>
                                                     {field.value ? (
-                                                        format(field.value, "PPP", { locale: ru })
+                                                        format(field.value, "PPP", {locale: ru})
                                                     ) : (
                                                         <span>Выберите дату</span>
                                                     )}
@@ -182,10 +162,11 @@ function EditUserContent(props: {
                                                 onSelect={field.onChange}
                                                 initialFocus
                                                 locale={ru}
+                                                toDate={today}
                                             />
                                         </PopoverContent>
                                     </Popover>
-                                    <FormMessage />
+                                    <FormMessage/>
                                 </FormItem>
                             )}
                         />
@@ -209,7 +190,7 @@ function EditUserContent(props: {
                         />
 
                         <DialogFooter className={"flex w-full justify-between"}>
-                            <Button type="submit">Изменить</Button>
+                            <Button type="submit">{props.data ? "Изменить" : "Создать"}</Button>
                             <div className={"ml-auto"}>
                                 <DialogClose asChild>
                                     <Button variant="outline">Отмена</Button>
@@ -223,16 +204,12 @@ function EditUserContent(props: {
     )
 }
 
-function EditUserDialog() {
-    const adminUser = useAtomValue($adminUser)
-
+function EditUserDialog(props: {
+    data?: ApiEntityUserModel,
+    onSave?: (data: z.infer<typeof userSchema>) => void
+}) {
     return (
-        <BatchLoader states={[adminUser]}
-                     loadingMessage={"Загрузка пользователя"}
-                     display={() =>
-                         <EditUserContent data={loaded(adminUser).data}/>
-                     }
-        />
+        <EditUserContent data={props.data} onSave={props.onSave}/>
     )
 }
 
