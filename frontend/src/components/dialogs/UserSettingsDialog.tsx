@@ -8,8 +8,7 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
-// Убираем Eye, Shield отсюда, если они больше не нужны напрямую
-import {SettingsIcon} from "lucide-react"; // Оставляем только нужные иконки
+import {SettingsIcon} from "lucide-react";
 import * as z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -224,7 +223,7 @@ function UserSettingsDialog() {
                                         onClick={() => setVisibility(option.value)}
                                     >
                                         <div className="flex justify-between items-center gap-2">
-                                            <IconComponent className={option.value !== "public" ? "mt-1" : ""}/>
+                                            <IconComponent/>
                                             <div className="flex flex-col gap-1">
                                                 <Label className="font-bold">{option.label}</Label>
                                                 <Label className="text-primary/60">{option.description}</Label>
@@ -237,7 +236,7 @@ function UserSettingsDialog() {
 
                         <DialogFooter className={"flex w-full justify-between"}>
                             <Button type="submit"
-                                    disabled={isPending || (user.state === "hasData" && !form.formState.isDirty && visibility.toUpperCase() === user.data.visibility)}>
+                                    disabled={isPending || !form.formState.isDirty && visibility.toUpperCase() === user.data.visibility}>
                                 {isPending ? "Сохранение..." : "Сохранить"}
                             </Button>
                             <div className={"ml-auto"}>

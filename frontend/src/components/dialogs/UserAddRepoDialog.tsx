@@ -146,7 +146,7 @@ function UserAddRepoDialog() {
                                         onClick={() => setVisibility(option.value)}
                                     >
                                         <div className="flex justify-between items-center gap-2">
-                                            <IconComponent className={option.value !== "public" ? "mt-1" : ""}/>
+                                            <IconComponent/>
                                             <div className="flex flex-col gap-1">
                                                 <Label className="font-bold">{option.label}</Label>
                                                 <Label className="text-primary/60">{option.description}</Label>
