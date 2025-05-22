@@ -30,7 +30,6 @@ function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[
     const [atrY, setAtrY] = useState<string | undefined>(null);
     const [heatmapData, setHeatmapData] = useState<{ xValue: string; yValue: string; count: number }[]>([]);
 
-
     console.log(dataFields)
 
     const {mutate, isPending} = useVisualiseQuery(queryURL);

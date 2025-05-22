@@ -139,6 +139,11 @@ public class EntityRepository {
         var bindVars = new HashMap<>(initialBindVars);
         var additionalBindVars = new AtomicInteger();
         var queryBuilder = new StringBuilder();
+        queryBuilder.append(entityQuery.collectionPart()).append("\n");
+        if (searchDto.idFilter() != null) {
+            queryBuilder.append("FILTER entity._key == @__param_id\n");
+            bindVars.put("__param_id", searchDto.idFilter());
+        }
         queryBuilder.append(entityQuery.selectPart()).append("\n");
         queryBuilder.append("LET resultDoc = ").append(entityQuery.mergePart()).append("\n");
 

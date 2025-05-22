@@ -194,19 +194,13 @@ public class EntityController {
     }
 
     private EntitySearchDto queryById(String id) {
-        return convert(new EntitySearchRequest(
+        return new EntitySearchDto(
                 "",
                 List.of(),
-                new EntitySearchRequest.Pagination(0, 1),
+                PageRequest.of(0, 1),
                 List.of(),
-                List.of(
-                        new EntitySearchRequest.Filter(
-                                "id",
-                                "string_equals",
-                                Map.of("value", id)
-                        )
-                )
-        ));
+                id
+        );
     }
 
     private EntityStatsRequestDto convert(EntityStatsRequest request) {
@@ -215,7 +209,8 @@ public class EntityController {
                         "",
                         List.of(),
                         Pageable.unpaged(),
-                        request.filter().stream().map(this::convert).toList()
+                        request.filter().stream().map(this::convert).toList(),
+                        null
                 ),
                 request.xAxisField(),
                 request.yAxisField()
@@ -236,7 +231,8 @@ public class EntityController {
                                 )).toList()
                         )
                 ),
-                request.filter().stream().map(this::convert).toList()
+                request.filter().stream().map(this::convert).toList(),
+                null
         );
     }
 
