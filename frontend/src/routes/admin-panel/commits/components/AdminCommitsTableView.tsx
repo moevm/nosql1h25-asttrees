@@ -8,6 +8,7 @@ function AdminCommitsTableView() {
     const {
         table,
         isLoading,
+        isPending,
         filterString,
         setFilterString,
         searchPosition,
@@ -24,6 +25,7 @@ function AdminCommitsTableView() {
         <RichTableView
             table={table}
             isLoading={isLoading}
+            isPending={isPending}
             entityType={fieldsCommits}
             queryURLname={"commits"}
             data={data}
