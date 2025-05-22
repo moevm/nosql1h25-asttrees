@@ -8,7 +8,8 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {Eye, SettingsIcon, Shield} from "lucide-react";
+// Убираем Eye, Shield отсюда, если они больше не нужны напрямую
+import {SettingsIcon} from "lucide-react"; // Оставляем только нужные иконки
 import * as z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -23,11 +24,13 @@ import {
     FormMessage
 } from "@/components/ui/form.tsx";
 import {Label} from "@/components/ui/label.tsx";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {$api, defaultOnErrorHandler} from "@/api";
 import {toast} from "sonner";
 import {useAtomValue} from "jotai/react";
 import {$currentUser} from "@/store/store.ts";
+
+import {visibilityOptions} from "@/lib/types.ts";
 
 const formSchema = z.object({
     oldPassword: z.string().optional(),
@@ -37,7 +40,6 @@ const formSchema = z.object({
     const oldPasswordEntered = oldPassword && oldPassword.length > 0;
     const newPasswordEntered = newPassword && newPassword.length > 0;
 
-    // Валидация длины, если пароль введен
     if (oldPasswordEntered && oldPassword?.length < 3) {
         ctx.addIssue({
             path: ['oldPassword'],
@@ -93,6 +95,10 @@ function UserSettingsDialog() {
     const [visibility, setVisibility] = useState<string>('public');
     const [showDialog, setShowDialog] = useState<boolean>(false);
 
+    const userVisibilityOptions = useMemo(() => {
+        return visibilityOptions.filter(option => option.value === "public" || option.value === "private");
+    }, []);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -103,9 +109,14 @@ function UserSettingsDialog() {
 
     useEffect(() => {
         if (user.state === "hasData") {
-            setVisibility(user.data.visibility.toLowerCase());
+            const currentUserVisibility = user.data.visibility.toLowerCase();
+            if (userVisibilityOptions.some(opt => opt.value === currentUserVisibility)) {
+                setVisibility(currentUserVisibility);
+            } else {
+                setVisibility('public');
+            }
         }
-    }, [user, showDialog]);
+    }, [user, showDialog, userVisibilityOptions]);
 
     const {
         mutate,
@@ -125,17 +136,17 @@ function UserSettingsDialog() {
             values.newPassword && values.newPassword.length >= 3) {
             payload.oldPassword = values.oldPassword;
             payload.newPassword = values.newPassword;
-        } else if ((values.oldPassword && values.oldPassword.length > 0) || (values.newPassword && values.newPassword.length > 0)) {
-
         }
-
 
         mutate({body: payload}, {
             onSuccess: () => {
                 form.reset({oldPassword: "", newPassword: ""});
                 setShowDialog(false);
                 if (user.state === "hasData") {
-                    setVisibility(payload.visibility.toLowerCase());
+                    const newVisibility = payload.visibility.toLowerCase();
+                    if (userVisibilityOptions.some(opt => opt.value === newVisibility)) {
+                        setVisibility(newVisibility);
+                    }
                 }
             }
         });
@@ -145,8 +156,11 @@ function UserSettingsDialog() {
         setShowDialog(isOpen);
         if (!isOpen) {
             form.reset({oldPassword: "", newPassword: ""});
-            if (user.state === "hasData" && visibility.toUpperCase() !== user.data.visibility) {
-                setVisibility(user.data.visibility.toLowerCase());
+            if (user.state === "hasData") {
+                const currentUserVisibility = user.data.visibility.toLowerCase();
+                if (visibility !== currentUserVisibility && userVisibilityOptions.some(opt => opt.value === currentUserVisibility)) {
+                    setVisibility(currentUserVisibility);
+                }
             }
         }
     }
@@ -165,7 +179,7 @@ function UserSettingsDialog() {
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form disabled={isPending} className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
                         <FormField
                             control={form.control}
                             name="oldPassword"
@@ -199,43 +213,36 @@ function UserSettingsDialog() {
                             <Label className="font-bold">Публичность</Label>
                             <Label className="text-primary/60">Кто может просматривать этот профиль</Label>
 
-                            <Button
-                                type={"button"}
-                                variant={`${visibility === "public" ? "secondary" : "ghost"}`}
-                                className={`flex gap-2 justify-start text-left p-6  w-full`}
-                                onClick={() => setVisibility("public")}>
-                                <div className={"flex justify-between items-center gap-2"}>
-                                    <Eye className=""/>
-                                    <div className="flex flex-col gap-1">
-                                        <Label className="font-bold">Публичный</Label>
-                                        <Label className="text-primary/60">Любой человек</Label>
-                                    </div>
-                                </div>
-                            </Button>
-
-                            <Button
-                                type={"button"}
-                                variant={`${visibility === "private" ? "secondary" : "ghost"}`}
-                                className={`flex gap-2 justify-start text-left p-6 w-full`}
-                                onClick={() => setVisibility("private")}>
-                                <div className={"flex justify-between items-center gap-2"}>
-                                    <Shield className="mt-1"/>
-                                    <div className="flex flex-col gap-1">
-                                        <Label className="font-bold">Защищенный</Label>
-                                        <Label className="text-primary/60">Авторизованные пользователи</Label>
-                                    </div>
-                                </div>
-                            </Button>
+                            {userVisibilityOptions.map((option: VisibilityOption) => {
+                                const IconComponent = option.icon;
+                                return (
+                                    <Button
+                                        key={option.value}
+                                        type="button"
+                                        variant={visibility === option.value ? "secondary" : "ghost"}
+                                        className="flex gap-2 justify-start text-left p-6 w-full"
+                                        onClick={() => setVisibility(option.value)}
+                                    >
+                                        <div className="flex justify-between items-center gap-2">
+                                            <IconComponent className={option.value !== "public" ? "mt-1" : ""}/>
+                                            <div className="flex flex-col gap-1">
+                                                <Label className="font-bold">{option.label}</Label>
+                                                <Label className="text-primary/60">{option.description}</Label>
+                                            </div>
+                                        </div>
+                                    </Button>
+                                );
+                            })}
                         </div>
 
                         <DialogFooter className={"flex w-full justify-between"}>
                             <Button type="submit"
-                                    disabled={isPending || !form.formState.isDirty && visibility.toUpperCase() === user.data?.visibility}>
+                                    disabled={isPending || (user.state === "hasData" && !form.formState.isDirty && visibility.toUpperCase() === user.data.visibility)}>
                                 {isPending ? "Сохранение..." : "Сохранить"}
                             </Button>
                             <div className={"ml-auto"}>
                                 <DialogClose asChild>
-                                    <Button variant="outline" type={"button"}>Отмена</Button>
+                                    <Button variant="outline" type="button">Отмена</Button>
                                 </DialogClose>
                             </div>
                         </DialogFooter>
