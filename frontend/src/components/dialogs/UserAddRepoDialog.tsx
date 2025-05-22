@@ -78,9 +78,9 @@ function UserAddRepoDialog() {
     };
 
     const visibilityOptions = [
-        { value: "public", label: "Публичный", description: "Любой человек", icon: Eye },
-        { value: "protected", label: "Защищенный", description: "Авторизованные пользователи", icon: Shield },
-        { value: "private", label: "Приватный", description: "Только я", icon: EyeOff },
+        {value: "public", label: "Публичный", description: "Любой человек", icon: Eye},
+        {value: "protected", label: "Защищенный", description: "Авторизованные пользователи", icon: Shield},
+        {value: "private", label: "Приватный", description: "Только я", icon: EyeOff},
     ];
 
     return (
@@ -109,7 +109,7 @@ function UserAddRepoDialog() {
                 </DialogHeader>
 
                 <Form {...form}>
-                    <fieldset disabled={isPending} className="space-y-4"> {/* className="space-y-4" перенесен с form */}
+                    <fieldset disabled={isPending} className="space-y-4">
                         <form onSubmit={form.handleSubmit(onSubmit)}>
                             <FormField
                                 control={form.control}
@@ -152,7 +152,7 @@ function UserAddRepoDialog() {
                                             onClick={() => setVisibility(option.value)}
                                         >
                                             <div className="flex justify-between items-center gap-2">
-                                                <IconComponent className={option.value !== "public" ? "mt-1" : ""} />
+                                                <IconComponent className={option.value !== "public" ? "mt-1" : ""}/>
                                                 <div className="flex flex-col gap-1">
                                                     <Label className="font-bold">{option.label}</Label>
                                                     <Label className="text-primary/60">{option.description}</Label>
@@ -171,7 +171,7 @@ function UserAddRepoDialog() {
                                 >
                                     {isPending ? (
                                         <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
                                             Импорт...
                                         </>
                                     ) : (
