@@ -1,0 +1,59 @@
+services:
+  db:
+    image: arangodb/arangodb:3.12.4
+    environment:
+      - ARANGO_ROOT_PASSWORD=${ARANGO_PASSWORD}
+    networks:
+      - internal-net
+    volumes:
+      - arangodb_data:/var/lib/arangodb3
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://db:8529/_admin/server/availability"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    networks:
+      - internal-net
+    ports:
+      - "8080:8080"
+    environment:
+      - ARANGO_DB=${ARANGO_DB}
+      - ARANGO_PASSWORD=${ARANGO_PASSWORD}
+      - ARANGO_HOST=db:8529
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION_MS=86400000
+      - FILE_STORAGE_PATH=/data/store
+      - SPRING_PROFILES_ACTIVE=prod
+    volumes:
+      - store:/data/store
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+
+volumes:
+  arangodb_data:
+  store:
+
+networks:
+  internal-net:
+    driver: bridge
