@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.sweetgit.backend.entity.FilterKind;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -159,6 +160,55 @@ public class FilteringConfiguration {
                         ((fieldName, parameters, varBinder) -> String.format(
                                 "%s == false",
                                 fieldName
+                        ))
+                ),
+                new FilterKind(
+                        "date_ge",
+                        Map.of("value", new TypeReference<Date>() {}),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s >= %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "date_gt",
+                        Map.of("value", new TypeReference<Date>() {}),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s > %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "date_le",
+                        Map.of("value", new TypeReference<Date>() {}),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s <= %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "date_lt",
+                        Map.of("value", new TypeReference<Date>() {}),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s < %s",
+                                fieldName,
+                                varBinder.apply(parameters.get("value"))
+                        ))
+                ),
+                new FilterKind(
+                        "date_between",
+                        Map.of("from", new TypeReference<Date>() {
+                                },
+                                "to", new TypeReference<Date>() {
+                                }),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s in %s..%s",
+                                fieldName,
+                                varBinder.apply(parameters.get("from")),
+                                varBinder.apply(parameters.get("to"))
                         ))
                 ),
                 new FilterKind(

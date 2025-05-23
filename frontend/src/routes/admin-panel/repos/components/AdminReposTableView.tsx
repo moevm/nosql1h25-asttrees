@@ -16,6 +16,8 @@ function AdminReposTableView() {
         searchPosition,
         data,
         setSearchPosition,
+        filters,
+        setFilters
     } = useServerTable<ApiEntityRepositoryModel>({
         columns: columnsRepos,
         queryUrl: "/entities/repositories",
@@ -26,6 +28,8 @@ function AdminReposTableView() {
 
     return (
         <RichTableView
+            filters={filters}
+            setFilters={setFilters}
             table={table}
             isLoading={isLoading}
             isPending={isPending}

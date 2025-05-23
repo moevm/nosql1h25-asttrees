@@ -44,7 +44,7 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
         ]);
 
         const option: EChartsOption = {
-            tooltip: { position: 'top' },
+            tooltip: { position: 'top',  },
             grid: {
                 height: '50%',
                 top: '10%',
@@ -54,6 +54,10 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
                 type: 'category',
                 data: xAxisData,
                 splitArea: { show: true },
+                axisLabel: {
+                    overflow: 'break', // или truncate/ellipsis
+                    width: 100,
+                },
             },
             yAxis: {
                 type: 'category',
@@ -74,7 +78,7 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
             },
             series: [
                 {
-                    name: 'Heatmap',
+                    name: 'Количество',
                     type: 'heatmap',
                     data: formattedData,
                     label: { show: true },

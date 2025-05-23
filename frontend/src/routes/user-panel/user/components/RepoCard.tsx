@@ -27,7 +27,7 @@ const formatDate = (isoDateString: string | undefined): string => {
     }
 };
 
-function RepoCard({repo}: { repo: ApiRepositoryModel }) {
+function RepoCard({repo, canEdit}: { repo: ApiRepositoryModel, canEdit: boolean }) {
     const nav = useNavigate();
     const setShowRepoSettingsDialog = useSetAtom($showRepoSettingsDialog)
     const setSelectedRepo = useSetAtom($repoSettingsDialogRepo)
@@ -37,7 +37,6 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
             onClick={(e) => {
                 console.info((e.target as HTMLElement).tagName)
                 if ((e.target as HTMLElement).tagName !== 'BUTTON') {
-                    console.info('nav')
                     nav(`repo/${repo.id}/branch/default/commit/latest`, {replace: false});
                 }
             }}
@@ -62,7 +61,7 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
 
                         <CardDescription className="mt-4">{formatDate(repo.createdAt)}</CardDescription>
                     </div>
-                    <div>
+                    {canEdit && <div>
                         <Button
                             variant="ghost"
                             onClick={() => {
@@ -72,7 +71,7 @@ function RepoCard({repo}: { repo: ApiRepositoryModel }) {
                         >
                             Редактировать
                         </Button>
-                    </div>
+                    </div>}
                 </div>
             </CardContent>
         </Card>

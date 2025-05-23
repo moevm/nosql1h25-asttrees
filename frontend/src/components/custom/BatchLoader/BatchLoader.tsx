@@ -11,7 +11,7 @@ export const BatchLoader = ({states, loadingMessage, display}: {
 }) => {
     const errorState = states.find(it => it.state === 'hasError')
     if (errorState) {
-        return (<div>{"Ошибка: " + errorMessage(errorState.error)}</div>)
+        return (<div className={"flex w-full h-full items-center justify-center"}>{"Ошибка: " + errorMessage(errorState.error)}</div>)
     }
     const someLoading = states.some(it => it.state === 'loading')
     if (someLoading) {

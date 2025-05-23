@@ -107,12 +107,34 @@ export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
 export const $branchId = atom<string | null>(null)
 export const $commitId = atom<string | null>(null)
+export const $userId = atom<string | null>(null)
 export const $adminUserId = atom<string | null>(null)
 export const $adminRepoId = atom<string | null>(null)
 export const $adminBranchId = atom<string | null>(null)
 export const $adminCommitId = atom<string | null>(null)
 export const $adminAstTreeId = atom<string | null>(null)
 export const $path = atom("")
+
+export const $userQueryOptions = (userId: string, enabled: boolean) => $api.queryOptions(
+    'get',
+    '/users/{userId}',
+    {
+        params: {
+            path: {
+                userId
+            }
+        }
+    },
+    {enabled}
+)
+
+export const $userQuery = atomWithQuery((get) => {
+    const userId = get($userId);
+    const enabled = !!userId
+    return $userQueryOptions(userId ?? '', enabled)
+})
+
+export const $user = loadableQuery($userQuery)
 
 export const $currentUserQueryOptions = (enabled: boolean) => $api.queryOptions(
     'get',
@@ -140,14 +162,13 @@ export const $currentUserReposQueryOptions = (userId: string, enabled: boolean) 
     {enabled}
 )
 
-export const $currentUserReposQuery = atomWithQuery((get) => {
-    const currentUser = get($currentUser)
-    const enabled = currentUser.state === 'hasData'
-    const userId = enabled ? currentUser.data.id! : ''
-    return $currentUserReposQueryOptions(userId, enabled)
+export const $userReposQuery = atomWithQuery((get) => {
+    const userId = get($userId);
+    const enabled = !!userId
+    return $currentUserReposQueryOptions(userId ?? '', enabled)
 })
 
-export const $currentUserRepos = loadableQuery($currentUserReposQuery)
+export const $userRepos = loadableQuery($userReposQuery)
 
 export const $currentRepoViewQueryOptions = (enabled: boolean, repoId: string, branchId: string, commitId: string, path: string) => $api.queryOptions(
     'get',
@@ -197,13 +218,11 @@ export const $fileContentQueryOptions = (enabled: boolean, repoId: string, branc
 )
 
 export const $fileContentQuery = atomWithQuery((get) => {
-    const currentUser = get($currentUser)
     const repoId = get($repoId)!
     const branchId = get($branchId)
     const commitId = get($commitId)
     const fileId = get($fileId)!
-    const enabled = currentUser.state === 'hasData'
-        && repoId !== null
+    const enabled = repoId !== null
         && branchId !== null
         && commitId !== null
         && fileId !== null
@@ -227,11 +246,9 @@ export const $branchCommitsQueryOptions = (enabled: boolean, repoId: string, bra
 )
 
 export const $branchCommitsQuery = atomWithQuery((get) => {
-    const currentUser = get($currentUser)
     const repoId = get($repoId)
     const branchId = get($branchId) ? get($branchId)! : "default"
-    const enabled = currentUser.state === 'hasData'
-        && repoId !== null
+    const enabled = repoId !== null
         && branchId !== null
     return $branchCommitsQueryOptions(enabled, repoId!, branchId)
 })
@@ -255,11 +272,9 @@ export const $fileAstQueryOptions = (enabled: boolean, repoId: string, branchId:
 )
 
 export const $fileAstQuery = atomWithQuery((get) => {
-    const currentUser = get($currentUser)
     const fileContent = get($fileContent)
 
-    const enabled = currentUser.state === 'hasData'
-        && fileContent.state === 'hasData'
+    const enabled = fileContent.state === 'hasData'
         && fileContent.data.hasAst === true
     return $fileAstQueryOptions(enabled, get($repoId)!, get($branchId)!, get($commitId)!, get($fileId)!)
 })

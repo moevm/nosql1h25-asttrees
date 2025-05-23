@@ -1,4 +1,4 @@
-import {ArrowDown, ArrowUp, ChevronsUpDown, EyeOff, X} from "lucide-react"
+import {ArrowDown, ArrowUp, ChevronsUpDown, EyeOff, Filter, X} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -58,6 +58,11 @@ function DataTableColumnHeader<TData, TValue>({
                         <X className="h-3.5 w-3.5 text-muted-foreground/70" />
                         Не сортировать
                     </DropdownMenuItem>}
+                    {/*<DropdownMenuSeparator />*/}
+                    {/*<DropdownMenuItem onClick={() => column.toggleSorting(false)}>*/}
+                    {/*    <Filter className="h-3.5 w-3.5 text-muted-foreground/70" />*/}
+                    {/*    Добавить фильтр*/}
+                    {/*</DropdownMenuItem>*/}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
                         <EyeOff className="h-3.5 w-3.5 text-muted-foreground/70" />

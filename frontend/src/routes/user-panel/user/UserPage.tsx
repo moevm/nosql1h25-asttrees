@@ -9,12 +9,12 @@ import {useAtomValue} from "jotai/react";
 import RepoList from "@/routes/user-panel/user/components/RepoList.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
-import {$currentUser, $currentUserRepos} from "@/store/store.ts";
+import {$currentUser, $user, $userRepos} from "@/store/store.ts";
 import {loaded} from "@/api";
 
 function UserPage() {
-    const currentUser = useAtomValue($currentUser)!
-    const currentUserRepos = useAtomValue($currentUserRepos)!
+    const currentUser = useAtomValue($user)!
+    const currentUserRepos = useAtomValue($userRepos)!
 
     return (
         <BatchLoader states={[currentUser, currentUserRepos]} loadingMessage={"Загрузка пользователя"} display={

@@ -12,13 +12,30 @@ import RepoCard from "@/routes/user-panel/user/components/RepoCard.tsx";
 import {useMemo, useState} from "react";
 import UserSettingsDialog from "@/components/dialogs/UserSettingsDialog.tsx";
 import UserAddRepoDialog from "@/components/dialogs/UserAddRepoDialog.tsx";
-import {type ApiRepositoryModel, $showRepoSettingsDialog, $repoSettingsDialogRepo} from "@/store/store.ts";
+import {
+    type ApiRepositoryModel,
+    $showRepoSettingsDialog,
+    $repoSettingsDialogRepo,
+    $user,
+    $currentUser
+} from "@/store/store.ts";
 import UserRepoSettingsDialog from "@/components/dialogs/UserRepoSettingsDialog.tsx";
 import {Dialog} from "@/components/ui/dialog.tsx";
 import {useAtom} from "jotai/index";
 import {useAtomValue} from "jotai/react";
 
 function RepoList({data}: { data: ApiRepositoryModel[] }) {
+    const currentUser = useAtomValue($currentUser)!
+    const user = useAtomValue($user)
+
+    const isSelf = useMemo(() => {
+        return currentUser.state === 'hasData' && user.state === 'hasData' && currentUser.data.id === user.data.id
+    }, [currentUser, user])
+
+    const canEdit = useMemo(() => {
+        return isSelf || (currentUser.state === 'hasData' && currentUser.data.isAdmin)
+    }, [currentUser, isSelf])
+
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -63,30 +80,27 @@ function RepoList({data}: { data: ApiRepositoryModel[] }) {
             <div className={"flex justify-between gap-1"}>
                 <Label className={"text-xl font-bold"}>Репозитории</Label>
                 <div className={"ml-auto flex justify-center"}>
-                    <UserSettingsDialog/>
+                    {isSelf && <UserSettingsDialog/>}
                 </div>
             </div>
             <div className={"flex justify-between"}>
-                <div className={"flex items-center gap-1"}>
-                    <SearchIcon/>
-                    <Input
-                        placeholder={""}
-                        onChange={handleSearch}
-                        className="max-w-sm"
-                    />
-                    <Button>
-                        <FilterIcon/>
-                    </Button>
-                </div>
+                {/*<div className={"flex items-center gap-1"}>*/}
+                {/*    <SearchIcon/>*/}
+                {/*    <Input*/}
+                {/*        placeholder={""}*/}
+                {/*        onChange={handleSearch}*/}
+                {/*        className="max-w-sm"*/}
+                {/*    />*/}
+                {/*</div>*/}
                 <div className={"flex items-center gap-1 ml-auto"}>
-                    <UserAddRepoDialog/>
+                    {isSelf && <UserAddRepoDialog/>}
                 </div>
             </div>
 
             {paginatedRepos.length > 0 ? (
                 <div className="flex flex-col gap-3">
                     {paginatedRepos.map((repo) => (
-                        <RepoCard repo={repo}
+                        <RepoCard repo={repo} canEdit={canEdit}
                         />
                     ))}
                 </div>

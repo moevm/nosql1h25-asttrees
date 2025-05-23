@@ -17,16 +17,12 @@ import type {EntityField} from "@/lib/utils.ts";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {$path} from "@/store/store.ts";
 import {useNavigate, useSearchParams} from "react-router-dom";
+import {type FilterItem, FILTERS} from "@/lib/FILTERS.ts";
+import dayjs from "dayjs";
 
 type SortItem = {
     field: string;
     asc: boolean;
-};
-
-type FilterItem = {
-    field: string;
-    kind: "string" | "number" | "boolean" | "datetime";
-    params: Record<string, any>;
 };
 
 interface ServerQuery {
@@ -55,6 +51,33 @@ interface UseServerTableOptions<T> {
     defaultQuery?: string;
 }
 
+export function formatFilters(filters: FilterItem[]): FilterItem[] {
+    return filters.map(f => {
+        const fullFilter = FILTERS.find(it => it.id === f.kind)!
+        return {
+            field: f.field,
+            kind: f.kind,
+            params: Object.fromEntries(Object.entries(f.params).map(([k,v]) => {
+                const def = fullFilter.params.find(it => it.id === k)!
+                let value;
+                switch (def.type) {
+                    case "int":
+                    case "string":
+                    case "boolean":
+                        value = v;
+                        break
+                    case "date":
+                        console.info({v})
+                        value = dayjs(v as string).toISOString()
+                        break;
+
+                }
+                return [k,value]
+            }))
+        }
+    })
+}
+
 export function useGetTableDataQuery(queryURL: string) {
     return $api.useMutation('post', `${queryURL}/query`, {
         onSuccess(data) {
@@ -72,14 +95,14 @@ export function useServerTable<T>({
     const [globalFilter, setGlobalFilter] = useState(defaultQuery);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [filters, setFilters] = useState<FilterItem[]>([])
     const [searchFields, setSearchFields] = useState<string[]>([]);
-    const [sortingForQuery, setSortingForQuery] = useState<EntityField[]>([]);
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    // const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [initialized, setInitialized] = useState(false);
-    const setPath = useSetAtom($path);
+    // const setPath = useSetAtom($path);
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const path = useAtomValue($path);
+    // const path = useAtomValue($path);
 
     const [pagination, setPagination] = useState({
         pageIndex: 0,
@@ -88,7 +111,6 @@ export function useServerTable<T>({
 
     const [data, setData] = useState<ServerResponse<T> | null>(null);
     const { mutate, isPending } = useGetTableDataQuery<T>(queryUrl);
-    const navigate = useNavigate();
 
     const table = useReactTable({
         data: data?.content ?? [],
@@ -99,13 +121,11 @@ export function useServerTable<T>({
         manualFiltering: true,
         state: {
             sorting,
-            columnFilters,
             globalFilter,
             pagination,
         },
         onSortingChange: setSorting,
         onPaginationChange: setPagination,
-        onColumnFiltersChange: setColumnFilters,
         onGlobalFilterChange: setGlobalFilter,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -118,82 +138,86 @@ export function useServerTable<T>({
         globalFilter,
         searchFields,
         pagination,
-        sort: sortingForQuery,
-        filter: columnFilters.map((f) => ({
-            field: f.id,
-            kind: typeof f.value === "number" ? "number" : "string",
-            params: { value: f.value },
-        })),
-    }), [searchQuery, globalFilter, searchFields, pagination, sortingForQuery, columnFilters]);
-
-    useEffect(() => {
-        if (!path || initialized) return;
-        const params = new URLSearchParams(path);
-
-        const query = params.get('query') ?? '';
-        const fields = params.get('fields')?.split(',') ?? [];
-        const sort = params.get('sort')?.split(',').map(part => {
-            const [field, dir] = part.split(':');
-            return { id: field, desc: dir === 'desc' };
-        }) ?? [];
-
-        const filters = params.get('filters')?.split(',').map(item => {
-            const [keyKind, val] = item.split('=');
-            const [field, kind] = keyKind.split(':');
-            return { id: field, value: decodeURIComponent(val) };
-        }) ?? [];
-
-        const pageIndex = parseInt(params.get('page') ?? '0', 10);
-        const pageSize = parseInt(params.get('size') ?? '10', 10);
-
-        setSearchQuery(query);
-        setSearchFields(fields);
-        setSorting(sort);
-        setColumnFilters(filters);
-        setPagination({ pageIndex, pageSize });
-
-        setInitialized(true);
-    }, [path]);
-
-    useEffect(() => {
-        if (!initialized && path) return;
-
-        const mappedSorting = sorting.map((s) => {
+        sort: sorting.map((s) => {
             const col = table.getAllColumns().find((c) => c.id === s.id);
             return {
                 field: col?.columnDef.meta?.field || s.id,
                 asc: !s.desc,
             };
-        });
+        }),
+        filter: formatFilters(filters),
+    }), [searchQuery, globalFilter, searchFields, pagination, sorting, filters, table]);
 
-        setSortingForQuery(mappedSorting as EntityField[]);
+    useEffect(() => {
+        const query = searchParams.get('query') ?? '';
+        const fields = searchParams.get('fields')?.split(',') ?? [];
+        const sort = searchParams.get('sort')?.split(',').map(part => {
+            const [field, dir] = part.split(':');
+            return { id: field, desc: dir === 'desc' };
+        }) ?? [];
 
-        const urlParams = new URLSearchParams();
-        if (searchQuery) urlParams.set("query", searchQuery);
-        if (searchFields.length) urlParams.set("fields", searchFields.join(","));
-        if (mappedSorting.length)
-            urlParams.set("sort", mappedSorting.map(s => `${s.field}:${s.asc ? "asc" : "desc"}`).join(","));
-        if (columnFilters.length)
-            urlParams.set("filters", columnFilters.map(f =>
-                `${f.id}:${typeof f.value === "number" ? "number" : "string"}=${encodeURIComponent(f.value)}`
-            ).join(","));
-        urlParams.set("page", String(pagination.pageIndex));
-        urlParams.set("size", String(pagination.pageSize));
+        const filters: FilterItem[] = JSON.parse(searchParams.get('filters') ?? '[]')
 
+        const pageIndex = parseInt(searchParams.get('page') ?? '0', 10);
+        const pageSize = parseInt(searchParams.get('size') ?? '10', 10);
+
+        setSearchQuery(query);
+        setSearchFields(fields);
+        setSorting(sort);
+        setFilters(filters);
+        setPagination({ pageIndex, pageSize });
+        setInitialized(true);
+    }, [searchParams.toString()]);
+
+    useEffect(() => {
+        if (!initialized) {
+            return
+        }
+
+        const newParams = new URLSearchParams(searchParams)
+        if (searchQuery) {
+            newParams.set('query', searchQuery);
+        } else {
+            newParams.delete('query')
+        }
+
+        if (searchFields.length) {
+            newParams.set('fields', searchFields.join(','))
+        } else {
+            newParams.delete('fields')
+        }
+
+        if (sorting.length) {
+            newParams.set('sort', sorting.map(it => `${it.id}:${it.desc ? 'desc' : 'asc'}`).join(','))
+        } else {
+            newParams.delete('sort')
+        }
+
+        newParams.delete('filters')
+        if (filters.length) {
+            newParams.set('filters', JSON.stringify(filters))
+        }
+
+        newParams.set('page', String(pagination.pageIndex))
+        newParams.set('size', String(pagination.pageSize))
+
+        setSearchParams(newParams)
+    }, [initialized, pagination.pageIndex, pagination.pageSize, searchFields, searchParams, searchQuery, setSearchParams, sorting, filters]);
+
+    useEffect(() => {
+        if (!initialized) return;
 
         mutate(
-            { body: { ...queryBody, sort: mappedSorting } },
+            { body: { ...queryBody } },
             {
                 onSuccess: (res) => {
                     console.info('setData', {res})
                     setData(res as ServerResponse<T>);
-                    urlParams.set('path', urlParams.toString());
-                    setSearchParams(urlParams);
-                    console.log(urlParams)
+                    // urlParams.set('path', urlParams.toString());
                 },
             }
         );
-    }, [initialized, searchQuery, globalFilter, sorting, columnFilters, pagination, searchFields]);
+    }, [queryBody]);
 
     return {
         data,
@@ -204,5 +228,7 @@ export function useServerTable<T>({
         setFilterString: setSearchQuery,
         searchPosition: searchFields,
         setSearchPosition: setSearchFields,
+        filters,
+        setFilters
     };
 }

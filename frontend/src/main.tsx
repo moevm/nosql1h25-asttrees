@@ -1,6 +1,6 @@
 import {createRoot} from 'react-dom/client'
 import './index.css'
-import 'highlight.js/styles/intellij-light.css'
+import 'highlight.js/styles/github.css'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import AuthorisationPage from "@/routes/reg-auth-page/AuthorisationPage.tsx";
 import AdminPanelLayout from "@/routes/admin-panel/AdminPanelLayout.tsx";
@@ -44,8 +44,8 @@ createRoot(document.getElementById('root')!).render(
                     <SessionManager/>
                     <Routes>
                         <Route element={<HeaderLayout/>}>
-                            <Route path="/:tab" element={<AuthorisationPage/>}/>
-                            <Route path="/" element={<Navigate to="/login"/>}/>
+                            <Route path="/auth/:tab" element={<AuthorisationPage/>}/>
+                            <Route path="/" element={<Navigate to="/auth/login"/>}/>
 
                             <Route path="users/:userId" element={<UserLayout />}>
                                 <Route path="" element={<UserPage />} />

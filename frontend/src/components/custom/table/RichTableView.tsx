@@ -20,6 +20,8 @@ import {$currentEntitiesFieldsAtom, $path, $showVisualizationDialog} from "@/sto
 import VisualizationDialog from "@/components/dialogs/VisualizationDialog.tsx";
 import type {EntityField} from "@/lib/utils.ts";
 import * as Progress from '@radix-ui/react-progress'
+import type {FilterItem} from "@/lib/FILTERS.ts";
+import TableFilters from "@/components/custom/table/TableFilters.tsx";
 
 const ProgressDemo = () => {
     return (
@@ -27,7 +29,7 @@ const ProgressDemo = () => {
             <Progress.Indicator
                 className="ProgressIndicator"
                 style={
-                    { animation: "progress-indeterminate 1000ms infinite linear" }
+                    {animation: "progress-indeterminate 1000ms infinite linear"}
                 }
             />
         </Progress.Root>
@@ -37,6 +39,7 @@ const ProgressDemo = () => {
 interface RichTableViewProps<TData, TValue> {
     table: ReturnType<typeof useReactTable<TData>>;
     isLoading: boolean;
+    isPending: boolean
     entityType: EntityField[];
     queryURLname: string;
     data?: {
@@ -56,6 +59,8 @@ interface RichTableViewProps<TData, TValue> {
     searchPosition: string[];
     setSearchPosition: (value: string[]) => void;
     buttonsSlot?: () => React.ReactNode;
+    filters: FilterItem[]
+    setFilters: (value: FilterItem[]) => void
 }
 
 function RichTableView<TData, TValue>({
@@ -70,22 +75,19 @@ function RichTableView<TData, TValue>({
                                           setFilterString,
                                           searchPosition,
                                           setSearchPosition,
-                                          buttonsSlot
+                                          buttonsSlot,
+                                          filters,
+                                          setFilters
                                       }: RichTableViewProps<TData, TValue>) {
 
     const setShowVisualizationDialog = useSetAtom($showVisualizationDialog);
     const currentEntitiesFields = entityType;
-    const setPath = useSetAtom($path)
-    const curEntities = useAtomValue($currentEntitiesFieldsAtom)
     const setCurrentEntitiesFields = useSetAtom($currentEntitiesFieldsAtom);
 
     useEffect(() => {
         setCurrentEntitiesFields(entityType);
     }, [entityType, setCurrentEntitiesFields]);
 
-    useEffect(() => {
-        setPath("");
-    }, [curEntities]);
 
     const searchableEntityFields = useMemo(() => {
         return entityType.filter(it => it.type === 'string')
@@ -120,79 +122,6 @@ function RichTableView<TData, TValue>({
                                 <SettingsIcon/>
                             </Button>
                         </MultiSelect>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline">
-                                    <Filter/>
-                                </Button>
-                            </PopoverTrigger>
-
-                            <PopoverContent className="w-80">
-                                <div className="mb-4">
-                                    <h4 className="font-medium leading-none">Фильтры</h4>
-                                </div>
-
-                                <div className="flex flex-col gap-2 justify-items-stretch">
-                                    <Label htmlFor="width">Атрибут</Label>
-                                    <Select>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Выберите атрибут"/>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                {table
-                                                    .getAllColumns()
-                                                    .filter(
-                                                        (column) =>
-                                                            typeof column.accessorFn !== "undefined" && column.getCanHide()
-                                                    )
-                                                    .map((column) => {
-                                                        return (
-                                                            <SelectItem
-                                                                key={column.id}
-                                                                value={column.id}>{column.columnDef.meta?.title ? column.columnDef.meta.title : column.id}</SelectItem>
-                                                        )
-                                                    })}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-
-                                    <Label htmlFor="width">Отношение</Label>
-                                    <Select>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Выберите отношение"/>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                {getColumnTypeRelations('number')
-                                                    .map((relation) => {
-                                                        return (
-                                                            <SelectItem
-                                                                key={relation}
-                                                                value={relation}>{relationFullName[relation]}</SelectItem>
-                                                        )
-                                                    })
-                                                }
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-
-                                    <Label htmlFor="width">Значение</Label>
-                                    <Input
-                                        //TODO закончить форму
-                                        placeholder="gmail.com"
-                                        onChange={
-                                            (event) => {
-                                            }
-                                        }
-                                        className="max-w-sm"
-                                    />
-                                    <Button variant="outline">Добавить фильтр</Button>
-                                    <Button variant="outline">Очистить фильтры</Button>
-                                    <Button variant="outline">Применить</Button>
-                                </div>
-                            </PopoverContent>
-                        </Popover>
                     </div>
                 )}
 
@@ -203,13 +132,15 @@ function RichTableView<TData, TValue>({
                             <Button size="sm" onClick={() => {
                                 setShowVisualizationDialog(true);
                             }}>
-                                <ChartNetwork /> Визуализация
+                                <ChartNetwork/> Визуализация
                             </Button>
                         }
                     </div>
                     {settings?.enableColumnVisibilityToggle && <DataTableViewOptions table={table}/>}
                 </div>
             </div>
+
+            <TableFilters table={table} filters={filters} setFilters={setFilters} fields={entityType}/>
 
             <div className="rounded border">
                 <Table>
@@ -228,11 +159,11 @@ function RichTableView<TData, TValue>({
                     </TableHeader>
                     <TableBody>
 
-                            <TableRow className={"border-none"}>
-                                <TableCell colSpan={table.getAllColumns().length} className={"h-[4px] p-0"}>
-                                    {isPending && <ProgressDemo />}
-                                </TableCell>
-                            </TableRow>
+                        <TableRow className={"border-none"}>
+                            <TableCell colSpan={table.getAllColumns().length} className={"h-[4px] p-0"}>
+                                {isPending && <ProgressDemo/>}
+                            </TableCell>
+                        </TableRow>
 
                         {isLoading ? (
                             <TableRow>
@@ -276,7 +207,13 @@ function RichTableView<TData, TValue>({
                                      size={data?.page?.size} totalPages={data?.page?.totalPages}/>
             </div>
 
-            <VisualizationDialog dataFields={currentEntitiesFields} queryURL={queryURLname as string}/>
+            <VisualizationDialog
+                dataFields={currentEntitiesFields}
+                queryURL={queryURLname as string}
+                filters={filters}
+                filterString={filterString}
+                searchPosition={searchPosition}
+            />
         </div>
     );
 }

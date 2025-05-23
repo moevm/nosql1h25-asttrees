@@ -1,20 +1,24 @@
 import {SidebarProvider} from "@/components/ui/sidebar.tsx";
 import AppSidebar from "@/routes/admin-panel/components/AppSidebar.tsx";
-import {Outlet, useSearchParams} from "react-router-dom";
-import {useSetAtom} from "jotai/react";
-import {$path} from "@/store/store.ts";
+import {Outlet, useNavigate, useSearchParams} from "react-router-dom";
+import {useAtomValue, useSetAtom} from "jotai/react";
+import {$currentUser, $path} from "@/store/store.ts";
 import {useEffect} from "react";
+import {toast} from "sonner";
 
 function AdminPanelLayout() {
-
-    const [searchParams, setSearchParams] = useSearchParams();
-    const path = searchParams.get('path') ?? ''
-    const setPath = useSetAtom($path)
+    const currentUser = useAtomValue($currentUser)
+    const navigate = useNavigate()
 
     useEffect(() => {
-        console.log(path)
-        setPath(path)
-    }, [setPath, path]);
+        console.info({
+            currentUser
+        })
+        if ((currentUser.state === 'hasError') || (currentUser.state === 'hasData' && !currentUser.data.isAdmin)) {
+            toast.error('Доступ запрещён')
+            navigate('/')
+        }
+    }, [currentUser]);
 
     return (
         <div>

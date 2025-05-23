@@ -9,6 +9,9 @@ import {useCallback, useState} from "react";
 import HeatMap from "@/components/custom/HeatMap.tsx";
 import {$api, defaultOnErrorHandler} from "@/api";
 import {toast} from "sonner";
+import TableFilters from "@/components/custom/table/TableFilters.tsx";
+import type {FilterItem} from "@/lib/filters.ts";
+import {formatFilters} from "@/hooks/useServerTable.tsx";
 
 function useVisualiseQuery(queryURL: string) {
     return $api.useMutation('post', `/entities/${queryURL}/stats`, {
@@ -21,7 +24,20 @@ function useVisualiseQuery(queryURL: string) {
     })
 }
 
-function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[], queryURL: string}) {
+function VisualizationDialog (
+    {
+        dataFields,
+        queryURL,
+        filters,
+        filterString,
+        searchPosition
+    }:  {
+        dataFields: EntityField[],
+        queryURL: string,
+        filters: FilterItem[],
+        filterString: string,
+        searchPosition: string[]
+    }) {
 
     const showDialog = useAtomValue($showVisualizationDialog);
     const setShowDialog = useSetAtom($showVisualizationDialog);
@@ -32,14 +48,16 @@ function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[
 
     console.log(dataFields)
 
-    const {mutate, isPending} = useVisualiseQuery(queryURL);
+    const {mutate, isPending} = useVisualiseQuery(queryURL, filters, filterString, searchPosition);
 
     const handleVisualiseSubmit = useCallback(() => {
         mutate({
             body: {
-                filter: [],
+                filter: formatFilters(filters),
                 xAxisField: atrX,
                 yAxisField: atrY,
+                searchFields: searchPosition,
+                query: filterString
             }
         }, {
             onSuccess: (res) => {
@@ -50,18 +68,21 @@ function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[
     return (
         <div>
             <Dialog open={showDialog} onOpenChange={setShowDialog}>
-                <DialogContent className={"min-w-[1000px] max-w-[95vw] w-full"}>
+                <DialogContent className={"max-w-[95vw] w-full"}>
                     <DialogHeader>
                         <DialogTitle>
                             <Label>Построить график</Label>
                         </DialogTitle>
-                        <DialogDescription></DialogDescription>
+                        <DialogDescription>
+                            {!!filters.length && <div>Фильтров применено: {filters.length}</div>}
+                            {!!filterString && !!searchPosition.length && <div>Поиск по полям: {searchPosition.length}</div>}
+                        </DialogDescription>
                     </DialogHeader>
 
                     <div className={"flex flex-col gap-2"}>
                         <div className={"flex justify-between items-center"}>
-                            <div className={"flex justify-center items-center gap-2"}>
-                                <div className={"flex flex-col items-center gap-1"}>
+                            <div className={"flex flex-col justify-center gap-2"}>
+                                <div className={"flex items-center gap-4"}>
                                     <Label>Ось X</Label>
                                     <Select value={atrX ?? undefined} onValueChange={setAtrX}>
                                         <SelectTrigger>
@@ -79,7 +100,7 @@ function VisualizationDialog ({dataFields, queryURL}:  {dataFields: EntityField[
                                     </Select>
                                 </div>
 
-                                <div className={"flex flex-col items-center gap-1"}>
+                                <div className={"flex items-center gap-4"}>
                                     <Label>Ось Y</Label>
                                     <Select value={atrY ?? undefined} onValueChange={setAtrY}>
                                         <SelectTrigger>

@@ -6,7 +6,7 @@ function HeaderLayout() {
     return (
         <div>
             <Header/>
-            <main className={"pt-18"}>
+            <main className={"pt-18 min-h-[100vh] flex flex-col"}>
                 <Outlet />
             </main>
         </div>

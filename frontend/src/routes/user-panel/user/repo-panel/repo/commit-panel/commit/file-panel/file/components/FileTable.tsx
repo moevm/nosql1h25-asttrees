@@ -88,7 +88,7 @@ function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
         >
             <span style={{width: 16, height: 16}}>
                  {node.children?.length !== 0 && (
-                     node.isOpen ? <ChevronDown size={16}/> : <ChevronUp size={16}/>
+                     !node.isOpen ? <ChevronDown size={16}/> : <ChevronUp size={16}/>
                  )}
             </span>
             <span className={"rounded-full text-background px-2 py-0.5"} style={getBadgeStyle(type)}>{type}</span>
@@ -148,7 +148,7 @@ function FileTableContent({repo, fileContent, fileAst}: {
                             <div className="p-4 overflow-auto">
                                 <pre className="whitespace-pre-wrap text-sm">
                                     <code>
-                                        <div className="grid grid-cols-[auto_1fr] gap-1">
+                                        <div className="grid grid-cols-[auto_1fr] gap-1 text-xs">
                                             {
                                                 !fileContent.isBinary
                                                     ? highlightedCode && highlightedCode.split('\n').map((line, index) => (

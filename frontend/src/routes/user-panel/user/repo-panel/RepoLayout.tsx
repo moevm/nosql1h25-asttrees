@@ -11,7 +11,6 @@ function RepoLayout() {
     useEffect(() => {
         setRepoId(repoId!)
         return () => {
-            console.log('leaving repo layout')
             setRepoId(null)
         }
     }, [setRepoId, repoId]);
@@ -21,6 +20,9 @@ function RepoLayout() {
 
     useEffect(() => {
         setBranchId(branchId!)
+        return () => {
+            setBranchId(null)
+        }
     }, [setBranchId, branchId]);
 
     const commitId = useParams()['commitId']
@@ -28,6 +30,9 @@ function RepoLayout() {
 
     useEffect(() => {
         setCommitId(commitId!)
+        return () => {
+            setCommitId(null)
+        }
     }, [setCommitId, commitId]);
 
     const path = searchParams.get('path') ?? ''
@@ -35,6 +40,9 @@ function RepoLayout() {
 
     useEffect(() => {
         setPath(path)
+        return () => {
+            setPath('')
+        }
     }, [setPath, path]);
 
     return (

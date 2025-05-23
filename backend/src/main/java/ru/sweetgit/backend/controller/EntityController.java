@@ -206,8 +206,8 @@ public class EntityController {
     private EntityStatsRequestDto convert(EntityStatsRequest request) {
         return new EntityStatsRequestDto(
                 new EntitySearchDto(
-                        "",
-                        List.of(),
+                        request.query(),
+                        request.searchFields(),
                         Pageable.unpaged(),
                         request.filter().stream().map(this::convert).toList(),
                         null
@@ -255,7 +255,14 @@ public class EntityController {
                         ref
                 );
             } catch (IllegalArgumentException e) {
-                throw ApiException.badRequest().message("Неверный тип параметра %s для фильтра %s %s: ожидался %s".formatted(name, filter.kind(), filter.field(), ref)).build();
+                throw ApiException.badRequest().message(
+                        "Неверный тип параметра %s для фильтра %s %s: ожидался %s, получен: %s".formatted(
+                                name,
+                                filter.kind(),
+                                filter.field(),
+                                ref.getType().getTypeName(),
+                                filter.params().get(name).getClass().getTypeName()
+                        )).build();
             }
 
             if (result == null) {

@@ -16,6 +16,8 @@ function AdminCommitsTableView() {
         searchPosition,
         data,
         setSearchPosition,
+        filters,
+        setFilters
     } = useServerTable<ApiEntityCommitModel>({
         columns: columnsCommits,
         queryUrl: "/entities/commits",
@@ -26,6 +28,8 @@ function AdminCommitsTableView() {
 
     return (
         <RichTableView
+            filters={filters}
+            setFilters={setFilters}
             table={table}
             isLoading={isLoading}
             isPending={isPending}

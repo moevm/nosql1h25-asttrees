@@ -16,6 +16,8 @@ function AdminUsersTableView() {
         searchPosition,
         data,
         setSearchPosition,
+        filters,
+        setFilters
     } = useServerTable<ApiUserModel>({
         columns: columnsUser,
         queryUrl: "/entities/users",
@@ -25,6 +27,8 @@ function AdminUsersTableView() {
 
     return (
         <RichTableView
+            filters={filters}
+            setFilters={setFilters}
             table={table}
             entityType={fieldsUsers}
             queryURLname={"users"}

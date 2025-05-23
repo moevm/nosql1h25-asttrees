@@ -2,7 +2,7 @@ import {useEffect} from 'react';
 import {useAtom, useAtomValue} from 'jotai';
 import {useNavigate} from 'react-router-dom';
 import {useQueryClient} from '@tanstack/react-query';
-import {$authToken, errorMessage} from "@/api";
+import {$authToken, errorMessage, queryClient} from "@/api";
 import {$currentUser, $currentUserQueryOptions} from "@/store/store.ts";
 import {toast} from "sonner";
 
@@ -10,7 +10,6 @@ export function SessionManager() {
     const [token, setToken] = useAtom($authToken);
     const currentUserLoadable = useAtomValue($currentUser);
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
 
     useEffect(() => {
         if (token && currentUserLoadable.state === 'hasError') {

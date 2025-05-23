@@ -16,6 +16,8 @@ function AdminAstTreesTableView() {
         searchPosition,
         data,
         setSearchPosition,
+        filters,
+        setFilters
     } = useServerTable<ApiEntityAstTreeModel>({
         columns: columnsAstTrees,
         queryUrl: "/entities/ast_trees",
@@ -28,6 +30,8 @@ function AdminAstTreesTableView() {
         <>
             <>
                 <RichTableView
+                    filters={filters}
+                    setFilters={setFilters}
                     table={table}
                     isLoading={isLoading}
                     isPending={isPending}

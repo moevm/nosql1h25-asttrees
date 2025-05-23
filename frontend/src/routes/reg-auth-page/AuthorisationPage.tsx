@@ -250,30 +250,28 @@ function LoginPage() {
 }
 
 function AuthorisationPage() {
-    const [tab, setTab] = useAtom($tab)
     const currentUser = useAtomValue($currentUser)
     const navigate = useNavigate()
-    const { tabParam } = useParams();
+    const { tab } = useParams();
 
     useEffect(() => {
+        console.info({
+            currentUser
+        })
         if (currentUser.state === 'hasData') {
+            console.info('nav to user id')
             navigate('/users/' + loaded(currentUser).data.id, { replace: false });
         }
-    }, [currentUser, navigate]);
+    }, [currentUser]);
 
-    useEffect(() => {
-        if (tabParam) {
-            setTab(tabParam);
-        }
-    }, [tabParam, setTab]);
 
-    useEffect(() => {
-        navigate(`/${tab}`, { replace: false });
-    }, [tab, navigate]);
+    // useEffect(() => {
+    //     navigate(`/${tab}`, { replace: false });
+    // }, [tab, navigate]);
 
     return (
-        <div className="flex justify-center items-center min-h-screen">
-            <Tabs value={tab} onValueChange={setTab} className="w-[400px]">
+        <div className="flex justify-center items-center flex-1">
+            <Tabs value={tab} onValueChange={(value) => navigate('/auth/' + value)} className="w-[400px]">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="login">Авторизация</TabsTrigger>
                     <TabsTrigger value="registration">Регистрация</TabsTrigger>

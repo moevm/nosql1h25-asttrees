@@ -16,6 +16,8 @@ function AdminBranchesTableView() {
         searchPosition,
         data,
         setSearchPosition,
+        filters,
+        setFilters
     } = useServerTable<ApiEntityBranchModel>({
         columns: columnsBranches,
         queryUrl: "/entities/branches",
@@ -26,6 +28,8 @@ function AdminBranchesTableView() {
 
     return (
         <RichTableView
+            filters={filters}
+            setFilters={setFilters}
             table={table}
             isLoading={isLoading}
             isPending={isPending}
