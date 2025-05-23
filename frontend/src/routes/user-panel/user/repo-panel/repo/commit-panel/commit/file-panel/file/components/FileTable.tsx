@@ -84,7 +84,7 @@ function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
             style={style}
             ref={dragHandle}
             onClick={() => node.toggle()}
-            className={"font-mono hover:bg-accent/50 rounded cursor-pointer flex items-center gap-2 text-sm"}
+            className={"font-mono hover:bg-accent/50 rounded cursor-pointer flex items-center gap-2 text-xs"}
         >
             <span style={{width: 16, height: 16}}>
                  {node.children?.length !== 0 && (
@@ -177,7 +177,7 @@ function FileTableContent({repo, fileContent, fileAst}: {
                                     loadingMessage={'Загрузка AST-дерева'}
                                     display={() => (
                                         <Tree
-                                            rowHeight={26}
+                                            rowHeight={22}
                                             disableDrag={true}
                                             disableEdit={true}
                                             disableDrop={true}

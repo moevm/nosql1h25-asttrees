@@ -87,7 +87,7 @@ public class AstTreeService {
         var generatedNodeKey = UUID.randomUUID().toString();
 
         var currentNodeModel = AstNodeModel.builder()
-                .arangoId(generatedNodeKey)
+                .id(generatedNodeKey)
                 .label(currentJsonNode.path("label").asText(""))
                 .type(currentJsonNode.path("type").asText(""))
                 .build();

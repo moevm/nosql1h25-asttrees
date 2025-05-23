@@ -1,6 +1,8 @@
 package ru.sweetgit.backend.handler;
 
 import org.apache.tomcat.websocket.AuthenticationException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.errors.NotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -43,7 +45,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
         log.warn("Access Denied: {} - Path: {}", ex.getMessage(), request.getDescription(false));
-        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Доступ к ресурсу " + request.getDescription(false) + "запрещён");
+        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Доступ к ресурсу " + request.getDescription(false) + " запрещён");
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.FORBIDDEN);
     }
 
@@ -123,6 +125,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn("Data Integrity Violation: {} - Path: {}", ex.getMessage(), request.getDescription(false));
         ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Ошибка целостности данных");
         return new ResponseEntity<>(ErrorResponseDto, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(JGitInternalException.class)
+    protected ResponseEntity<Object> handleJgitNotSupportedException(NotSupportedException ex, WebRequest request) {
+        ErrorResponseDto ErrorResponseDto = new ErrorResponseDto("Не удалось выполнить операцию с git");
+        return new ResponseEntity<>(ErrorResponseDto, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

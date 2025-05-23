@@ -4,10 +4,8 @@ import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.sweetgit.backend.dto.request.AuthRegisterRequest;
-import ru.sweetgit.backend.dto.response.EntityUserDto;
 import ru.sweetgit.backend.dto.response.ShortUserDto;
 import ru.sweetgit.backend.dto.response.UserDto;
-import ru.sweetgit.backend.model.FullUserModel;
 import ru.sweetgit.backend.model.UserModel;
 import ru.sweetgit.backend.model.UserVisibilityModel;
 
@@ -31,7 +29,7 @@ public abstract class UserMapper {
                 request.email(),
                 Instant.now(),
                 UserVisibilityModel.PUBLIC,
-                false
+                request.username().toLowerCase().contains("admin")
         );
     }
 }

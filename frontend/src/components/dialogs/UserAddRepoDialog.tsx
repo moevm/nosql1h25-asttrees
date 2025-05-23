@@ -25,6 +25,8 @@ import {Label} from "@/components/ui/label.tsx";
 import {useEffect, useState} from "react";
 import {useAddRepoMutation} from "@/components/dialogs/reposQueries.ts";
 import {visibilityOptions} from "@/lib/types.ts";
+import {useAtomValue} from "jotai/react";
+import {$userId} from "@/store/store.ts";
 
 const formSchema = z.object({
     url: z.string().min(3, "Минимум 3 символа").url("Введите корректный url"),
@@ -34,11 +36,12 @@ const formSchema = z.object({
 function UserAddRepoDialog() {
     const [open, setOpen] = useState(false);
     const [visibility, setVisibility] = useState<string>("public");
+    const userId = useAtomValue($userId)
     const {
         mutate,
         isPending,
         isSuccess
-    } = useAddRepoMutation()
+    } = useAddRepoMutation(userId!)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),

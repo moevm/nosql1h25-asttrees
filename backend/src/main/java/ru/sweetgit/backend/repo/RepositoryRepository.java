@@ -9,9 +9,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import ru.sweetgit.backend.model.RepositoryModel;
 import ru.sweetgit.backend.model.RepositoryViewModel;
+import ru.sweetgit.backend.model.RepositoryVisibilityModel;
+
+import java.util.List;
 
 public interface RepositoryRepository extends ArangoRepository<RepositoryModel, String> {
-    Page<RepositoryModel> findAllByOwnerId(Pageable pageable, String ownerId);
+    @Query("""
+            FOR repo in repositories
+                FILTER repo.owner == CONCAT("users/", @ownerId)
+                FILTER repo.visibility IN (FOR item IN @visibility RETURN item)
+                #pageable
+                RETURN repo
+            """)
+    Page<RepositoryModel> findAllByOwnerId(Pageable pageable, String ownerId, List<RepositoryVisibilityModel> visibility);
 
     @Query("""
             LET repoModel = DOCUMENT(CONCAT("repositories/", @repositoryId))

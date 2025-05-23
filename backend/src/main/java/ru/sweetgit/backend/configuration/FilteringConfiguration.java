@@ -205,9 +205,10 @@ public class FilteringConfiguration {
                                 "to", new TypeReference<Date>() {
                                 }),
                         ((fieldName, parameters, varBinder) -> String.format(
-                                "%s in %s..%s",
+                                "%s >= %s AND %s <= %s",
                                 fieldName,
                                 varBinder.apply(parameters.get("from")),
+                                fieldName,
                                 varBinder.apply(parameters.get("to"))
                         ))
                 ),

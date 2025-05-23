@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import ru.sweetgit.backend.annotation.IsAdmin;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.service.BackupService;
 
 @RestController
 @RequiredArgsConstructor
-// @IsAdmin TODO
+@IsAdmin
 public class BackupController {
     private final BackupService backupService;
 

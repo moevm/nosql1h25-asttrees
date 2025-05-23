@@ -15,8 +15,9 @@ import * as z from "zod";
 import {useEffect, useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import type {ApiRepositoryModel, ApiRepositoryViewModel} from "@/store/store.ts";
+import {$userId, type ApiRepositoryModel, type ApiRepositoryViewModel} from "@/store/store.ts";
 import {useChangeRepoMutation} from "@/components/dialogs/reposQueries.ts";
+import {useAtomValue} from "jotai/react";
 
 
 const formSchema = z.object({
@@ -30,12 +31,12 @@ function UserRepoSettingsDialog ({repo} : {repo: ApiRepositoryModel}) {
     useEffect(() => {
         setVisibility(repo.visibility);
     }, [repo]);
-
+    const userId = useAtomValue($userId)
 
     const {
         mutate,
         isPending
-    } = useChangeRepoMutation(repo.id);
+    } = useChangeRepoMutation(userId, repo.id);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),

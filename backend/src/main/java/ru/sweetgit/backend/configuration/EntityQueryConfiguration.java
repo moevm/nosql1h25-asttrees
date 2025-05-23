@@ -61,7 +61,13 @@ public class EntityQueryConfiguration {
                              arangoId: entity._id,
                             },
                             {
-                             owner: owner,
+                             owner: MERGE(
+                                owner,
+                                {
+                                 id: owner._key,
+                                 arangoId: owner._id,
+                                }
+                             ),
                              branchCount: LENGTH(repoBranches),
                              commitCount: LENGTH(repoCommits)
                             }
@@ -117,7 +123,13 @@ public class EntityQueryConfiguration {
                                         arangoId: repoDoc._id,
                                     },
                                     {
-                                         owner: ownerDocForRepo
+                                         owner: MERGE(
+                                            ownerDocForRepo,
+                                            {
+                                                id: ownerDocForRepo._key,
+                                                arangoId: ownerDocForRepo._id,
+                                            }
+                                         )
                                     }
                                 ),
                                 branchCount: LENGTH(branchesLinkedToCommit),
@@ -141,6 +153,7 @@ public class EntityQueryConfiguration {
                                 FOR commitNode IN 1..1 OUTBOUND entity._id branch_commits
                                     RETURN 1
                             )
+                            LET owner = DOCUMENT(repoDoc.owner)
                         """,
                 """
                         MERGE(
@@ -153,7 +166,17 @@ public class EntityQueryConfiguration {
                                 repository: MERGE(
                                     repoDoc,
                                     {
-                                        owner: DOCUMENT(repoDoc.owner)
+                                        id: repoDoc._key,
+                                        arangoId: repoDoc._id,
+                                    },
+                                    {
+                                        owner: MERGE(
+                                            owner,
+                                            {
+                                                id: owner._key,
+                                                arangoId: owner._id,
+                                            }
+                                        )
                                     }
                                 ),
                                 commitCount: LENGTH(commitsForThisBranch)
@@ -191,8 +214,8 @@ public class EntityQueryConfiguration {
                         MERGE(
                             entity,
                             {
-                                id: entity._key,         // Map _key to id
-                                arangoId: entity._id,    // Map _id to arangoId
+                                id: entity._key,
+                                arangoId: entity._id,
                                 depth: treeDepth,
                                 size: treeSize,
                                 commitFile: MERGE(

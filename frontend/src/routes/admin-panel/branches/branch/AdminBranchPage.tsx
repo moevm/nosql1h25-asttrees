@@ -12,7 +12,7 @@ import {
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import dayjs from "dayjs";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useEffect} from "react";
 import {loaded} from "@/api";
@@ -24,6 +24,7 @@ function AdminBranchPageContent(props: {
     data: ApiEntityBranchModel
 }) {
     const showEditBranchDialog = useSetAtom($showEditBranchDialog)
+    const navigate = useNavigate()
     return (
         <>
             <EditBranchDialog data={props.data}/>
@@ -53,6 +54,11 @@ function AdminBranchPageContent(props: {
                             }}>
                                 Настройка ветки
                             </Button>
+                            <Button variant="outline" onClick={() =>
+                                navigate(`/users/${props.data.repository.owner.id}/repo/${props.data.repository.id}/branch/${props.data.id}/commit/latest`)}>
+                                Просмотр
+                            </Button>
+
                         </div>
                     </div>
                 </div>

@@ -10,7 +10,7 @@ import {
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import dayjs from "dayjs";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useEffect} from "react";
 import {loaded} from "@/api";
@@ -22,6 +22,7 @@ function AdminRepoPageContent(props: {
     data: ApiEntityRepositoryModel
 }) {
     const setShowEditRepoDialog = useSetAtom($showEditRepoDialog)
+    const navigate = useNavigate()
     return (
         <>
             <EditRepoDialog data={props.data}/>
@@ -48,6 +49,46 @@ function AdminRepoPageContent(props: {
                             }}>
                                 Настройка репозитория
                             </Button>
+                            <Button variant="outline" onClick={() =>
+                                navigate(`/users/${props.data.owner.id}/repo/${props.data.id}/branch/default/commit/latest`)}>
+                                Просмотр
+                            </Button>
+                            <Button variant="outline" onClick={() =>
+                                navigate(`/admin/branches?filters=` + JSON.stringify([
+                                    {
+                                        kind: 'string_equals',
+                                        field: 'repository.id',
+                                        params: {
+                                            value: props.data.id
+                                        }
+                                    }
+                                ]))
+                            }>Фильтр веток</Button>
+                            <Button variant="outline" onClick={() =>
+                                navigate(`/admin/commits?filters=` + JSON.stringify([
+                                    {
+                                        kind: 'string_equals',
+                                        field: 'repository.id',
+                                        params: {
+                                            value: props.data.id
+                                        }
+                                    }
+                                ]))
+                            }>Фильтр коммитов</Button>
+                            <Button variant="outline" onClick={() =>
+                                navigate(`/admin/users?filters=` + JSON.stringify([
+                                    {
+                                        kind: 'string_equals',
+                                        field: 'id',
+                                        params: {
+                                            value: props.data.owner.id
+                                        }
+                                    }
+                                ]))
+                            }>Фильтр владельца</Button>
+                            <Button variant="outline" onClick={() =>
+                                navigate(`/users/${props.data.owner.id}`)
+                            }>Перейти к владельцу</Button>
                         </div>
                     </div>
                 </div>

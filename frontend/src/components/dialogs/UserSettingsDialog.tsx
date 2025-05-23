@@ -24,10 +24,10 @@ import {
 } from "@/components/ui/form.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {useEffect, useMemo, useState} from "react";
-import {$api, defaultOnErrorHandler} from "@/api";
+import {$api, defaultOnErrorHandler, queryClient} from "@/api";
 import {toast} from "sonner";
 import {useAtomValue} from "jotai/react";
-import {$currentUser} from "@/store/store.ts";
+import {$currentUser, $currentUserQuery, $currentUserReposQueryOptions} from "@/store/store.ts";
 
 import {visibilityOptions} from "@/lib/types.ts";
 
@@ -82,7 +82,7 @@ export function userSettingsChangeQuery() {
             if (data) {
                 toast.success('Настройки пользователя были успешно обновлены!')
             }
-            window.location.reload();
+            // queryClient.invalidateQueries({ queryKey: $currentUserReposQueryOptions(userId, true).queryKey });
         },
         onError: defaultOnErrorHandler
     })
@@ -172,7 +172,7 @@ function UserSettingsDialog() {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent>
+            <DialogContent className={"max-w-md"}>
                 <DialogHeader>
                     <DialogTitle>Настройки</DialogTitle>
                 </DialogHeader>

@@ -25,7 +25,7 @@ export function SessionManager() {
                 description: errorMessage(currentUserLoadable.error),
             });
 
-            navigate('/auth', {replace: true});
+            navigate('/auth/login', {replace: true});
         }
     }, [
         token,

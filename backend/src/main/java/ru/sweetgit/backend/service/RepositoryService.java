@@ -27,10 +27,23 @@ public class RepositoryService {
         return repositoryRepository.findById(id);
     }
 
-    public List<RepositoryModel> getRepositoriesForUser(UserModel user) {
+    public List<RepositoryModel> getRepositoriesForUser(
+            UserModel user,
+            @Nullable UserDetailsWithId currentUser
+    ) {
+        List<RepositoryVisibilityModel> visibility;
+        if (currentUser == null) {
+            visibility = List.of(RepositoryVisibilityModel.PUBLIC);
+        } else if (UserService.isAdmin(currentUser) || currentUser.getId().equals(user.getId())) {
+            visibility = List.of(RepositoryVisibilityModel.PUBLIC, RepositoryVisibilityModel.PRIVATE, RepositoryVisibilityModel.PROTECTED);
+        } else {
+            visibility = List.of(RepositoryVisibilityModel.PUBLIC, RepositoryVisibilityModel.PROTECTED);
+        }
+
         return repositoryRepository.findAllByOwnerId(
-                PageRequest.of(0, 10000, Sort.by(Sort.Order.desc("createdAt"))), // TODO add page support
-                user.getId()
+                PageRequest.of(0, 10000, Sort.by(Sort.Order.desc("repo.createdAt"))), // TODO add page support
+                user.getId(),
+                visibility
         ).toList();
     }
 
@@ -121,7 +134,23 @@ public class RepositoryService {
             return false;
         }
 
+        if (UserService.isAdmin(currentUser)) {
+            return true;
+        }
+
         if (repository.getVisibility().equals(RepositoryVisibilityModel.PROTECTED)) {
+            return true;
+        }
+
+        return repository.getOwner().getId().equals(currentUser.getId());
+    }
+
+    public boolean isRepositoryEditable(RepositoryModel repository, @Nullable UserDetailsWithId currentUser) {
+        if (currentUser == null) {
+            return false;
+        }
+
+        if (UserService.isAdmin(currentUser)) {
             return true;
         }
 
@@ -130,6 +159,12 @@ public class RepositoryService {
 
     public void requireRepositoryVisible(RepositoryModel repository, @Nullable UserDetailsWithId currentUser) {
         if (!isRepositoryVisible(repository, currentUser)) {
+            throw ApiException.forbidden().message("Нет прав для доступа к репозиторию %s".formatted(repository.getId())).build();
+        }
+    }
+
+    public void requireRepositoryEditable(RepositoryModel repository, @Nullable UserDetailsWithId currentUser) {
+        if (!isRepositoryEditable(repository, currentUser)) {
             throw ApiException.forbidden().message("Нет прав для доступа к репозиторию %s".formatted(repository.getId())).build();
         }
     }

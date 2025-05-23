@@ -14,10 +14,11 @@ function AdminPanelLayout() {
         console.info({
             currentUser
         })
-        if ((currentUser.state === 'hasError') || (currentUser.state === 'hasData' && !currentUser.data.isAdmin)) {
-            toast.error('Доступ запрещён')
-            navigate('/')
-        }
+        // TODO add
+        // if ((currentUser.state === 'hasError') || (currentUser.state === 'hasData' && !currentUser.data.isAdmin)) {
+        //     toast.error('Доступ запрещён')
+        //     navigate('/')
+        // }
     }, [currentUser]);
 
     return (

@@ -44,7 +44,7 @@ public class RepositoryController {
         userService.requireUserVisible(user, currentUser);
 
         return ResponseEntity.ok(
-                repositoryService.getRepositoriesForUser(user)
+                repositoryService.getRepositoriesForUser(user, currentUser)
                         .stream()
                         .map(repositoryMapper::toRepositoryDto)
                         .toList()
@@ -71,9 +71,7 @@ public class RepositoryController {
         var repo = repositoryService.getById(repoId)
                 .orElseThrow(() -> ApiException.notFound("Репозиторий", "id", repoId).build());
 
-        if (!repo.getOwner().getId().equals(currentUser.getId())) {
-            throw ApiException.forbidden().build();
-        }
+        repositoryService.requireRepositoryEditable(repo, currentUser);
 
         var result = repositoryService.updateRepository(repo, request);
         return ResponseEntity.ok(repositoryMapper.toRepositoryDto(result));

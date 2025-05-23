@@ -7,7 +7,8 @@ import {
 } from 'echarts/components';
 import { HeatmapChart } from 'echarts/charts';
 import {SVGRenderer} from 'echarts/renderers';
-import type { EChartsOption } from 'echarts';
+import {type EChartsOption, type TooltipComponentFormatterCallbackParams} from 'echarts';
+import dayjs from "dayjs";
 
 
 echarts.use([
@@ -34,17 +35,57 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
 
         const chart = echarts.init(chartRef.current, null, {renderer: "svg"});
 
-        const xAxisData = [...new Set(data.map(item => item.xValue))];
-        const yAxisData = [...new Set(data.map(item => item.yValue))];
+        let xAxisDataOriginal = [...new Set(data.map(item => item.xValue))];
+        let yAxisDataOriginal = [...new Set(data.map(item => item.yValue))];
 
-        const formattedData = data.map(item => [
-            xAxisData.indexOf(item.xValue),
-            yAxisData.indexOf(item.yValue),
-            item.count,
-        ]);
+        const sortAxisData = (axisValues: string[]): string[] => {
+            if (!axisValues || axisValues.length === 0) return [];
+
+            const sortedValues = [...axisValues];
+
+            const allNumeric = sortedValues.every(val => !isNaN(parseFloat(val)) && isFinite(Number(val)));
+            if (allNumeric) {
+                return sortedValues.sort((a, b) => Number(a) - Number(b));
+            }
+
+            const allDates = sortedValues.every(val => dayjs(val).isValid());
+            if (allDates) {
+                return sortedValues.sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf());
+            }
+
+            return sortedValues.sort((a, b) => a.localeCompare(b));
+        };
+
+        const xAxisData = sortAxisData(xAxisDataOriginal);
+        const yAxisData = sortAxisData(yAxisDataOriginal);
+
+        const formattedData = data.map(item => {
+            const xIndex = xAxisData.indexOf(item.xValue);
+            const yIndex = yAxisData.indexOf(item.yValue);
+            return [xIndex, yIndex, item.count];
+        }).filter(item => item !== null) as [number, number, number][];
 
         const option: EChartsOption = {
-            tooltip: { position: 'top',  },
+            tooltip: {
+                position: 'top',
+                formatter: (params: TooltipComponentFormatterCallbackParams) => {
+                    const param = Array.isArray(params) ? params[0] : params;
+                    const xIndex = param.value[0] as number;
+                    const yIndex = param.value[1] as number;
+                    const count = param.value[2] as number;
+                    const xValueName = xAxisData[xIndex];
+                    const yValueName = yAxisData[yIndex];
+                    let tooltipHtml = `${param.marker || ''}`;
+                    if (param.seriesName) {
+                        tooltipHtml += `${echarts.format.encodeHTML(param.seriesName)}<br/>`;
+                    }
+                    tooltipHtml += `X: ${echarts.format.encodeHTML(xValueName)}<br/>`;
+                    tooltipHtml += `Y: ${echarts.format.encodeHTML(yValueName)}<br/>`;
+                    tooltipHtml += `Count: ${echarts.format.encodeHTML(String(count))}`;
+
+                    return tooltipHtml;
+                }
+            },
             grid: {
                 height: '50%',
                 top: '10%',

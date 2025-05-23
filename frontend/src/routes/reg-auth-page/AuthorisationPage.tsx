@@ -47,10 +47,8 @@ const registrationSchema = z.object({
     password: z.string().min(5, {message: "Минимум 5 символов"}),
 });
 
-const $tab = atom<string>('login')
-
 function RegisterPage() {
-    const setTab = useSetAtom($tab)
+    const navigate = useNavigate();
     const {
         mutate,
         isPending
@@ -137,15 +135,15 @@ function RegisterPage() {
                                         <Loader2 className="animate-spin"/>
                                         Загрузка</>
                                     : <>
-                                        Зарегестрироваться
+                                        Зарегистрироваться
                                     </>
                                 }
                             </Button>
                             <Button
                                 type="button"
-                                onClick={() => setTab("login")}
+                                onClick={() => navigate("/auth/login")}
                                 variant="link"
-                                className="ml-auto text-sm text-muted-foreground hover:underline"
+                                className="ml-auto text-sm text-muted-foreground"
                             >
                                 Уже есть аккаунт?
                             </Button>
@@ -158,7 +156,7 @@ function RegisterPage() {
 }
 
 function LoginPage() {
-    const setTab = useSetAtom($tab)
+    const navigate = useNavigate()
     const {
         mutate,
         isPending
@@ -235,9 +233,9 @@ function LoginPage() {
                             </Button>
                             <Button
                                 type="button"
-                                onClick={() => setTab("registration")}
+                                onClick={() => navigate("/auth/registration")}
                                 variant="link"
-                                className="ml-auto text-sm text-muted-foreground hover:underline"
+                                className="ml-auto text-sm text-muted-foreground"
                             >
                                 Еще нет аккаунта?
                             </Button>
