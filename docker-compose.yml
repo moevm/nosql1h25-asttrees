@@ -22,7 +22,7 @@ services:
     networks:
       - internal-net
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       - ARANGO_DB=${ARANGO_DB}
       - ARANGO_PASSWORD=${ARANGO_PASSWORD}
@@ -48,7 +48,7 @@ services:
     build: ./frontend
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "127.0.0.1:8000:80"
 
 volumes:
   arangodb_data:
