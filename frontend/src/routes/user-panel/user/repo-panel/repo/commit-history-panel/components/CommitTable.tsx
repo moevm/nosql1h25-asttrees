@@ -11,7 +11,7 @@ function CommitTable({repo, data}: {
     return (
         <div className="mt-5">
             <table
-                className="min-w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border bg-background">
+                className="w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border bg-background text-sm">
                 <tbody>
                 {data?.map((item) => (
 
@@ -21,23 +21,23 @@ function CommitTable({repo, data}: {
                         className="hover:bg-accent cursor-pointer transition-colors"
                     >
                         <td className="py-4 px-4 border-b border-gray-200 w-1/4">
-                            <Label className="font-bold whitespace-nowrap ">
+                            <div className="font-bold  ">
                                 {item.author}
-                            </Label>
+                            </div>
                         </td>
                         <td className="py-2 px-4 border-b border-gray-200 w-2/4">
-                            <Label className="text-primary/60 whitespace-nowrap ">
+                            <div className="text-primary/60 truncate">
                                 {item.message}
-                            </Label>
+                            </div>
                         </td>
                         <td className="py-2 px-4 border-b border-gray-200 w-1/4">
                             <div className="flex justify-end items-center gap-4">
-                                <Label className="text-primary/60 whitespace-nowrap font-mono">
+                                <div className="text-primary/60  font-mono">
                                     {String(item.hash).substring(0, 6)}
-                                </Label>
-                                <Label className="text-primary/60 whitespace-nowrap w-[90px]">
+                                </div>
+                                <div className="text-primary/60  w-[90px]">
                                     {new Date(item.createdAt)?.toLocaleDateString("ru-RU")}
-                                </Label>
+                                </div>
                             </div>
                         </td>
                     </tr>

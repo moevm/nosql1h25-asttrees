@@ -98,10 +98,8 @@ public class BackupService {
                     "--server.database",
                     arangoProperties.getDatabase(),
                     "--input-directory",
-                    extractDir.toAbsolutePath().toString(),
-                    "--force-same-database",
-                    "true"
-            ), Duration.ofMinutes(1));
+                    extractDir.toAbsolutePath().toString()
+            ), Duration.ofMinutes(30));
             if (!executionResult.isSuccess()) {
                 throw ApiException.builder(
                         HttpStatus.INTERNAL_SERVER_ERROR,

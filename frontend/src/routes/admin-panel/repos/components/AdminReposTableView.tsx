@@ -48,11 +48,11 @@ function AdminReposTableView() {
                     navigate(`/admin/repos/${repo.id}`, { replace: false })
                 },
             }}
-            buttonsSlot={() => (
-                <Button size="sm" onClick={() => {setShowEditRepoDialog(true)}}>
-                    Создать репозиторий
-                </Button>
-            )}
+            // buttonsSlot={() => (
+            //     <Button size="sm" onClick={() => {setShowEditRepoDialog(true)}}>
+            //         Создать репозиторий
+            //     </Button>
+            // )}
         />
     );
 }

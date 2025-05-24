@@ -212,6 +212,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/commits/{commitId}/ast/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["search"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/register": {
         parameters: {
             query?: never;
@@ -523,6 +539,8 @@ export interface components {
             username?: string;
         };
         EntityStatsRequest: {
+            query?: string;
+            searchFields: string[];
             filter: components["schemas"]["Filter"][];
             xAxisField: string;
             yAxisField: string;
@@ -574,6 +592,29 @@ export interface components {
             content?: Record<string, never>[];
             page?: components["schemas"]["PageMetadata"];
         };
+        AstSearchFindReferencesDto: {
+            typename: string;
+            types: string[];
+        };
+        AstNodeDto: {
+            id?: string;
+            label?: string;
+            type?: string;
+        };
+        AstSearchResultDto: {
+            file?: components["schemas"]["CommitFileDto"];
+            nodes?: components["schemas"]["AstNodeDto"][];
+        };
+        CommitFileDto: {
+            id?: string;
+            name?: string;
+            fullPath?: string;
+            /** @enum {string} */
+            type?: "DIRECTORY" | "FILE";
+            hash?: string;
+            commit?: string;
+            parent?: string;
+        };
         AuthRegisterRequest: {
             username: string;
             email: string;
@@ -607,16 +648,6 @@ export interface components {
             /** @enum {string} */
             visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
         };
-        CommitFileDto: {
-            id?: string;
-            name?: string;
-            fullPath?: string;
-            /** @enum {string} */
-            type?: "DIRECTORY" | "FILE";
-            hash?: string;
-            commit?: string;
-            parent?: string;
-        };
         FileContentDto: {
             commitFile?: components["schemas"]["CommitFileDto"];
             isBinary?: boolean;
@@ -626,11 +657,6 @@ export interface components {
             /** Format: int64 */
             bytes?: number;
             hasAst?: boolean;
-        };
-        AstNodeDto: {
-            id?: string;
-            label?: string;
-            type?: string;
         };
         AstTreeViewDto: {
             /** Format: int32 */
@@ -1037,6 +1063,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": string;
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commitId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AstSearchFindReferencesDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AstSearchResultDto"][];
                 };
             };
         };

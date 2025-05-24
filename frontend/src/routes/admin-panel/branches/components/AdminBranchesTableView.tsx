@@ -48,11 +48,11 @@ function AdminBranchesTableView() {
                     navigate(`/admin/branches/${branch.id}`, { replace: false })
                 },
             }}
-            buttonsSlot={() => (
-                <Button size="sm" onClick={() => {setShowEditBranchDialog(true)}}>
-                    Создать ветеку
-                </Button>
-            )}
+            // buttonsSlot={() => (
+            //     <Button size="sm" onClick={() => {setShowEditBranchDialog(true)}}>
+            //         Создать ветеку
+            //     </Button>
+            // )}
         />
     );
 }

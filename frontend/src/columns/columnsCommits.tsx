@@ -128,7 +128,7 @@ export const columnsCommits = [
     },
     {
         accessorKey: "id",
-        header: ({column}) => <DataTableColumnHeader column={column} title="id"/>,
+        header: ({column}) => <DataTableColumnHeader column={column} title="ID"/>,
         meta: { title: "id", type: "string", field: "id" },
         cell: ({cell}) => <MonoRenderer value={cell.getValue()}/>,
     },
@@ -165,7 +165,7 @@ export const columnsCommits = [
     {
         accessorKey: "linesChanged",
         header: ({column}) => <DataTableColumnHeader column={column} title="Строк изменено"/>,
-        meta: { title: "Строк изменено", type: "string", field: "linesAdded" }, // Используем linesAdded, т.к. это base
+        meta: { title: "Строк изменено", type: "string", field: "linesAdded" },
         accessorFn: (row) => `+${row.linesAdded}/-${row.linesRemoved}`,
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
@@ -215,13 +215,13 @@ export const columnsCommits = [
     },
     {
         accessorKey: "fileWithAstCount",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Файлы с AST"/>,
+        header: ({column}) => <DataTableColumnHeader column={column} title="Файлов с AST"/>,
         meta: { title: "Файлы с AST", type: "number", field: "fileWithAstCount" },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
     {
         accessorKey: "createdAt",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Дата коммита"/>,
+        header: ({column}) => <DataTableColumnHeader column={column} title="Дата создания"/>,
         meta: { title: "Дата коммита", type: "datetime", field: "createdAt" },
         accessorFn: (row) => dayjs(row.createdAt),
         cell: ({cell}) => <DateRenderer value={cell.getValue()} />

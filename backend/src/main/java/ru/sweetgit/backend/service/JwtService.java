@@ -4,8 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -16,9 +15,8 @@ import java.time.Instant;
 import java.util.Date;
 
 @Service
+@Slf4j
 public class JwtService {
-    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
-
     @Value("${jwt.secret}")
     private String jwtSecretString;
 
@@ -61,15 +59,15 @@ public class JwtService {
             Jwts.parser().verifyWith(jwtSecretKey).build().parseSignedClaims(authToken);
             return true;
         } catch (MalformedJwtException ex) {
-            logger.error("Invalid JWT token: {}", ex.getMessage());
+            log.error("Invalid JWT token: {}", ex.getMessage());
         } catch (ExpiredJwtException ex) {
-            logger.error("Expired JWT token: {}", ex.getMessage());
+            log.error("Expired JWT token: {}", ex.getMessage());
         } catch (UnsupportedJwtException ex) {
-            logger.error("Unsupported JWT token: {}", ex.getMessage());
+            log.error("Unsupported JWT token: {}", ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            logger.error("JWT claims string is empty: {}", ex.getMessage());
+            log.error("JWT claims string is empty: {}", ex.getMessage());
         } catch (io.jsonwebtoken.security.SignatureException ex) {
-            logger.error("JWT signature validation failed: {}", ex.getMessage());
+            log.error("JWT signature validation failed: {}", ex.getMessage());
         }
         return false;
     }

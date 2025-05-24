@@ -10,7 +10,7 @@ function AdminAstTreesPage() {
 
     return (
         <>
-            <EditAstTreeDialog onSave={onSave}/>
+            {/*<EditAstTreeDialog onSave={onSave}/>*/}
             <div className={"flex flex-col p-8"}>
                 <Label className={"text-4xl"}>AST-деревья</Label>
                 <AdminAstTreesTableView/>

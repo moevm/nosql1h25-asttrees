@@ -33,11 +33,6 @@ export const fieldsAstTrees: EntityField[] = [
         type: "int"
     },
     {
-        id: "commitFile.name",
-        name: "Название файла",
-        type: "string"
-    },
-    {
         id: "commitFile.hash",
         name: "Hash файла",
         type: "string"
@@ -68,9 +63,15 @@ export const columnsAstTrees = [
     },
     {
         accessorKey: "id",
-        header: ({column}) => <DataTableColumnHeader column={column} title="id"/>,
+        header: ({column}) => <DataTableColumnHeader column={column} title="ID"/>,
         meta: {title: "id", type: "string", field: "id"},
         cell: ({cell}) => <MonoRenderer value={cell.getValue()}/>,
+    },
+    {
+        accessorKey: "commitFile.hash",
+        header: ({column}) => <DataTableColumnHeader column={column} title="Hash файла"/>,
+        meta: {title: "Hash файла", type: "string", field: "commitFile.hash"},
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "createdAt",
@@ -89,18 +90,6 @@ export const columnsAstTrees = [
         accessorKey: "size",
         header: ({column}) => <DataTableColumnHeader column={column} title="Размер"/>,
         meta: {title: "Размер", type: "number", field: "size"},
-        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
-    },
-    {
-        accessorKey: "commitFile.name",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Название файла"/>,
-        meta: {title: "Название файла", type: "string", field: "commitFile.name"},
-        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
-    },
-    {
-        accessorKey: "commitFile.hash",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Hash файла"/>,
-        meta: {title: "Hash файла", type: "string", field: "commitFile.hash"},
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
 ] as TypedColumnDef<ApiEntityAstTreeModel>[]

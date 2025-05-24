@@ -47,11 +47,11 @@ function AdminUsersTableView() {
                     navigate(`/admin/users/${user.id}`, { replace: false })
                 },
             }}
-            buttonsSlot={() => (
-                <Button size="sm" onClick={() => {setShowEditUserDialog(true)}}>
-                    Создать пользователя
-                </Button>
-            )}
+            // buttonsSlot={() => (
+            //     <Button size="sm" onClick={() => {setShowEditUserDialog(true)}}>
+            //         Создать пользователя
+            //     </Button>
+            // )}
         />
     );
 }

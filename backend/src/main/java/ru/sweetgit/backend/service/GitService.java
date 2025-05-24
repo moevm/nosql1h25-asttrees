@@ -2,6 +2,7 @@ package ru.sweetgit.backend.service;
 
 import jakarta.annotation.Nullable;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -14,8 +15,6 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.model.*;
 import ru.sweetgit.backend.util.FileUtil;
@@ -30,8 +29,8 @@ import java.time.Instant;
 import java.util.*;
 
 @Service
+@Slf4j
 public class GitService {
-    private final Logger logger = LoggerFactory.getLogger(GitService.class);
 
     public record ImportRepositoryResult(
             RepositoryModel.RepositoryModelBuilder repositoryData,
@@ -81,7 +80,7 @@ public class GitService {
                     try {
                         revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
                     } catch (Exception e) {
-                        logger.error("Could not parse commit for ref: {} - {}", ref.getName(), e.getMessage());
+                        log.error("Could not parse commit for ref: {} - {}", ref.getName(), e.getMessage());
                     }
                 }
                 for (RevCommit jgitCommit : revWalk) {

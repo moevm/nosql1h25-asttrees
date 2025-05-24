@@ -71,26 +71,26 @@ function RepoFileTable({data}: { data: ApiRepositoryViewModel }) {
                 </Select>
             </div>
             <table
-                className="min-w-full bg-background table-fixed border-separate border-spacing-0 border rounded overflow-hidden border">
+                className="w-full bg-background table-fixed border-separate border-spacing-0 border rounded overflow-hidden border">
                 <thead>
                 <tr className="bg-slate-100">
-                    <th className="flex justify-between text-left py-2 px-4 gap-2">
-                        <div className={"flex justify-center gap-2"}>
-                            <Label className={"font-bold"}>
+                    <th className="flex justify-between text-left py-2 px-4 gap-2 items-center">
+                        <div className={"flex gap-2 items-center text-sm truncate"}>
+                            <span className={"whitespace-nowrap"}>
                                 {data.commit?.author}
-                            </Label>
-                            <Label className={"text-primary/60"}>
+                            </span>
+                            <span className={"text-primary/60 truncate"}>
                                 {data.commit?.message}
-                            </Label>
+                            </span>
                         </div>
 
-                        <div className={"flex justify-center gap-2"}>
-                            <Label className={"text-primary/60 font-mono"}>
+                        <div className={"gap-2 items-center text-sm flex"}>
+                            <span className={"text-primary/60 font-mono whitespace-nowrap"}>
                                 {data.commit?.hash && String(data.commit?.hash).substring(0, 6)}
-                            </Label>
-                            <Label className={"text-primary/60"}>
+                            </span>
+                            <span className={"text-primary/60 whitespace-nowrap"}>
                                 {new Date(data.commit?.createdAt)?.toLocaleDateString("ru-RU")}
-                            </Label>
+                            </span>
                             <Link
                                 to={`/users/${data.owner?.id}/repo/${data.repository?.id}/branch/${data.branch?.id}/commits`}>
                                 <Button variant="ghost">

@@ -44,7 +44,7 @@ public class RepositoryController {
         userService.requireUserVisible(user, currentUser);
 
         return ResponseEntity.ok(
-                repositoryService.getRepositoriesForUser(user, currentUser)
+                repositoryService.getRepositoriesForUser(user.getId(), currentUser)
                         .stream()
                         .map(repositoryMapper::toRepositoryDto)
                         .toList()
@@ -57,6 +57,10 @@ public class RepositoryController {
             @Valid @RequestBody CreateRepositoryRequest request,
             @AuthenticationPrincipal UserDetailsWithId currentUser
     ) {
+        if (repositoryService.getByUserAndName(currentUser.getId(), request.name()).isPresent()) {
+            throw ApiException.badRequest().message("Репозиторий с таким именем уже существует").build();
+        }
+
         var result = importRepositoryOperation.importRepository(currentUser, request);
         return ResponseEntity.ok(repositoryViewMapper.toRepositoryViewModel(result));
     }
@@ -70,6 +74,13 @@ public class RepositoryController {
     ) {
         var repo = repositoryService.getById(repoId)
                 .orElseThrow(() -> ApiException.notFound("Репозиторий", "id", repoId).build());
+
+        if (repositoryService
+                .getByUserAndName(repo.getOwner().getId(), request.name())
+                .filter(it -> !it.getId().equals(repoId))
+                .isPresent()) {
+            throw ApiException.badRequest().message("Репозиторий с таким именем уже существует").build();
+        }
 
         repositoryService.requireRepositoryEditable(repo, currentUser);
 

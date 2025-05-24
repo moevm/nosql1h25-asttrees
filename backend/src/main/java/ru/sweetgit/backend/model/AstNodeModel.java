@@ -2,6 +2,7 @@ package ru.sweetgit.backend.model;
 
 import com.arangodb.springframework.annotation.ArangoId;
 import com.arangodb.springframework.annotation.Document;
+import com.arangodb.springframework.annotation.Ref;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
@@ -20,4 +21,6 @@ public class AstNodeModel {
     String arangoId;
     String label;
     String type;
+    @Ref(lazy = true)
+    AstTreeModel tree;
 }

@@ -41,7 +41,7 @@ function FilterDisplay(
                     (
                         values.length === 1
                             ? String(values[0][1])
-                            : values.map(([k, v]) => `${k}: ${v}`).join(', ')
+                            : values.map(([k, v]) => `${v}`).join(', ')
                     )
                 }</span> || false}
             </div>

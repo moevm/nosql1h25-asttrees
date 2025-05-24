@@ -9,7 +9,7 @@ function AdminUsersPage() {
     };
     return (
         <>
-            <EditUserDialog onSave={onSave}/>
+            {/*<EditUserDialog onSave={onSave}/>*/}
             <div className={"flex flex-col p-8"}>
                 <Label className={"text-4xl"}>Пользователи</Label>
                 <AdminUsersTableView/>

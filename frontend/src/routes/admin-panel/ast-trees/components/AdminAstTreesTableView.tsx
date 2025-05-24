@@ -50,11 +50,11 @@ function AdminAstTreesTableView() {
                             navigate(`/admin/ast-trees/${astTree.id}`, { replace: false })
                         },
                     }}
-                    buttonsSlot={() => (
-                        <Button size="sm" onClick={() => {setShowEditAstTreeDialog(true)}}>
-                            Создать AST-дерево
-                        </Button>
-                    )}
+                    // buttonsSlot={() => (
+                    //     <Button size="sm" onClick={() => {setShowEditAstTreeDialog(true)}}>
+                    //         Создать AST-дерево
+                    //     </Button>
+                    // )}
                 />
             </>
         </>

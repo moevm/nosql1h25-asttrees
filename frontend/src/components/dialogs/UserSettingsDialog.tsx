@@ -27,7 +27,12 @@ import {useEffect, useMemo, useState} from "react";
 import {$api, defaultOnErrorHandler, queryClient} from "@/api";
 import {toast} from "sonner";
 import {useAtomValue} from "jotai/react";
-import {$currentUser, $currentUserQuery, $currentUserReposQueryOptions} from "@/store/store.ts";
+import {
+    $currentUser,
+    $currentUserQuery,
+    $currentUserQueryOptions,
+    $currentUserReposQueryOptions
+} from "@/store/store.ts";
 
 import {visibilityOptions} from "@/lib/types.ts";
 
@@ -76,13 +81,14 @@ const formSchema = z.object({
     }
 });
 
-export function userSettingsChangeQuery() {
+export function userSettingsChangeQuery(userId: string) {
     return $api.useMutation('patch', '/users/me', {
         onSuccess(data, variables, context) {
             if (data) {
                 toast.success('Настройки пользователя были успешно обновлены!')
             }
-            // queryClient.invalidateQueries({ queryKey: $currentUserReposQueryOptions(userId, true).queryKey });
+            queryClient.invalidateQueries({ queryKey: $currentUserQueryOptions(true).queryKey });
+            queryClient.invalidateQueries({ queryKey: $currentUserReposQueryOptions(userId, true).queryKey });
         },
         onError: defaultOnErrorHandler
     })
@@ -120,7 +126,7 @@ function UserSettingsDialog() {
     const {
         mutate,
         isPending
-    } = userSettingsChangeQuery()
+    } = userSettingsChangeQuery(user?.data?.id)
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         const payload: {

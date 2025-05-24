@@ -11,7 +11,7 @@ function AdminCommitsPage() {
 
     return (
         <>
-            <EditCommitDialog onSave={onSave}/>
+            {/*<EditCommitDialog onSave={onSave}/>*/}
             <div className={"flex flex-col p-8"}>
                 <Label className={"text-4xl"}>Коммиты</Label>
                 <CommitsTableView/>

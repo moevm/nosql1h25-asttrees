@@ -9,7 +9,7 @@ import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils
 export const fieldsRepos: EntityField[] = [
     {
         id: "id",
-        name: "id",
+        name: "ID",
         type: "string"
     },
     {
@@ -19,37 +19,37 @@ export const fieldsRepos: EntityField[] = [
     },
     {
         id: "owner.id",
-        name: "id владельца",
+        name: "ID владельца",
         type: "string"
     },
     {
         id: "owner.username",
-        name: "имя владельца",
+        name: "Никнейм владельца",
         type: "string"
     },
     {
         id: "originalLink",
-        name: "URL",
+        name: "Источник",
         type: "string"
     },
     {
         id: "visibility",
-        name: "Доступность",
+        name: "Публичность",
         type: "string"
     },
     {
         id: "createdAt",
-        name: "Создано",
+        name: "Дата создания",
         type: "date"
     },
     {
         id: "branchCount",
-        name: "Кол-во веток",
+        name: "Количество веток",
         type: "int"
     },
     {
         id: "commitCount",
-        name: "Кол-во коммитов",
+        name: "Количество коммитов",
         type: "int"
     }
 ]

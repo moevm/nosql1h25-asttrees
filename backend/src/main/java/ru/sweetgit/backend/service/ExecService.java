@@ -1,7 +1,6 @@
 package ru.sweetgit.backend.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -16,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Service
+@Slf4j
 public class ExecService {
     public record ExecutionResult(
             int exitCode,
@@ -26,8 +26,6 @@ public class ExecService {
             return exitCode == 0 && !timedOut;
         }
     }
-
-    private static final Logger log = LoggerFactory.getLogger(ExecService.class);
 
     private record StreamGobbler(InputStream inputStream, Consumer<String> consumer) implements Runnable {
         @Override

@@ -31,6 +31,8 @@ jwt:
 app:
   file-storage:
     path: ${FILE_STORAGE_PATH}
+  migration:
+    path: ${MIGRATION_PATH}
   backup:
     executable:
       dump: ${ARANGO_DUMP}

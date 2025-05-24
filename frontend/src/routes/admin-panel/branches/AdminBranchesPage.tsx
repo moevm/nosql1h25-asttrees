@@ -11,7 +11,7 @@ function AdminBranchesPage() {
 
     return (
         <>
-            <EditBranchDialog onSave={onSave}/>
+            {/*<EditBranchDialog onSave={onSave}/>*/}
             <div className={"flex flex-col p-8"}>
                 <Label className={"text-4xl"}>Ветки</Label>
                 <AdminBranchesTableView/>

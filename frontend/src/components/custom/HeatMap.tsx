@@ -38,22 +38,42 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
         let xAxisDataOriginal = [...new Set(data.map(item => item.xValue))];
         let yAxisDataOriginal = [...new Set(data.map(item => item.yValue))];
 
-        const sortAxisData = (axisValues: string[]): string[] => {
+        const sortAxisData = (axisValues: (any)[]): (any)[] => {
             if (!axisValues || axisValues.length === 0) return [];
 
             const sortedValues = [...axisValues];
 
-            const allNumeric = sortedValues.every(val => !isNaN(parseFloat(val)) && isFinite(Number(val)));
+            const allNumeric = sortedValues.every(val =>
+                val !== null && val !== undefined &&
+                !isNaN(parseFloat(val)) &&
+                isFinite(Number(val))
+            );
+
             if (allNumeric) {
-                return sortedValues.sort((a, b) => Number(a) - Number(b));
+                return sortedValues.sort((a, b) => Number(a!) - Number(b!));
             }
 
-            const allDates = sortedValues.every(val => dayjs(val).isValid());
+            const allDates = sortedValues.every(val =>
+                val !== null && val !== undefined &&
+                dayjs(val).isValid()
+            );
+
             if (allDates) {
-                return sortedValues.sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf());
+                return sortedValues.sort((a, b) => dayjs(a!).valueOf() - dayjs(b!).valueOf());
             }
 
-            return sortedValues.sort((a, b) => a.localeCompare(b));
+            return sortedValues.sort((a, b) => {
+                if (a === null || a === undefined) {
+                    if (b === null || b === undefined) {
+                        return 0;
+                    }
+                    return -1;
+                }
+                if (b === null || b === undefined) {
+                    return 1;
+                }
+                return a.localeCompare(b);
+            });
         };
 
         const xAxisData = sortAxisData(xAxisDataOriginal);

@@ -4,10 +4,12 @@ import com.arangodb.springframework.annotation.Query;
 import com.arangodb.springframework.repository.ArangoRepository;
 import jakarta.annotation.Nullable;
 import org.springframework.data.repository.query.Param;
+import ru.sweetgit.backend.model.AstSearchResultModel;
 import ru.sweetgit.backend.model.AstTreeModel;
 import ru.sweetgit.backend.model.AstTreeViewModel;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface AstTreeRepository extends ArangoRepository<AstTreeModel, String> {
     @Query("""
@@ -44,4 +46,25 @@ public interface AstTreeRepository extends ArangoRepository<AstTreeModel, String
             """)
     @Nullable AstTreeViewModel
     viewAstTree(@Param("hash") String hash);
+
+    @Query("""
+            FOR file IN commit_files
+                FILTER file.commit == CONCAT("commits/", @commitId)
+                LET tree = DOCUMENT(CONCAT("ast_trees/", file.hash))
+                FILTER tree
+                LET nodes = (
+                    FOR node in ast_nodes
+                        FILTER node.tree == tree._id
+                        FILTER node.label == @label
+                        FILTER (LENGTH(@types) == 0) OR (node.type IN @types)
+                        RETURN node
+                )
+                FILTER LENGTH(nodes) != 0
+                RETURN { file, nodes }
+            """)
+    Collection<AstSearchResultModel> findReferences(
+            @Param("commitId") String commitId,
+            @Param("label") String label,
+            @Param("types") List<String> types
+    );
 }

@@ -43,7 +43,13 @@ public class AstTreeService {
             var fileHash = entry.getKey();
             var rootJsonNode = entry.getValue();
 
+            AstTreeModel treeToSave = AstTreeModel.builder()
+                    .fileHash(fileHash)
+                    .createdAt(Instant.now())
+                    .build();
+
             AstNodeModel rootDbNode = collectNodesAndEdgesRecursiveWithClientIds(
+                    treeToSave,
                     rootJsonNode,
                     null,
                     allNodesToSave,
@@ -51,12 +57,7 @@ public class AstTreeService {
                     keyToNodeMap
             );
 
-            AstTreeModel treeToSave = AstTreeModel.builder()
-                    .fileHash(fileHash)
-                    .createdAt(Instant.now())
-                    .rootNode(rootDbNode)
-                    .build();
-            astTreeModelsToSave.add(treeToSave);
+            astTreeModelsToSave.add(treeToSave.toBuilder().rootNode(rootDbNode).build());
         }
 
         if (!allNodesToSave.isEmpty()) {
@@ -77,6 +78,7 @@ public class AstTreeService {
     }
 
     private AstNodeModel collectNodesAndEdgesRecursiveWithClientIds(
+            AstTreeModel treeToSave,
             JsonNode currentJsonNode,
             AstNodeModel parentNodeModel,
             List<AstNodeModel> allNodesToSave,
@@ -90,6 +92,7 @@ public class AstTreeService {
                 .id(generatedNodeKey)
                 .label(currentJsonNode.path("label").asText(""))
                 .type(currentJsonNode.path("type").asText(""))
+                .tree(treeToSave)
                 .build();
         allNodesToSave.add(currentNodeModel);
         keyToNodeMap.put(generatedNodeKey, currentNodeModel);
@@ -106,6 +109,7 @@ public class AstTreeService {
         if (childrenArray.isArray() && !childrenArray.isEmpty()) {
             for (var childJsonNode : childrenArray) {
                 collectNodesAndEdgesRecursiveWithClientIds(
+                        treeToSave,
                         childJsonNode,
                         currentNodeModel,
                         allNodesToSave,

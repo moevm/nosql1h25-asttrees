@@ -10,7 +10,7 @@ function AdminReposPage() {
 
     return (
         <>
-            <EditRepoDialog onSave={onSave}/>
+            {/*<EditRepoDialog onSave={onSave}/>*/}
             <div className={"flex flex-col p-8"}>
                 <Label className={"text-4xl"}>Репозитории</Label>
                 <AdminReposTableView/>

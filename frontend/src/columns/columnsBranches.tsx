@@ -19,7 +19,7 @@ export const fieldsBranches: EntityField[] = [
     },
     {
         id: "repository.id",
-        name: "id репозитория",
+        name: "ID репозитория",
         type: "string"
     },
     {
@@ -29,7 +29,7 @@ export const fieldsBranches: EntityField[] = [
     },
     {
         id: "repository.owner.id",
-        name: "id владельца репозитория",
+        name: "ID владельца репозитория",
         type: "string"
     },
     {
@@ -39,7 +39,12 @@ export const fieldsBranches: EntityField[] = [
     },
     {
         id: "repository.originalLink",
-        name: "URL репозитория",
+        name: "Источник репозитория",
+        type: "string"
+    },
+    {
+        id: "repository.visibility",
+        name: "Публичность репозитория",
         type: "string"
     },
     {
@@ -48,13 +53,8 @@ export const fieldsBranches: EntityField[] = [
         type: "date"
     },
     {
-        id: "repository.visibility",
-        name: "Доступность репозитория",
-        type: "string"
-    },
-    {
         id: "isDefault",
-        name: "По умолчанию",
+        name: "Основная ветка",
         type: "boolean"
     },
     {
@@ -100,7 +100,7 @@ export const columnsBranches = [
         accessorKey: "id",
         header: ({column}) => {
             return (
-                <DataTableColumnHeader column={column} title="id"/>
+                <DataTableColumnHeader column={column} title="ID"/>
             )
         },
         meta: {

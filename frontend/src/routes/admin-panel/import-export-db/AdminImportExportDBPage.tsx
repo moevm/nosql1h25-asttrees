@@ -80,7 +80,7 @@ function AdminImportExportDBPage() {
     return (
         <div className={"p-8 flex flex-col gap-2"}>
             <Label className={"text-2xl"}>
-                Импорт/Эксорт БД
+                Импорт/Экспорт БД
             </Label>
             <div className={"flex flex-col gap-4"}>
                 <div>

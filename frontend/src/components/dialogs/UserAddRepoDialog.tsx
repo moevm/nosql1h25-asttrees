@@ -22,7 +22,7 @@ import {
     FormMessage
 } from "@/components/ui/form.tsx";
 import {Label} from "@/components/ui/label.tsx";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useAddRepoMutation} from "@/components/dialogs/reposQueries.ts";
 import {visibilityOptions} from "@/lib/types.ts";
 import {useAtomValue} from "jotai/react";
@@ -39,8 +39,7 @@ function UserAddRepoDialog() {
     const userId = useAtomValue($userId)
     const {
         mutate,
-        isPending,
-        isSuccess
+        isPending
     } = useAddRepoMutation(userId!)
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -52,25 +51,26 @@ function UserAddRepoDialog() {
         mode: "onChange"
     });
 
-    useEffect(() => {
-        if (isSuccess && open) {
-            form.reset()
-            setVisibility("public")
-            setOpen(false)
-        }
-    }, [isSuccess, open, setOpen]);
-
     function onSubmit(values: z.infer<typeof formSchema>) {
         mutate({
             body: {
                 originalLink: values.url,
                 name: values.name,
                 visibility: visibility.toUpperCase()
+            },
+        }, {
+            onSuccess() {
+                form.reset()
+                setVisibility("public")
+                setOpen(false)
             }
         });
     }
 
-    const handleOpenChange = (newOpenState: boolean) => {
+    const handleOpenChange = useCallback((newOpenState: boolean) => {
+        console.info({
+            newOpenState
+        })
         if (isPending && !newOpenState) {
             return;
         }
@@ -79,7 +79,7 @@ function UserAddRepoDialog() {
             form.reset();
             setVisibility("public");
         }
-    };
+    }, []);
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>

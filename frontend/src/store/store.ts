@@ -115,6 +115,8 @@ export const $adminCommitId = atom<string | null>(null)
 export const $adminAstTreeId = atom<string | null>(null)
 export const $path = atom("")
 
+export const $astQuery = atom<{ typename: string, types: string[] } | null>(null)
+
 export const $userQueryOptions = (userId: string, enabled: boolean) => $api.queryOptions(
     'get',
     '/users/{userId}',
@@ -280,6 +282,31 @@ export const $fileAstQuery = atomWithQuery((get) => {
 })
 
 export const $fileAst = loadableQuery($fileAstQuery)
+
+export const $astSearchQueryOptions = (enabled: boolean, commitId: string, typename: string, types: string[]) => $api.queryOptions(
+    'post',
+    '/commits/{commitId}/ast/search',
+    {
+        params: {
+            path: {
+                commitId,
+            },
+        },
+        body: {typename, types}
+    },
+    {enabled}
+)
+
+export const $astSearchQuery = atomWithQuery((get) => {
+    const fileAst = get($fileAst)
+    const query = get($astQuery)
+
+    const enabled = fileAst.state === 'hasData' && query !== null
+
+    return $astSearchQueryOptions(enabled, get($commitId) ?? '', query?.typename ?? '', query?.types ?? [])
+})
+
+export const $astSearch = loadableQuery($astSearchQuery)
 
 export const $showRepoSettingsDialog = atom(false);
 export const $showVisualizationDialog = atom(false);

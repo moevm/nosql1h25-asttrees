@@ -94,7 +94,7 @@ function RichTableView<TData, TValue>({
     }, [entityType])
 
     return (
-        <div className={"flex w-full min-w-screen-sm max-w-screen-lg flex-col"}>
+        <div className={"flex w-full min-w-screen-sm flex-col"}>
             <div className="flex flex-justify-between gap-2 w-full py-2">
                 {!(settings) || settings.enableSearch && (
                     <div className="flex gap-2 max-w-sm w-full">
@@ -136,7 +136,7 @@ function RichTableView<TData, TValue>({
                             </Button>
                         }
                     </div>
-                    {settings?.enableColumnVisibilityToggle && <DataTableViewOptions table={table}/>}
+                    {/*{settings?.enableColumnVisibilityToggle && <DataTableViewOptions table={table}/>}*/}
                 </div>
             </div>
 
@@ -148,7 +148,7 @@ function RichTableView<TData, TValue>({
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id} className="truncate max-w-screen-lg">
+                                    <TableHead key={header.id} className="truncate">
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(header.column.columnDef.header, header.getContext())}
@@ -174,7 +174,7 @@ function RichTableView<TData, TValue>({
                         ) : table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
-                                    className="cursor-pointer truncate max-w-screen-lg"
+                                    className="cursor-pointer truncate"
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                     onClick={(e) => {
@@ -187,7 +187,7 @@ function RichTableView<TData, TValue>({
                                     }}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id} className="truncate max-w-screen-lg">
+                                        <TableCell key={cell.id} className="truncate">
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}

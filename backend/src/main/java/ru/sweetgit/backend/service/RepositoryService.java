@@ -2,7 +2,6 @@ package ru.sweetgit.backend.service;
 
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.dto.ApiException;
@@ -27,24 +26,32 @@ public class RepositoryService {
         return repositoryRepository.findById(id);
     }
 
+    public Optional<RepositoryModel> getByCommitId(String commitId) {
+        return repositoryRepository.findByCommitId(commitId);
+    }
+
+    public Optional<RepositoryModel> getByUserAndName(String userId, String id) {
+        return repositoryRepository.findByOwnerIdAndName(userId, id);
+    }
+
     public List<RepositoryModel> getRepositoriesForUser(
-            UserModel user,
+            String userId,
             @Nullable UserDetailsWithId currentUser
     ) {
         List<RepositoryVisibilityModel> visibility;
         if (currentUser == null) {
             visibility = List.of(RepositoryVisibilityModel.PUBLIC);
-        } else if (UserService.isAdmin(currentUser) || currentUser.getId().equals(user.getId())) {
+        } else if (UserService.isAdmin(currentUser) || currentUser.getId().equals(userId)) {
             visibility = List.of(RepositoryVisibilityModel.PUBLIC, RepositoryVisibilityModel.PRIVATE, RepositoryVisibilityModel.PROTECTED);
         } else {
             visibility = List.of(RepositoryVisibilityModel.PUBLIC, RepositoryVisibilityModel.PROTECTED);
         }
 
         return repositoryRepository.findAllByOwnerId(
-                PageRequest.of(0, 10000, Sort.by(Sort.Order.desc("repo.createdAt"))), // TODO add page support
-                user.getId(),
+                Sort.by(Sort.Order.desc("repo.createdAt")),
+                userId,
                 visibility
-        ).toList();
+        ).stream().toList();
     }
 
 

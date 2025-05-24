@@ -1,48 +1,77 @@
 import {
+    $astQuery, $astSearch,
+    $astSearchQuery,
     type ApiFileAstModel,
     type ApiFileContentModel,
     type ApiRepositoryViewModel
 } from "@/store/store.ts";
 import {Label} from "@/components/ui/label.tsx";
-import {ChevronDown, ChevronUp, History} from "lucide-react";
+import {ChevronDown, ChevronsUpDown, ChevronUp, Eye, History, Search, X} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
-import {useMemo, useState} from "react";
-import {Link} from "react-router-dom";
+import {useEffect, useMemo, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import React from "react";
 import hljs from 'highlight.js';
 import {type Loadable} from "jotai/utils";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {loaded} from "@/api";
 import {type NodeRendererProps, Tree} from 'react-arborist';
-import {cva} from "class-variance-authority";
-import {cn} from "@/lib/utils.ts";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu.tsx";
+import {useAtomValue, useSetAtom} from "jotai/react";
+import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible.tsx";
+import {useAtom} from "jotai";
+
+const REFERENCE_TYPES = new Set([
+    'TypeParameter',
+    'SUPER_TYPE',
+    'RETURN_TYPE',
+    'TYPE_ARGUMENT',
+    'Annotation',
+    'VARIABLE_TYPE',
+    'ConstructorCall',
+    'INTERFACE',
+    'TypeAccess',
+    'SUPER_INTERFACES',
+
+])
+
+const DECLARATION_TYPES = new Set([
+    'Class',
+    'Interface'
+])
 
 
 function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     return (
         <div className="pb-5">
             <table
-                className="min-w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border">
+                className="w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border">
                 <thead>
                 <tr className="bg-slate-100">
-                    <th className="flex justify-between text-left py-2 px-4 gap-2">
-                        <div className={"flex justify-center gap-2"}>
-                            <Label className={"font-bold"}>
+                    <th className="flex justify-between text-left py-2 px-4 gap-2 items-center">
+                        <div className={"text-sm truncate flex gap-2 items-center"}>
+                            <span className={"whitespace-nowrap"}>
                                 {repo.commit?.author}
-                            </Label>
-                            <Label className={"text-primary/60"}>
+                            </span>
+                            <span className={"text-primary/60 truncate"}>
                                 {repo.commit?.message}
-                            </Label>
+                            </span>
                         </div>
 
-                        <div className={"flex justify-center gap-2"}>
-                            <Label className={"text-primary/60 font-mono"}>
+                        <div className={"text-sm flex gap-2 items-center"}>
+                            <span className={"text-primary/60 font-mono whitespace-nowrap"}>
                                 {repo.commit?.hash && String(repo.commit?.hash).substring(0, 6)}
-                            </Label>
-                            <Label className={"text-primary/60"}>
+                            </span>
+                            <span className={"text-primary/60 whitespace-nowrap"}>
                                 {new Date(repo.commit?.createdAt)?.toLocaleDateString("ru-RU")}
-                            </Label>
+                            </span>
                             <Link
                                 to={`/users/${repo.owner?.id}/repo/${repo.repository?.id}/branch/${repo.branch?.id}/commits`}>
                                 <Button variant="ghost">
@@ -58,41 +87,70 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     )
 }
 
-const hashCode = (str: string) => {
-    let hash = 0,
-        i, chr;
-    if (str.length === 0) return hash;
-    for (i = 0; i < str.length; i++) {
-        chr = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + chr;
-        hash |= 0;
-    }
-    return hash;
-}
-
-const getBadgeStyle = (name: string) => {
-    return {
-        'backgroundColor': `var(--chart-${Math.abs(hashCode(name)) % 5 + 1})`
-    }
+function AstLabelRenderer({label, type}: { label: string, type: string }) {
+    return <div className={"flex items-center gap-2 font-mono text-xs"}>
+        <span className={"rounded-full text-background px-2 py-0.5 bg-slate-700 whitespace-nowrap"}>{type}</span>
+        <span className={"whitespace-nowrap"}>{label}</span>
+    </div>
 }
 
 function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
+    const setAstQuery = useSetAtom($astQuery)
+
     const {id, data} = node
     const {label, type} = data
+
+    const includesDot = label.includes('.')
+    const isDeclaration = DECLARATION_TYPES.has(type)
+    const isReference = REFERENCE_TYPES.has(type)
+
+    const refSearchAvailable = (isDeclaration || (includesDot && isReference))
+    const declarationSearchAvailable = includesDot && isReference
+
+    const anySearchAvailable = (refSearchAvailable || declarationSearchAvailable)
+
     return (
         <div
             style={style}
             ref={dragHandle}
             onClick={() => node.toggle()}
-            className={"font-mono hover:bg-accent/50 rounded cursor-pointer flex items-center gap-2 text-xs"}
+            className={"hover:bg-accent/50 rounded cursor-pointer flex items-center gap-2 text-xs"}
         >
             <span style={{width: 16, height: 16}}>
                  {node.children?.length !== 0 && (
                      !node.isOpen ? <ChevronDown size={16}/> : <ChevronUp size={16}/>
                  )}
             </span>
-            <span className={"rounded-full text-background px-2 py-0.5"} style={getBadgeStyle(type)}>{type}</span>
-            <span>{label}</span>
+            <AstLabelRenderer label={label} type={type}/>
+            {anySearchAvailable && (
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <Button variant={"secondary"} className={"!p-1 h-auto ml-1"}>
+                            <Search className={"size-[12px]"}/>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        {refSearchAvailable && <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation()
+                            setAstQuery({
+                                typename: label as string,
+                                types: [...REFERENCE_TYPES]
+                            })
+                        }}>
+                            Найти использования
+                        </DropdownMenuItem>}
+                        {declarationSearchAvailable && <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation()
+                            setAstQuery({
+                                typename: label as string,
+                                types: [...DECLARATION_TYPES]
+                            })
+                        }}>
+                            Найти объявления
+                        </DropdownMenuItem>}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )}
         </div>
     );
 }
@@ -102,12 +160,22 @@ function FileTableContent({repo, fileContent, fileAst}: {
     fileContent: ApiFileContentModel,
     fileAst: Loadable<ApiFileAstModel>
 }) {
+    const astQueryResult = useAtomValue($astSearch)
+    const [astQuery, setAstQuery] = useAtom($astQuery)
+    const navigate = useNavigate()
+
     const [selectedTab, setSelectedTab] = useState("code")
     const highlightedCode = useMemo(() => {
         if (!fileContent.isBinary) {
-            return hljs.highlightAuto(
-                fileContent.content!
-            ).value
+            const extension = fileContent.commitFile!.name!.includes('.')
+                ? fileContent.commitFile!.name!.substring(fileContent.commitFile!.name!.lastIndexOf('.') + 1).toLowerCase()
+                : null
+
+            const hasLang = extension && hljs.listLanguages().includes(extension)
+
+            return hasLang
+                ? hljs.highlight(extension, fileContent.content!).value
+                : hljs.highlightAuto(fileContent.content!).value
         }
         return null
     }, [fileContent])
@@ -116,10 +184,10 @@ function FileTableContent({repo, fileContent, fileAst}: {
         <div>
             <RepoHeader repo={repo}/>
             <table
-                className="min-w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border">
+                className="w-full table-fixed border-separate border-spacing-0 border rounded overflow-hidden border-border">
                 <thead>
                 <tr className="bg-slate-100">
-                    <th className="flex justify-between text-left py-2 px-4 gap-2 items-center">
+                    <th className="flex justify-between text-left py-2 px-4 gap-2 items-center" >
                         <div className={"flex justify-center gap-2 items-center"}>
                             {fileContent.hasAst &&
                                 <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
@@ -144,7 +212,7 @@ function FileTableContent({repo, fileContent, fileAst}: {
                 <tbody className="bg-background border-t border-border">
                 {selectedTab === "code" ? (
                     <tr>
-                        <td colSpan={2}>
+                        <td >
                             <div className="p-4 overflow-auto">
                                 <pre className="whitespace-pre-wrap text-sm">
                                     <code>
@@ -171,24 +239,90 @@ function FileTableContent({repo, fileContent, fileAst}: {
                 ) : (
                     <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'} display={() => (
                         <tr>
-                            <td colSpan={2} className="py-4 px-4 font-mono">
-                                <BatchLoader
-                                    states={[fileAst]}
-                                    loadingMessage={'Загрузка AST-дерева'}
-                                    display={() => (
-                                        <Tree
-                                            rowHeight={22}
-                                            disableDrag={true}
-                                            disableEdit={true}
-                                            disableDrop={true}
-                                            width={'auto'}
-                                            childrenAccessor={d => [...d.children].reverse()}
-                                            initialData={loaded(fileAst).data.astTree.nodes}
-                                        >
-                                            {AstNode}
-                                        </Tree>
-                                    )}
-                                />
+                            <td  className="py-4 px-4">
+                                <div className={"flex min-w-0 w-full h-full gap-4 max-h-[600px]"}>
+                                    <Tree
+                                        rowHeight={22}
+                                        height={600}
+                                        disableDrag={true}
+                                        disableEdit={true}
+                                        disableDrop={true}
+                                        width={'auto'}
+                                        childrenAccessor={d => [...d.children].reverse()}
+                                        initialData={loaded(fileAst).data.astTree.nodes}
+                                    >
+                                        {AstNode}
+                                    </Tree>
+                                    {astQuery && <Card className={"min-w-sm flex-2"}>
+                                        <CardHeader>
+                                            <CardTitle className={"flex justify-between items-center"}>
+                                                <span>Поиск</span>
+                                                <Button variant={"ghost"} className={"!p-1 h-auto"} onClick={() => setAstQuery(null)}>
+                                                    <X />
+                                                </Button>
+                                            </CardTitle>
+                                            <CardDescription>{
+                                                (
+                                                    astQueryResult.state === 'loading' ? 'Загрузка...' : (
+                                                        astQueryResult.state === 'hasData' ? (
+                                                            astQueryResult.data.length === 0 ? 'Результатов нет' : 'Элементов: ' + (astQueryResult.data.reduce((prev, cur) => prev + cur.nodes.length, 0))
+                                                        ) : false
+                                                    )
+                                                )
+                                            }</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className={"overflow-auto h-full"}>
+                                            <BatchLoader
+                                                states={[astQueryResult]}
+                                                loadingMessage={''}
+                                                display={() => (
+                                                    <div className={"flex flex-col gap-2"}>
+                                                        {astQueryResult.data.map(item =>
+                                                            <Collapsible>
+                                                                <div>
+                                                                    <div className={"flex items-center gap-1"}>
+                                                                        <CollapsibleTrigger asChild>
+                                                                            <Button variant="outline"
+                                                                                    className={"!px-3"}>
+                                                                                <ChevronsUpDown
+                                                                                    className="size-[14px]"/>
+                                                                            </Button>
+                                                                        </CollapsibleTrigger>
+                                                                        <Button variant="outline" className={"!px-3"}
+                                                                                onClick={() => navigate(`/users/${repo.owner!.id}/repo/${repo.repository!.id}/branch/${repo.branch!.id}/commit/${repo.commit!.id}/file/${item.file.id}`)}>
+                                                                            <Eye className="size-[14px]"/>
+                                                                        </Button>
+                                                                        <div className={"ml-1"}>
+                                                                            <div
+                                                                                className={"text-sm"}>{item.file.fullPath}</div>
+                                                                            <div
+                                                                                className={"text-xs text-muted-foreground"}>элементов: {item.nodes.length}</div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+
+                                                                <CollapsibleContent>
+                                                                    <div className={"flex flex-col gap-2 mt-2"}>
+                                                                        {item.nodes.map(node => (
+                                                                            <AstLabelRenderer label={node.label}
+                                                                                              type={node.type}/>
+                                                                        ))}
+                                                                    </div>
+                                                                </CollapsibleContent>
+
+                                                            </Collapsible>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            />
+
+                                            <pre className={"text-xs"}>
+                                        </pre>
+                                        </CardContent>
+                                    </Card>}
+                                </div>
+
                             </td>
                         </tr>
                     )}/>
@@ -206,6 +340,13 @@ function FileTable({repo, fileContent, fileAst}: {
     fileContent: Loadable<ApiFileContentModel>,
     fileAst: Loadable<ApiFileAstModel>
 }) {
+    const setAstSearch = useSetAtom($astQuery)
+    useEffect(() => {
+        if (fileAst.data) {
+            setAstSearch(null)
+        }
+    }, [fileAst.data]);
+
     return (
         <BatchLoader
             states={[repo, fileContent]}

@@ -4,24 +4,35 @@ package ru.sweetgit.backend.repo;
 import com.arangodb.springframework.annotation.Query;
 import com.arangodb.springframework.repository.ArangoRepository;
 import jakarta.annotation.Nullable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.Param;
 import ru.sweetgit.backend.model.RepositoryModel;
 import ru.sweetgit.backend.model.RepositoryViewModel;
 import ru.sweetgit.backend.model.RepositoryVisibilityModel;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface RepositoryRepository extends ArangoRepository<RepositoryModel, String> {
     @Query("""
             FOR repo in repositories
                 FILTER repo.owner == CONCAT("users/", @ownerId)
                 FILTER repo.visibility IN (FOR item IN @visibility RETURN item)
-                #pageable
+                #sort
                 RETURN repo
             """)
-    Page<RepositoryModel> findAllByOwnerId(Pageable pageable, String ownerId, List<RepositoryVisibilityModel> visibility);
+    Collection<RepositoryModel> findAllByOwnerId(Sort sort, String ownerId, List<RepositoryVisibilityModel> visibility);
+
+    @Query("""
+            LET oneBranchForCommit = FIRST(
+               FOR branch_node IN 1..1 INBOUND CONCAT("commits/", @commitId) branch_commits
+                   LIMIT 1
+                   RETURN branch_node
+            )
+            RETURN DOCUMENT(oneBranchForCommit.repository)
+            """)
+    Optional<RepositoryModel> findByCommitId(@Param("commitId") String commitId);
 
     @Query("""
             LET repoModel = DOCUMENT(CONCAT("repositories/", @repositoryId))
@@ -97,4 +108,6 @@ public interface RepositoryRepository extends ArangoRepository<RepositoryModel, 
             @Param("commitId") @Nullable String commitId,
             @Param("path") String path
     );
+
+    Optional<RepositoryModel> findByOwnerIdAndName(String ownrId, String name);
 }
