@@ -47,7 +47,7 @@ public class ImportRepositoryOperation {
         var inMemoryRepository = gitImportResult.repositoryData()
                 .owner(userService.getUserById(currentUser.getId()).orElseThrow())
                 .visibility(RepositoryVisibilityModel.valueOf(request.visibility().toString()))
-                .id(Generators.timeBasedEpochRandomGenerator().toString())
+                .id(uuidGenerator.generate().toString())
                 .build();
         repositoryRepository.save(inMemoryRepository);
 

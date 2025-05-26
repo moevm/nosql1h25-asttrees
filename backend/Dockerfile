@@ -1,4 +1,4 @@
-cd FROM gradle:8.5-jdk17 AS build
+FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 COPY --chown=gradle:gradle . .
 RUN ./gradlew bootJar --no-daemon
