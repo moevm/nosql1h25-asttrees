@@ -1,18 +1,17 @@
 package ru.sweetgit.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedEpochRandomGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;
-import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
 import ru.sweetgit.backend.dto.request.CreateRepositoryRequest;
 import ru.sweetgit.backend.model.*;
 import ru.sweetgit.backend.repo.*;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +29,7 @@ public class ImportRepositoryOperation {
     private final AstTreeService astTreeService;
     private final AstGenerationService astGenerationService;
     private final RepositoryService repositoryService;
+    private final TimeBasedEpochRandomGenerator uuidGenerator;
 
     private record FileData(
             String hash,
@@ -47,7 +47,7 @@ public class ImportRepositoryOperation {
         var inMemoryRepository = gitImportResult.repositoryData()
                 .owner(userService.getUserById(currentUser.getId()).orElseThrow())
                 .visibility(RepositoryVisibilityModel.valueOf(request.visibility().toString()))
-                .id(UUID.randomUUID().toString())
+                .id(Generators.timeBasedEpochRandomGenerator().toString())
                 .build();
         repositoryRepository.save(inMemoryRepository);
 
@@ -56,7 +56,7 @@ public class ImportRepositoryOperation {
         for (var branchBuilderData : gitImportResult.branchData().values()) {
             var branch = branchBuilderData
                     .repository(inMemoryRepository)
-                    .id(UUID.randomUUID().toString())
+                    .id(uuidGenerator.generate().toString())
                     .build();
             inMemoryBranches.put(branch.getName(), branch);
             branchesToSave.add(branch);
@@ -71,7 +71,7 @@ public class ImportRepositoryOperation {
         for (var entry : gitImportResult.commitData().entrySet()){
             var commitData = entry.getValue();
             var commit = commitData.commitModelBuilder()
-                    .id(UUID.randomUUID().toString())
+                    .id(uuidGenerator.generate().toString())
                     .build();
             inMemoryCommits.put(commit.getHash(), commit);
             commitsToSave.add(commit);
@@ -100,7 +100,7 @@ public class ImportRepositoryOperation {
             commitEntry.getValue().files().forEach(fileData -> {
                 var model = fileData.entityBuilder()
                         .commit(currentInMemoryCommit)
-                        .id(UUID.randomUUID().toString())
+                        .id(uuidGenerator.generate().toString())
                         .build();
                 allInMemoryCommitFileModels.add(model);
             });

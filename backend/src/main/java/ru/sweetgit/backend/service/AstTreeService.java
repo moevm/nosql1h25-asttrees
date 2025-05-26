@@ -1,6 +1,7 @@
 package ru.sweetgit.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.uuid.impl.TimeBasedEpochRandomGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.model.AstNodeModel;
@@ -20,6 +21,7 @@ public class AstTreeService {
     private final AstTreeRepository astTreeRepository;
     private final AstNodeRepository astNodeRepository;
     private final AstParentRepository astParentRepository;
+    private final TimeBasedEpochRandomGenerator uuidGenerator;
 
     public Collection<String> findNonExistingKeys(Collection<String> keysToCheck) {
         return astTreeRepository.findNonExistingKeys(keysToCheck);
@@ -86,7 +88,7 @@ public class AstTreeService {
             Map<String, AstNodeModel> keyToNodeMap
     ) {
 
-        var generatedNodeKey = UUID.randomUUID().toString();
+        var generatedNodeKey = uuidGenerator.generate().toString();
 
         var currentNodeModel = AstNodeModel.builder()
                 .id(generatedNodeKey)
