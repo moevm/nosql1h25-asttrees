@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetgit.backend.annotation.IsAdmin;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.request.EntitySearchRequest;
 import ru.sweetgit.backend.dto.request.EntityStatsRequest;
@@ -27,7 +28,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-//@IsAdmin
+@IsAdmin
 public class EntityController {
     private final EntityService entityService;
     private final EntityMapper entityMapper;
