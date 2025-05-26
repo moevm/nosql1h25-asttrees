@@ -20,7 +20,7 @@ import {$currentEntitiesFieldsAtom, $hideColumnsAtomFamily, $path, $showVisualiz
 import VisualizationDialog from "@/components/dialogs/VisualizationDialog.tsx";
 import type {EntityField} from "@/lib/utils.ts";
 import * as Progress from '@radix-ui/react-progress'
-import type {FilterItem} from "@/lib/FILTERS.ts";
+import type {FilterItem} from "@/lib/filters.ts";
 import TableFilters from "@/components/custom/table/TableFilters.tsx";
 import {useAtom} from "jotai";
 

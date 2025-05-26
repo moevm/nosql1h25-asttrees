@@ -4,7 +4,7 @@ import * as React from "react";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Label} from "@/components/ui/label.tsx";
-import {type FilterConfiguration, type FilterItem, FILTERS, getFieldFilters} from "@/lib/FILTERS.ts";
+import {type FilterConfiguration, type FilterItem, FILTERS, getFieldFilters} from "@/lib/filters.ts";
 import type {EntityField} from "@/lib/utils.ts";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
