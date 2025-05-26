@@ -2,3 +2,4 @@
 .vscode
 backend/src/main/resources/application-dev.yaml
 .vscode/settings.json
+migration
