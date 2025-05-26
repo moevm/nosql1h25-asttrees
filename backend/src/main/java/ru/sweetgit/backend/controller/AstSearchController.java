@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.UserDetailsWithId;
-import ru.sweetgit.backend.dto.request.AstSearchFindReferencesDto;
+import ru.sweetgit.backend.dto.request.AstSearchFindReferencesRequest;
 import ru.sweetgit.backend.dto.response.AstSearchResultDto;
 import ru.sweetgit.backend.mapper.AstSearchMapper;
 import ru.sweetgit.backend.service.AstSearchService;
@@ -31,7 +31,7 @@ public class AstSearchController {
     ResponseEntity<List<AstSearchResultDto>> search(
             @PathVariable("commitId") String commitId,
             @Nullable @AuthenticationPrincipal UserDetailsWithId currentUser,
-            @RequestBody AstSearchFindReferencesDto request
+            @RequestBody AstSearchFindReferencesRequest request
     ) {
         commitService.getById(commitId)
                 .orElseThrow(() -> ApiException.notFound("Коммит", "id", commitId).build());

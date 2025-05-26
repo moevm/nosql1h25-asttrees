@@ -116,6 +116,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/commit_files/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["statsCommitFiles"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/commit_files/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["queryCommitFiles"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/entities/branches/stats": {
         parameters: {
             query?: never;
@@ -174,6 +206,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["queryAstTrees"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/ast_nodes/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["statsAstNodes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/ast_nodes/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["queryAstNodes"];
         delete?: never;
         options?: never;
         head?: never;
@@ -290,6 +354,118 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["updateRepository_1"];
+        trace?: never;
+    };
+    "/admin/users/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchUser"];
+        trace?: never;
+    };
+    "/admin/repositories/{repositoryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchRepository"];
+        trace?: never;
+    };
+    "/admin/commits/{commitId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchCommit"];
+        trace?: never;
+    };
+    "/admin/commit_files/{commitFileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchCommitFile"];
+        trace?: never;
+    };
+    "/admin/branches/{branchId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchBranch"];
+        trace?: never;
+    };
+    "/admin/ast_trees/{astTreeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchAstTree"];
+        trace?: never;
+    };
+    "/admin/ast_nodes/{astNodeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchAstNode"];
         trace?: never;
     };
     "/users/{userId}": {
@@ -436,6 +612,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/commit_files/{commitFileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getCommitFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/entities/branches/{branchId}": {
         parameters: {
             query?: never;
@@ -460,6 +652,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getAstTree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/ast_nodes/{astNodeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAstNode"];
         put?: never;
         post?: never;
         delete?: never;
@@ -543,7 +751,7 @@ export interface components {
             searchFields: string[];
             filter: components["schemas"]["Filter"][];
             xAxisField: string;
-            yAxisField: string;
+            yAxisField?: string;
         };
         Filter: {
             field?: string;
@@ -592,7 +800,7 @@ export interface components {
             content?: Record<string, never>[];
             page?: components["schemas"]["PageMetadata"];
         };
-        AstSearchFindReferencesDto: {
+        AstSearchFindReferencesRequest: {
             typename: string;
             types: string[];
         };
@@ -647,6 +855,62 @@ export interface components {
             name: string;
             /** @enum {string} */
             visibility?: "PUBLIC" | "PROTECTED" | "PRIVATE";
+        };
+        AdminPatchUserRequest: {
+            username: string;
+            email: string;
+            /** @enum {string} */
+            visibility: "PUBLIC" | "PRIVATE";
+            /** Format: date-time */
+            createdAt: string;
+            isAdmin?: boolean;
+        };
+        AdminPatchRepositoryRequest: {
+            name: string;
+            owner: string;
+            /** @enum {string} */
+            visibility: "PUBLIC" | "PROTECTED" | "PRIVATE";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uri */
+            originalLink: string;
+        };
+        AdminPatchCommitRequest: {
+            hash: string;
+            author: string;
+            email: string;
+            message: string;
+            /** Format: int32 */
+            filesChanged?: number;
+            /** Format: int32 */
+            linesAdded?: number;
+            /** Format: int32 */
+            linesRemoved?: number;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AdminPatchCommitFileRequest: {
+            name: string;
+            fullPath: string;
+            hash?: string;
+            parent?: string;
+            commit: string;
+        };
+        AdminPatchBranchRequest: {
+            name: string;
+            repository: string;
+            /** Format: date-time */
+            createdAt: string;
+            isDefault?: boolean;
+        };
+        AdminPatchAstTreeRequest: {
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AdminPatchAstNodeRequest: {
+            type: string;
+            label: string;
+            tree: string;
         };
         FileContentDto: {
             commitFile?: components["schemas"]["CommitFileDto"];
@@ -729,6 +993,18 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
         };
+        EntityCommitFileDto: {
+            id?: string;
+            name?: string;
+            fullPath?: string;
+            /** @enum {string} */
+            type?: "DIRECTORY" | "FILE";
+            hash?: string;
+            parent?: string;
+            commit?: components["schemas"]["CommitDto"];
+            repository?: components["schemas"]["RepositoryDto"];
+            hasAst?: boolean;
+        };
         EntityBranchDto: {
             id?: string;
             name?: string;
@@ -747,7 +1023,15 @@ export interface components {
             depth?: number;
             /** Format: int32 */
             size?: number;
-            commitFile?: components["schemas"]["ShortCommitFileDto"];
+        };
+        EntityAstNodeDto: {
+            id?: string;
+            label?: string;
+            type?: string;
+            tree?: string;
+            parent?: string;
+            /** Format: int64 */
+            childrenCount?: number;
         };
     };
     responses: never;
@@ -926,6 +1210,54 @@ export interface operations {
             };
         };
     };
+    statsCommitFiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntityStatsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityStatsDto"];
+                };
+            };
+        };
+    };
+    queryCommitFiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntitySearchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PagedModel"];
+                };
+            };
+        };
+    };
     statsBranches: {
         parameters: {
             query?: never;
@@ -1022,6 +1354,54 @@ export interface operations {
             };
         };
     };
+    statsAstNodes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntityStatsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityStatsDto"];
+                };
+            };
+        };
+    };
+    queryAstNodes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntitySearchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PagedModel"];
+                };
+            };
+        };
+    };
     importDatabase: {
         parameters: {
             query?: never;
@@ -1078,7 +1458,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AstSearchFindReferencesDto"];
+                "application/json": components["schemas"]["AstSearchFindReferencesRequest"];
             };
         };
         responses: {
@@ -1208,6 +1588,174 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["RepositoryDto"];
                 };
+            };
+        };
+    };
+    patchUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPatchUserRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    patchRepository: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                repositoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPatchRepositoryRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    patchCommit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commitId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPatchCommitRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    patchCommitFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commitFileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPatchCommitFileRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    patchBranch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                branchId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPatchBranchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    patchAstTree: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                astTreeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPatchAstTreeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    patchAstNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                astNodeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPatchAstNodeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -1420,6 +1968,28 @@ export interface operations {
             };
         };
     };
+    getCommitFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commitFileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityCommitFileDto"];
+                };
+            };
+        };
+    };
     getBranch: {
         parameters: {
             query?: never;
@@ -1460,6 +2030,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["EntityAstTreeDto"];
+                };
+            };
+        };
+    };
+    getAstNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                astNodeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EntityAstNodeDto"];
                 };
             };
         };

@@ -6,41 +6,67 @@ import {
 } from "@/components/custom/utils/ValueRenderers.tsx";
 import {
     $adminRepo,
-    $adminRepoId, $showEditRepoDialog, type ApiEntityRepositoryModel
+    $adminRepoId, $adminRepoQueryOptions, $adminUserQueryOptions, $showEditRepoDialog, type ApiEntityRepositoryModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import dayjs from "dayjs";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {useEffect} from "react";
-import {loaded} from "@/api";
+import {useCallback, useEffect} from "react";
+import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {typesVisibilityType} from "@/lib/table.ts";
 import EditRepoDialog from "@/components/dialogs/EditRepoDialog.tsx";
+import {columnsRepos} from "@/columns/columnsRepos.tsx";
+import {z} from "zod";
+import {repoSchema, type userSchema} from "@/lib/formSchemas.ts";
+import {toast} from "sonner";
 
 function AdminRepoPageContent(props: {
     data: ApiEntityRepositoryModel
 }) {
     const setShowEditRepoDialog = useSetAtom($showEditRepoDialog)
     const navigate = useNavigate()
+
+    const {mutate} = $api.useMutation(
+        'patch',
+        '/admin/repositories/{repositoryId}'
+    )
+
+    const onSave = useCallback(async (data: z.infer<typeof repoSchema>) => {
+        mutate({
+            params: {
+                path: {
+                    repositoryId: props.data.id!
+                }
+            },
+            body: {
+                name: data.name,
+                owner: data.ownerId,
+                visibility: data.visibility,
+                createdAt: data.createdAt.toISOString(),
+                originalLink: data.originalLink
+            }
+        }, {
+            onSuccess() {
+                toast.info('Репозиторий изменён')
+                queryClient.invalidateQueries({ queryKey: $adminRepoQueryOptions(props.data.id!).queryKey });
+                setShowEditRepoDialog(false)
+            },
+            onError: defaultOnErrorHandler
+        })
+    }, [])
+
     return (
         <>
-            <EditRepoDialog data={props.data}/>
+            <EditRepoDialog data={props.data} onSave={onSave} />
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
                     <Label className={"text-3xl"}>{props.data.name}</Label>
 
                     <EntityCard
-                        items={[
-                            ['id', <MonoRenderer value={props.data.id}/>],
-                            ['Название', props.data.name],
-                            ['Владелец', props.data.owner?.username],
-                            ['Публичность', typesVisibilityType[props.data.visibility]],
-                            ['Источник', props.data.originalLink],
-                            ['Дата создания', <DateRenderer value={dayjs(props.data.createdAt)}/>],
-                            ['Количество веток', props.data.branchCount],
-                            ['Количество коммитов', props.data.commitCount],
-                        ]}
+                        entity={props.data}
+                        columns={columnsRepos}
                     />
                     <div className={"flex justify-between gap-6"}>
                         <div className="flex justify-between gap-2">

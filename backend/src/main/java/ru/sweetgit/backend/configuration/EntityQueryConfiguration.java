@@ -202,13 +202,6 @@ public class EntityQueryConfiguration {
                         
                             LET treeDepth = LENGTH(traversalData) == 0 ? 0 : MAX(traversalData[*].depth)
                             LET treeSize = LENGTH(traversalData)
-                        
-                            LET commitFileDoc = FIRST(
-                                FOR cf IN commit_files
-                                    FILTER cf.hash == entity._key
-                                    LIMIT 1
-                                    RETURN cf
-                            )
                         """,
                 """
                         MERGE(
@@ -217,22 +210,96 @@ public class EntityQueryConfiguration {
                                 id: entity._key,
                                 arangoId: entity._id,
                                 depth: treeDepth,
-                                size: treeSize,
-                                commitFile: MERGE(
-                                    commitFileDoc,
-                                    {
-                                        id: commitFileDoc._key,
-                                        arangoId: commitFileDoc._id,
-                                    }
-                                )
+                                size: treeSize
                             }
                         )
                         """
         );
     }
 
-//    @Bean
-//    public Map<String, EntityQuery<?>> entityQueriesByName(List<EntityQuery<?>> entityQueries) {
-//        return entityQueries.stream().collect(Collectors.toMap(EntityQuery::name, Function.identity()));
-//    }
+    @Bean
+    public EntityQuery<FullCommitFileModel> commitFileEntityQuery() {
+        return new EntityQuery<>(
+                "commit_files",
+                FullCommitFileModel.class,
+                "FOR entity IN commit_files",
+                """
+                        LET commitDoc = DOCUMENT(entity.commit)
+                        LET oneBranchForCommit = FIRST(
+                            FOR branchNode IN 1..1 INBOUND commitDoc._id branch_commits
+                                LIMIT 1
+                                RETURN branchNode
+                        )
+                        LET repoDoc = DOCUMENT(oneBranchForCommit.repository)
+                        LET ownerDocForRepo = DOCUMENT(repoDoc.owner)
+                        LET astTreeExists = entity.hash != null AND DOCUMENT(CONCAT("ast_trees/", entity.hash)) != null
+                        """,
+                """
+                        MERGE(
+                            entity,
+                            {
+                                id: entity._key,
+                                arangoId: entity._id,
+                                parent: DOCUMENT(entity.parent)._key
+                            },
+                            {
+                                commit: MERGE(
+                                    commitDoc,
+                                    {
+                                        id: commitDoc._key,
+                                        arangoId: commitDoc._id,
+                                    }
+                                ),
+                                repository: MERGE(
+                                    repoDoc,
+                                    {
+                                        id: repoDoc._key,
+                                        arangoId: repoDoc._id
+                                    },
+                                    {
+                                        owner: ownerDocForRepo._key
+                                    }
+                                ),
+                                hasAst: astTreeExists
+                            }
+                        )
+                        """
+        );
+    }
+
+    @Bean
+    public EntityQuery<FullAstNodeModel> astNodeEntityQuery() {
+        return new EntityQuery<>(
+                "ast_nodes",
+                FullAstNodeModel.class,
+                "FOR entity IN ast_nodes",
+                """
+                        LET treeDoc = DOCUMENT(entity.tree)
+                        LET parentNode = FIRST(
+                            FOR p_node IN 1..1 INBOUND entity._id ast_parents
+                                LIMIT 1
+                                RETURN p_node
+                        )
+                        LET children = (
+                            FOR c_node IN 1..1 OUTBOUND entity._id ast_parents
+                                RETURN 1
+                        )
+                        LET childrenCount = LENGTH(children)
+                        """,
+                """
+                        MERGE(
+                            entity,
+                            {
+                                id: entity._key,
+                                arangoId: entity._id,
+                                tree: treeDoc._key
+                            },
+                            {
+                                parent: parentNode == null ? null : parentNode._key,
+                                childrenCount: childrenCount
+                            }
+                        )
+                        """
+        );
+    }
 }

@@ -15,162 +15,53 @@ import {useAtomValue} from "jotai/react";
 import {loaded} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
-import {useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {Calendar} from "@/components/ui/calendar.tsx";
-import { ru } from 'date-fns/locale';
+import {ru} from 'date-fns/locale';
 import {format} from "date-fns";
 import {cn} from "@/lib/utils.ts";
-import {branchSchema, getInitialDate, repoSchema} from "@/lib/formSchemas.ts";
+import {branchSchema, getInitialDate, repoSchema, userSchema} from "@/lib/formSchemas.ts";
+import {DynamicForm} from "@/components/custom/DynamicForm.tsx";
 
 function EditBranchContent(props: {
     data: ApiEntityBranchModel,
-    onSave?: (data: z.infer<typeof branchSchema>) => void
+    onSave?: (data: z.infer<typeof branchSchema>) => Promise<void>
 }) {
     const [open, setOpen] = useAtom($showEditBranchDialog)
-    const today = new Date();
-
+    const [loading, setLoading] = useState(false)
+    
     const initialFormValues = {
-        name: props.data?.name || '',
-        repoId: props.data?.repository?.id || '',
-        createdAt: getInitialDate(props.data?.createdAt),
-        isDefault: props.data?.isDefault ?? false,
+        name: props.data.name,
+        repoId: props.data.repository?.id,
+        createdAt: getInitialDate(props.data.createdAt),
+        isDefault: props.data.isDefault,
     };
-
-    const form = useForm<z.infer<typeof branchSchema>>({
-        resolver: zodResolver(branchSchema),
-        defaultValues: initialFormValues
-    });
-
-    useEffect(() => {
-        if (open) {
-            form.reset(initialFormValues);
+    const onSubmit = useCallback(async (data: z.infer<typeof branchSchema>) => {
+        setLoading(true)
+        try {
+            await props.onSave(data)
+        } finally {
+            setLoading(false)
         }
-    }, [open]);
-
-    const onSubmit = async (data: z.infer<typeof branchSchema>) => {
-        console.log(data)
-        if (props.onSave) {
-            props.onSave(data)
-        }
-        setOpen(false)
-    };
-
+    }, [])
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
+            <DialogContent className="max-w-md max-h-screen overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>{props.data ? "Изменить ветку" : "Создать ветку"}</DialogTitle>
+                    <DialogTitle>{"Изменить ветку"}</DialogTitle>
                 </DialogHeader>
 
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Название</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Название" {...field} />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="repoId"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Репозиторий</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Id репозитория" {...field} />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="createdAt"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    {/*TODO: выделение при наведении на лейбл Дата создания*/}
-                                    <FormLabel>Дата создания</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-[240px] pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? (
-                                                        format(field.value, "PPP", { locale: ru })
-                                                    ) : (
-                                                        <span>Выберите дату</span>
-                                                    )}
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                initialFocus
-                                                locale={ru}
-                                                toDate={today}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="isDefault"
-                            render={({field}) => (
-                                <FormItem>
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}/>
-                                        <label
-                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                            Основная ветка
-                                        </label>
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
-
-                        <DialogFooter className={"flex w-full justify-between"}>
-                            <Button type="submit">{props.data ? "Изменить" : "Создать"}</Button>
-                            <div className={"ml-auto"}>
-                                <DialogClose asChild>
-                                    <Button variant="outline">Отмена</Button>
-                                </DialogClose>
-                            </div>
-                        </DialogFooter>
-                    </form>
-                </Form>
+                <DynamicForm schema={branchSchema} onSubmit={onSubmit} defaultValues={initialFormValues} isLoading={loading} />
             </DialogContent>
         </Dialog>
     )
 }
 
 function EditBranchDialog(props: {
-    data?: ApiEntityBranchModel,
-    onSave?: (data: z.infer<typeof branchSchema>) => void
+    data: ApiEntityBranchModel,
+    onSave: (data: z.infer<typeof branchSchema>) => Promise<void>
 }) {
     return (
         <EditBranchContent data={props.data} onSave={props.onSave}/>

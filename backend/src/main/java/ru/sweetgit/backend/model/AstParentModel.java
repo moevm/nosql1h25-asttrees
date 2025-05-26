@@ -15,8 +15,8 @@ import lombok.experimental.NonFinal;
 @Builder(toBuilder = true)
 @NonFinal
 public class AstParentModel {
-    @From
+    @From(lazy = true)
     AstNodeModel from;
-    @To
+    @To(lazy = true)
     AstNodeModel to;
 }

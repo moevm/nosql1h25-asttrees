@@ -109,5 +109,5 @@ public interface RepositoryRepository extends ArangoRepository<RepositoryModel, 
             @Param("path") String path
     );
 
-    Optional<RepositoryModel> findByOwnerIdAndName(String ownrId, String name);
+    Optional<RepositoryModel> findByOwnerIdAndName(String ownerId, String name);
 }

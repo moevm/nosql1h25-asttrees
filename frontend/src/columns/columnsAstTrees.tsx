@@ -12,11 +12,11 @@ export const fieldsAstTrees: EntityField[] = [
         name: "ID",
         type: "string"
     },
-    {
-        id: "hash",
-        name: "Hash",
-        type: "string"
-    },
+    // {
+    //     id: "hash",
+    //     name: "Hash",
+    //     type: "string"
+    // },
     {
         id: "createdAt",
         name: "Дата создания",
@@ -32,11 +32,11 @@ export const fieldsAstTrees: EntityField[] = [
         name: "Размер",
         type: "int"
     },
-    {
-        id: "commitFile.hash",
-        name: "Hash файла",
-        type: "string"
-    },
+    // {
+    //     id: "commitFile.hash",
+    //     name: "Hash файла",
+    //     type: "string"
+    // },
 ];
 
 export const columnsAstTrees = [
@@ -63,32 +63,32 @@ export const columnsAstTrees = [
     },
     {
         accessorKey: "id",
-        header: ({column}) => <DataTableColumnHeader column={column} title="ID"/>,
+        header: DataTableColumnHeader,
         meta: {title: "id", type: "string", field: "id"},
         cell: ({cell}) => <MonoRenderer value={cell.getValue()}/>,
     },
-    {
-        accessorKey: "commitFile.hash",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Hash файла"/>,
-        meta: {title: "Hash файла", type: "string", field: "commitFile.hash"},
-        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
-    },
+    // {
+    //     accessorKey: "commitFile.hash",
+    //     header: ({column}) => <DataTableColumnHeader column={column} title="Hash файла"/>,
+    //     meta: {title: "Hash файла", type: "string", field: "commitFile.hash"},
+    //     cell: ({cell}) => <MonoRenderer value={cell.getValue()}/>
+    // },
     {
         accessorKey: "createdAt",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Дата создания"/>,
+        header: DataTableColumnHeader,
         meta: {title: "Дата создания", type: "datetime", field: "createdAt"},
         accessorFn: (row) => dayjs(row.createdAt),
         cell: ({cell}) => <DateRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "depth",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Глубина"/>,
+        header: DataTableColumnHeader,
         meta: {title: "Глубина", type: "number", field: "depth"},
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
         accessorKey: "size",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Размер"/>,
+        header: DataTableColumnHeader,
         meta: {title: "Размер", type: "number", field: "size"},
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },

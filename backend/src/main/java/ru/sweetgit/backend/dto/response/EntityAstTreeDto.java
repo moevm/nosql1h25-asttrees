@@ -6,7 +6,7 @@ public record EntityAstTreeDto(
         String id,
         Instant createdAt,
         int depth,
-        int size,
-        ShortCommitFileDto commitFile
+        int size
+//        ShortCommitFileDto commitFile
 )  {
 }

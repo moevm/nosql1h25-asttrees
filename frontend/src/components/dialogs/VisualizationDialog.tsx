@@ -46,8 +46,6 @@ function VisualizationDialog (
     const [atrY, setAtrY] = useState<string | undefined>(null);
     const [heatmapData, setHeatmapData] = useState<{ xValue: string; yValue: string; count: number }[]>([]);
 
-    console.log(dataFields)
-
     const {mutate, isPending} = useVisualiseQuery(queryURL, filters, filterString, searchPosition);
 
     const handleVisualiseSubmit = useCallback(() => {
@@ -55,7 +53,7 @@ function VisualizationDialog (
             body: {
                 filter: formatFilters(filters),
                 xAxisField: atrX,
-                yAxisField: atrY,
+                yAxisField: atrY === 'null' ? null : atrY,
                 searchFields: searchPosition,
                 query: filterString
             }
@@ -109,6 +107,7 @@ function VisualizationDialog (
 
                                         <SelectContent>
                                             <SelectGroup>
+                                                <SelectItem value={'null'} key={'null'} className={"font-bold"}>Не группировать</SelectItem>
                                                 {dataFields.map((item) =>
                                                     <SelectItem value={item.id} key={item.id}>{item.name}</SelectItem>
                                                 )}

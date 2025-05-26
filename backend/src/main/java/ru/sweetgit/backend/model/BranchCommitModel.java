@@ -14,8 +14,8 @@ import lombok.experimental.NonFinal;
 @Builder(toBuilder = true)
 @NonFinal
 public class BranchCommitModel {
-    @From
+    @From(lazy = true)
     BranchModel branch;
-    @To
+    @To(lazy = true)
     CommitModel commit;
 }

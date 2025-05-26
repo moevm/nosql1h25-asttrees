@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface BranchRepository extends ArangoRepository<BranchModel, String> {
     Optional<BranchModel> findFirstByRepositoryId(String id, Sort sort);
+
+    Optional<BranchModel> findByRepositoryIdAndName(String repositoryId, String name);
 }

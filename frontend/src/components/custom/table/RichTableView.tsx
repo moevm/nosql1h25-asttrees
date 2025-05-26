@@ -3,7 +3,7 @@ import {
     flexRender,
     useReactTable
 } from "@tanstack/react-table";
-import {useEffect, useMemo} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {Input} from "@/components/ui/input.tsx";
 import {MultiSelect} from "@/components/custom/multi-select/MultiSelect.tsx";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
@@ -16,12 +16,13 @@ import {DataTablePagination} from "@/components/custom/table/DataTablePagination
 import {DataTableViewOptions} from "@/components/custom/table/DataTableViewOptions.tsx";
 import {getColumnTypeRelations, relationFullName} from "@/lib/table.ts";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {$currentEntitiesFieldsAtom, $path, $showVisualizationDialog} from "@/store/store.ts";
+import {$currentEntitiesFieldsAtom, $hideColumnsAtomFamily, $path, $showVisualizationDialog} from "@/store/store.ts";
 import VisualizationDialog from "@/components/dialogs/VisualizationDialog.tsx";
 import type {EntityField} from "@/lib/utils.ts";
 import * as Progress from '@radix-ui/react-progress'
 import type {FilterItem} from "@/lib/FILTERS.ts";
 import TableFilters from "@/components/custom/table/TableFilters.tsx";
+import {useAtom} from "jotai";
 
 const ProgressDemo = () => {
     return (
@@ -79,6 +80,35 @@ function RichTableView<TData, TValue>({
                                           filters,
                                           setFilters
                                       }: RichTableViewProps<TData, TValue>) {
+    const [hiddenColumns, setHiddenColumns] = useAtom($hideColumnsAtomFamily(queryURLname))
+
+    const allTableColumns = useMemo(() => {
+        return table.getAllColumns()
+            .filter(
+                (column) =>
+                    typeof column.accessorFn !== "undefined" && column.getCanHide()
+            )
+    }, [table])
+
+    const visibleColumns = useMemo(() => {
+        return allTableColumns.filter(it => !hiddenColumns.includes(it.id)).map(it => it.id)
+    }, [allTableColumns, hiddenColumns])
+
+    const setVisibleColumns = useCallback((newVisibleColumns: string[]) => {
+        setHiddenColumns(
+            allTableColumns
+                .filter(it => !newVisibleColumns.includes(it.id))
+                .map(it => it.id)
+        )
+
+    }, [allTableColumns, setHiddenColumns])
+
+
+    useEffect(() => {
+        for (const col of allTableColumns) {
+            col.toggleVisibility(visibleColumns.includes(col.id))
+        }
+    }, [allTableColumns, visibleColumns]);
 
     const setShowVisualizationDialog = useSetAtom($showVisualizationDialog);
     const currentEntitiesFields = entityType;
@@ -88,10 +118,24 @@ function RichTableView<TData, TValue>({
         setCurrentEntitiesFields(entityType);
     }, [entityType, setCurrentEntitiesFields]);
 
-
     const searchableEntityFields = useMemo(() => {
         return entityType.filter(it => it.type === 'string')
     }, [entityType])
+
+    const [filterRequest, setFilterRequest] = useState<{ field: string, type: string |null } | null>(null)
+
+    const addFilter = useCallback((fieldId: string) => {
+        setFilterRequest({
+            field: fieldId,
+            type: null
+        })
+    }, [])
+    const addSearch = useCallback((fieldId: string) => {
+        setFilterRequest({
+            field: fieldId,
+            type: 'string_contains'
+        })
+    }, [])
 
     return (
         <div className={"flex w-full min-w-screen-sm flex-col"}>
@@ -136,11 +180,11 @@ function RichTableView<TData, TValue>({
                             </Button>
                         }
                     </div>
-                    {/*{settings?.enableColumnVisibilityToggle && <DataTableViewOptions table={table}/>}*/}
+                    <DataTableViewOptions allTableColumns={allTableColumns} setVisibleColumns={setVisibleColumns} visibleColumns={visibleColumns}/>
                 </div>
             </div>
 
-            <TableFilters table={table} filters={filters} setFilters={setFilters} fields={entityType}/>
+            <TableFilters table={table} filters={filters} setFilters={setFilters} fields={entityType} filterRequest={filterRequest} setFilterRequest={setFilterRequest} />
 
             <div className="rounded border">
                 <Table>
@@ -151,7 +195,15 @@ function RichTableView<TData, TValue>({
                                     <TableHead key={header.id} className="truncate">
                                         {header.isPlaceholder
                                             ? null
-                                            : flexRender(header.column.columnDef.header, header.getContext())}
+                                            : flexRender(
+                                                header.column.columnDef.header,
+                                                {
+                                                    ...header.getContext(),
+                                                    entityField: (header.column.columnDef.meta.field && entityType.find(it => it.id === header.column.columnDef.meta.field)) ?? undefined,
+                                                    addFilter: () => addFilter(header.column.columnDef.meta.field),
+                                                    addSearch: () => addSearch(header.column.columnDef.meta.field),
+                                                }
+                                            )}
                                     </TableHead>
                                 ))}
                             </TableRow>

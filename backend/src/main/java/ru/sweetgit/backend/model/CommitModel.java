@@ -30,8 +30,8 @@ public class CommitModel {
     Integer filesChanged;
     Integer linesAdded;
     Integer linesRemoved;
-    @Ref(lazy = true)
-    List<CommitFileModel> rootFiles;
+//    @Ref(lazy = true)
+//    List<CommitFileModel> rootFiles;
     Instant createdAt;
     @Relations(edges = BranchCommitModel.class, lazy = true)
     List<BranchModel> branches;

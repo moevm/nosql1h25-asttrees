@@ -1,16 +1,17 @@
 import type {EntityField} from "@/lib/utils.ts";
+import dayjs, {type Dayjs} from "dayjs";
 
 export interface FilterParam {
     id: string,
     name: string
-    type:  'int' | 'string' | 'boolean' | 'date'
+    type: 'int' | 'string' | 'boolean' | 'date'
 }
 
 export interface FilterConfiguration {
     id: string
-    // actualId?: string,
     name: string
-    params: FilterParam[]
+    params: FilterParam[],
+    validate?: (params: Record<string, unknown>) => string | null
 }
 
 export interface FilterItem {
@@ -24,42 +25,42 @@ export const FILTERS: FilterConfiguration[] = [
         id: "int_equals",
         name: "Число равно",
         params: [
-            { id: "value", name: "Значение", type: "int" }
+            {id: "value", name: "Значение", type: "int"}
         ]
     },
     {
         id: "int_not_equals",
         name: "Число не равно",
         params: [
-            { id: "value", name: "Значение", type: "int" }
+            {id: "value", name: "Значение", type: "int"}
         ]
     },
     {
         id: "int_ge",
         name: "Число больше или равно",
         params: [
-            { id: "value", name: "Значение", type: "int" }
+            {id: "value", name: "Значение", type: "int"}
         ]
     },
     {
         id: "int_gt",
         name: "Число больше",
         params: [
-            { id: "value", name: "Значение", type: "int" }
+            {id: "value", name: "Значение", type: "int"}
         ]
     },
     {
         id: "int_le",
         name: "Число меньше или равно",
         params: [
-            { id: "value", name: "Значение", type: "int" }
+            {id: "value", name: "Значение", type: "int"}
         ]
     },
     {
         id: "int_lt",
         name: "Число меньше",
         params: [
-            { id: "value", name: "Значение", type: "int" }
+            {id: "value", name: "Значение", type: "int"}
         ]
     },
     // {
@@ -73,36 +74,43 @@ export const FILTERS: FilterConfiguration[] = [
         id: "int_between",
         name: "Число между",
         params: [
-            { id: "from", name: "От", type: "int" },
-            { id: "to", name: "До", type: "int" }
-        ]
+            {id: "from", name: "От", type: "int"},
+            {id: "to", name: "До", type: "int"}
+        ],
+        validate: ({from, to}: { from: number, to: number }) => {
+            if (!from || !to) {
+                return null;
+            }
+
+            return (from < to) ? null : 'Число "От" должно быть меньше числа "До".';
+        }
     },
     {
         id: "date_ge",
         name: "Дата больше или равна",
         params: [
-            { id: "value", name: "Значение", type: "date" }
+            {id: "value", name: "Значение", type: "date"}
         ]
     },
     {
         id: "date_gt",
         name: "Дата больше",
         params: [
-            { id: "value", name: "Значение", type: "date" }
+            {id: "value", name: "Значение", type: "date"}
         ]
     },
     {
         id: "date_le",
         name: "Дата меньше или равна",
         params: [
-            { id: "value", name: "Значение", type: "date" }
+            {id: "value", name: "Значение", type: "date"}
         ]
     },
     {
         id: "date_lt",
         name: "Дата меньше",
         params: [
-            { id: "value", name: "Значение", type: "date" }
+            {id: "value", name: "Значение", type: "date"}
         ]
     },
     // {
@@ -116,36 +124,50 @@ export const FILTERS: FilterConfiguration[] = [
         id: "date_between",
         name: "Дата между",
         params: [
-            { id: "from", name: "От", type: "date" },
-            { id: "to", name: "До", type: "date" }
-        ]
+            {id: "from", name: "От", type: "date"},
+            {id: "to", name: "До", type: "date"}
+        ],
+        validate: ({from, to}: { from: Date, to: Date }) => {
+            if (!from || !to) {
+                return null;
+            }
+
+            const fromDayjs = dayjs(from);
+            const toDayjs = dayjs(to);
+
+            if (!fromDayjs.isValid() || !toDayjs.isValid()) {
+                return "Одна из дат имеет неверный формат после обработки.";
+            }
+
+            return fromDayjs.isBefore(toDayjs) ? null : 'Дата "От" должна быть раньше даты "До".';
+        }
     },
     {
         id: "string_equals",
         name: "Строка равна",
         params: [
-            { id: "value", name: "Значение", type: "string" }
+            {id: "value", name: "Значение", type: "string"}
         ]
     },
     {
         id: "string_not_equals",
         name: "Строка не равна",
         params: [
-            { id: "value", name: "Значение", type: "string" }
+            {id: "value", name: "Значение", type: "string"}
         ]
     },
     {
         id: "string_contains",
         name: "Строка содержит",
         params: [
-            { id: "value", name: "Значение", type: "string" }
+            {id: "value", name: "Значение", type: "string"}
         ]
     },
     {
         id: "string_not_contains",
         name: "Строка не содержит",
         params: [
-            { id: "value", name: "Значение", type: "string" }
+            {id: "value", name: "Значение", type: "string"}
         ]
     },
     // {

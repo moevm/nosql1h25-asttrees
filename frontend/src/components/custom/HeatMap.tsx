@@ -72,6 +72,7 @@ const HeatMap: React.FC<HeatmapProps> = ({ data }) => {
                 if (b === null || b === undefined) {
                     return 1;
                 }
+                console.info({a, b})
                 return a.localeCompare(b);
             });
         };

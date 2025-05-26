@@ -67,7 +67,6 @@ export function formatFilters(filters: FilterItem[]): FilterItem[] {
                         value = v;
                         break
                     case "date":
-                        console.info({v})
                         value = dayjs(v as string).toISOString()
                         break;
 
@@ -211,13 +210,21 @@ export function useServerTable<T>({
             { body: { ...queryBody } },
             {
                 onSuccess: (res) => {
-                    console.info('setData', {res})
                     setData(res as ServerResponse<T>);
                     // urlParams.set('path', urlParams.toString());
                 },
             }
         );
     }, [queryBody]);
+
+    useEffect(() => {
+        if (!initialized) return;
+        if (typeof data?.page?.totalPages !== 'number') return;
+
+        if (pagination.pageIndex >= data?.page?.totalPages) {
+            table.setPageIndex(data?.page?.totalPages - 1)
+        }
+    }, [initialized, pagination.pageIndex, data])
 
     return {
         data,

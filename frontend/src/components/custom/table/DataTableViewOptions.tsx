@@ -9,48 +9,44 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import type {Table} from "@tanstack/react-table";
+import type {Column, Table} from "@tanstack/react-table";
+import {MultiSelect} from "@/components/custom/multi-select/MultiSelect.tsx";
 
 interface DataTableViewOptionsProps<TData> {
-    table: Table<TData>
+    allTableColumns: Column<TData, unknown>[]
+    visibleColumns: string[],
+    setVisibleColumns: (value: string[]) => void
 }
 
-export function DataTableViewOptions<TData>({
-                                                table,
-                                            }: DataTableViewOptionsProps<TData>) {
+export function DataTableViewOptions<TData>(
+    {
+        allTableColumns,
+        visibleColumns,
+        setVisibleColumns
+    }: DataTableViewOptionsProps<TData>
+) {
+
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button
-                    variant="outline"
-                    size="sm"
-                >
-                    <Settings2 />
-                    Вид
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[180px] max-h-60 overflow-y-auto">
-                <DropdownMenuLabel>Показывать колонки</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {table
-                    .getAllColumns()
-                    .filter(
-                        (column) =>
-                            typeof column.accessorFn !== "undefined" && column.getCanHide()
-                    )
-                    .map((column) => {
-                        return (
-                            <DropdownMenuCheckboxItem
-                                key={column.id}
-                                className="capitalize"
-                                checked={column.getIsVisible()}
-                                onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                            >
-                                {column.columnDef.meta?.title ? column.columnDef.meta.title : column.id}
-                            </DropdownMenuCheckboxItem>
-                        )
+        <MultiSelect
+            asChild
+            options={
+                allTableColumns
+                    .map((it) => {
+                        return {
+                            label: it.columnDef.meta?.title || it.id,
+                            value: it.id
+                        }
                     })}
-            </DropdownMenuContent>
-        </DropdownMenu>
+            defaultValue={visibleColumns}
+            onValueChange={setVisibleColumns}
+        >
+            <Button
+                variant="outline"
+                size="sm"
+            >
+                <Settings2/>
+                Вид
+            </Button>
+        </MultiSelect>
     )
 }

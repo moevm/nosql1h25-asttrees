@@ -34,6 +34,9 @@ import AdminRepoPage from "@/routes/admin-panel/repos/repo/AdminRepoPage.tsx";
 import AdminBranchPage from "@/routes/admin-panel/branches/branch/AdminBranchPage.tsx";
 import AdminCommitPage from "@/routes/admin-panel/commits/commit/AdminCommitPage.tsx";
 import AdminAstTreePage from "@/routes/admin-panel/ast-trees/ast-tree/AdminAstTreePage.tsx";
+import AdminAstNodesPage from "@/routes/admin-panel/ast-nodes/AdminAstNodesPage.tsx";
+import AdminAstNodePage from "@/routes/admin-panel/ast-nodes/ast-node/AdminAstNodePage.tsx";
+import AdminFilePage from "@/routes/admin-panel/files/file/AdminFilePage.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
@@ -71,8 +74,11 @@ createRoot(document.getElementById('root')!).render(
                                 <Route path="commits" element={<AdminCommitsPage/>}/>
                                 <Route path="commits/:adminCommitId" element={<AdminCommitPage/>}/>
                                 <Route path="files" element={<AdminFilesPage/>}/>
+                                <Route path="files/:adminFileId" element={<AdminFilePage/>}/>
                                 <Route path="ast-trees" element={<AdminAstTreesPage/>}/>
                                 <Route path="ast-trees/:adminAstTreeId" element={<AdminAstTreePage/>}/>
+                                <Route path="ast-nodes" element={<AdminAstNodesPage/>}/>
+                                <Route path="ast-nodes/:adminAstNodeId" element={<AdminAstNodePage/>}/>
                                 <Route path="import-export" element={<AdminImportExportDBPage/>}/>
                             </Route>
                         </Route>

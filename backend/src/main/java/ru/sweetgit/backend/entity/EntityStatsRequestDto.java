@@ -1,8 +1,10 @@
 package ru.sweetgit.backend.entity;
 
+import jakarta.annotation.Nullable;
+
 public record EntityStatsRequestDto(
         EntitySearchDto search,
         String xAxisField,
-        String yAxisField
+        @Nullable String yAxisField
 ) {
 }

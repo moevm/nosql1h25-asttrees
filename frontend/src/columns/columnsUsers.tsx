@@ -4,7 +4,7 @@ import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHead
 import {type TypedColumnDef, typesVisibilityType} from "@/lib/table.ts";
 import type {EntityField} from "@/lib/utils.ts";
 import dayjs from "dayjs";
-import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
+import {CheckboxRenderer, DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
 
 
 export const fieldsUsers: EntityField[] = [
@@ -38,6 +38,11 @@ export const fieldsUsers: EntityField[] = [
         name: "Количество репозиториев",
         type: "int",
     },
+    {
+        id: "isAdmin",
+        name: "Администратор",
+        type: "boolean",
+    },
 ];
 
 export const columnsUser = [
@@ -69,7 +74,7 @@ export const columnsUser = [
     },
     {
         accessorKey: "id",
-        header: ({column}) => <DataTableColumnHeader column={column} title="ID" />,
+        header: DataTableColumnHeader,
         meta: {
             title: "ID",
             type: "string",
@@ -79,7 +84,7 @@ export const columnsUser = [
     },
     {
         accessorKey: "username",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Никнейм" />,
+        header: DataTableColumnHeader,
         meta: {
             title: "Никнейм",
             type: "string",
@@ -89,7 +94,7 @@ export const columnsUser = [
     },
     {
         accessorKey: "email",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Email" />,
+        header: DataTableColumnHeader,
         meta: {
             title: "Email",
             type: "string",
@@ -99,20 +104,17 @@ export const columnsUser = [
     },
     {
         accessorKey: "visibility",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Публичность" />,
+        header: DataTableColumnHeader,
         meta: {
             title: "Публичность",
             type: "string",
             field: "visibility"
         },
-        accessorFn: (row) => {
-            return typesVisibilityType[row.visibility] ?? row.visibility
-        },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />,
     },
     {
         accessorKey: "createdAt",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Дата создания" />,
+        header: DataTableColumnHeader,
         meta: {
             title: "Дата создания",
             type: "datetime",
@@ -125,12 +127,22 @@ export const columnsUser = [
     },
     {
         accessorKey: "repositoryCount",
-        header: ({column}) => <DataTableColumnHeader column={column} title="Количество репозиториев" />,
+        header: DataTableColumnHeader,
         meta: {
             title: "Количество репозиториев",
             type: "number",
             field: "repositoryCount"
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />,
+    },
+    {
+        accessorKey: "isAdmin",
+        header: DataTableColumnHeader,
+        meta: {
+            title: "Администратор",
+            type: "boolean",
+            field: "isAdmin"
+        },
+        cell: ({cell}) => <CheckboxRenderer value={cell.getValue()} />,
     },
 ] as TypedColumnDef<ApiEntityUserModel>[]

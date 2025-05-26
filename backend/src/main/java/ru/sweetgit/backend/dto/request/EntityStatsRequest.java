@@ -12,6 +12,6 @@ public record EntityStatsRequest(
         @NotNull List<@Pattern(regexp = "^[a-zA-Z0-9_.]+$") String> searchFields,
         @NotNull List<EntitySearchRequest.Filter> filter,
         @NotNull @Pattern(regexp = "^[a-zA-Z0-9_.]+$") String xAxisField,
-        @NotNull @Pattern(regexp = "^[a-zA-Z0-9_.]+$") String yAxisField
+        @Nullable @Pattern(regexp = "^[a-zA-Z0-9_.]+$") String yAxisField
 ) {
 }

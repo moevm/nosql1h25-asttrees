@@ -4,7 +4,7 @@ import type {ApiEntityRepositoryModel} from "@/store/store.ts";
 import dayjs from "dayjs";
 import {type TypedColumnDef, typesVisibilityType} from "@/lib/table.ts";
 import type {EntityField} from "@/lib/utils.ts";
-import {DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
+import {DateRenderer, EntityIdRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
 
 export const fieldsRepos: EntityField[] = [
     {
@@ -83,11 +83,7 @@ export const columnsRepos = [
     },
     {
         accessorKey: "id",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="id"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "id",
             type: 'string',
@@ -97,11 +93,7 @@ export const columnsRepos = [
     },
     {
         accessorKey: "name",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Название"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "Название",
             type: 'string',
@@ -111,25 +103,27 @@ export const columnsRepos = [
     },
     {
         accessorKey: "owner.username",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Владелец"/>
-            );
-        },
+        header: DataTableColumnHeader,
         meta: {
-            title: "Владелец",
+            title: "Никнейм владельца",
             type: 'string',
             field: 'owner.username'
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
     {
-        accessorKey: "originalLink",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Источник"/>
-            )
+        accessorKey: "owner.id",
+        header: DataTableColumnHeader,
+        meta: {
+            title: "ID владельца",
+            type: 'string',
+            field: 'owner.id'
         },
+        cell: ({cell}) => <EntityIdRenderer value={cell.getValue()} entity={'users'} />
+    },
+    {
+        accessorKey: "originalLink",
+        header: DataTableColumnHeader,
         meta: {
             title: "Источник",
             type: 'string',
@@ -139,27 +133,16 @@ export const columnsRepos = [
     },
     {
         accessorKey: "visibility",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Публичность"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "Публичность",
             type: 'string',
             field: 'visibility'
         },
-        accessorFn: (row) => {
-            return typesVisibilityType[row.visibility] ?? row.visibility
-        },
     },
     {
         accessorKey: "createdAt",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Дата создания"/>
-            )
-        },
+        header: DataTableColumnHeader,
         accessorFn: (row) => {
             return dayjs(row.createdAt);
         },
@@ -172,11 +155,7 @@ export const columnsRepos = [
     },
     {
         accessorKey: "branchCount",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Количество веток"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "Количество веток",
             type: 'number',
@@ -186,11 +165,7 @@ export const columnsRepos = [
     },
     {
         accessorKey: "commitCount",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Количество коммитов"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "Количество коммитов",
             type: 'number',

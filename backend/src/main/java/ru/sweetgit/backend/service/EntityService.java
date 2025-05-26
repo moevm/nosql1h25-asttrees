@@ -26,6 +26,10 @@ public class EntityService {
     private final EntityQuery<FullBranchModel> branchEntityQuery;
     @Qualifier("astTreeEntityQuery")
     private final EntityQuery<FullAstTreeModel> astTreeEntityQuery;
+    @Qualifier("commitFileEntityQuery")
+    private final EntityQuery<FullCommitFileModel> commitFileEntityQuery;
+    @Qualifier("astNodeEntityQuery")
+    private final EntityQuery<FullAstNodeModel> astNodeEntityQuery;
 
     public Page<FullUserModel> getUserEntities(
             EntitySearchDto searchDto
@@ -115,6 +119,43 @@ public class EntityService {
     ) {
         return entityRepository.executeStats(
                 astTreeEntityQuery,
+                statsRequestDto
+        );
+    }
+
+
+    public Page<FullCommitFileModel> getCommitFileEntities(
+            EntitySearchDto searchDto
+    ) {
+        return entityRepository.executeSearch(
+                commitFileEntityQuery,
+                searchDto
+        );
+    }
+
+    public List<StatsEntryModel> getCommitFileEntityStats(
+            EntityStatsRequestDto statsRequestDto
+    ) {
+        return entityRepository.executeStats(
+                commitFileEntityQuery,
+                statsRequestDto
+        );
+    }
+
+    public Page<FullAstNodeModel> getAstNodeEntities(
+            EntitySearchDto searchDto
+    ) {
+        return entityRepository.executeSearch(
+                astNodeEntityQuery,
+                searchDto
+        );
+    }
+
+    public List<StatsEntryModel> getAstNodeEntityStats(
+            EntityStatsRequestDto statsRequestDto
+    ) {
+        return entityRepository.executeStats(
+                astNodeEntityQuery,
                 statsRequestDto
         );
     }

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record AstSearchFindReferencesDto(
+public record AstSearchFindReferencesRequest(
         @NotNull @NotBlank String typename,
         @NotNull List<String> types
 ) {

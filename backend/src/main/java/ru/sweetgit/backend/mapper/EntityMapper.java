@@ -25,6 +25,10 @@ public abstract class EntityMapper {
 
     public abstract EntityAstTreeDto toEntityDto(FullAstTreeModel model);
 
+    public abstract EntityCommitFileDto toEntityDto(FullCommitFileModel model);
+
+    public abstract EntityAstNodeDto toEntityDto(FullAstNodeModel model);
+
     public EntityStatsDto toEntityDto(List<StatsEntryModel> list) {
         return new EntityStatsDto(list.stream().map(model -> new EntityStatsDto.Item(model.getXAxisValue(), model.getYAxisValue(), model.getCount())).toList());
     }

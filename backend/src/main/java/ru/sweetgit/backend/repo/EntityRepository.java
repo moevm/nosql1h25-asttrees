@@ -116,7 +116,7 @@ public class EntityRepository {
                 .append("COLLECT ")
                 .append("xAxisGroupKey = ").append("resultDoc.").append(statsRequestDto.xAxisField())
                 .append(", ")
-                .append("yAxisGroupKey = ").append("resultDoc.").append(statsRequestDto.yAxisField())
+                .append("yAxisGroupKey = ").append(statsRequestDto.yAxisField() == null ? "true" : ("resultDoc." +  statsRequestDto.yAxisField()))
                 .append(" WITH COUNT INTO itemCount\n");
 
         ctx.queryBuilder.append("RETURN { xAxisValue: xAxisGroupKey, yAxisValue: yAxisGroupKey, count: itemCount }");

@@ -17,5 +17,5 @@ public class FullAstTreeModel {
     Instant createdAt;
     Integer depth;
     Integer size;
-    ShortCommitFileModel commitFile;
+//    ShortCommitFileModel commitFile;
 }

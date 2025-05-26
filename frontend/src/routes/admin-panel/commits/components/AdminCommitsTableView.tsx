@@ -48,11 +48,6 @@ function AdminCommitsTableView() {
                     navigate(`/admin/commits/${commit.id}`, { replace: false })
                 },
             }}
-            // buttonsSlot={() => (
-            //     <Button size="sm" onClick={() => {setShowEditCommitDialog(true)}}>
-            //         Создать коммит
-            //     </Button>
-            // )}
         />
     );
 }

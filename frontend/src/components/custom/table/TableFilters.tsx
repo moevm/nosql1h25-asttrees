@@ -1,18 +1,23 @@
 import {Button} from "@/components/ui/button.tsx";
 import {Filter, X} from "lucide-react";
 import * as React from "react";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Label} from "@/components/ui/label.tsx";
-import {type Table} from "@tanstack/react-table";
 import {type FilterConfiguration, type FilterItem, FILTERS, getFieldFilters} from "@/lib/FILTERS.ts";
 import type {EntityField} from "@/lib/utils.ts";
-import {Select, SelectContent, SelectGroup, SelectItem, SelectValue, SelectTrigger} from "@/components/ui/select.tsx";
+import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import {useForm} from "react-hook-form";
 import {Input} from "@/components/ui/input.tsx";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
+
+interface FilterInitialState {
+    kind: string | null,
+    field: string,
+    params: Record<string, unknown> | null
+}
 
 function FilterDisplay(
     {
@@ -69,81 +74,67 @@ function FilterDialog(
     }: {
         openEditFilterDialog: boolean,
         setOpenEditFilterDialog: (value: boolean) => void,
-        editingFilter: FilterItem | null,
+        editingFilter: FilterInitialState | null,
         save: (value: FilterItem) => void,
         fields: EntityField[]
     }) {
 
-    const [fieldId, setFieldId] = useState<string>()
-    const [availableFilters, setAvailableFilters] = useState<FilterConfiguration[]>([])
-    const [filterId, setFilterId] = useState<string>()
-    const [editingFilterChecked, setEditingFilterChecked] = useState<boolean>()
-    // const [formAppliedAfterEditingFilterChecked, setFormAppliedAfterEditingFilterChecked] = useState<boolean>()
+    const [selectFieldOpen, setSelectFieldOpen] = useState(false);
+    const [selectRelationOpen, setSelectRelationOpen] = useState(false);
+    const [fieldId, setFieldId] = useState<string | undefined>(() => {
+        return editingFilter ? editingFilter.field : (fields.length > 0 ? fields[0].id : undefined);
+    });
+    const [availableFilters, setAvailableFilters] = useState<FilterConfiguration[]>([]);
+    const [filterId, setFilterId] = useState<string | undefined>(() => {
+        return editingFilter?.kind ?? undefined;
+    });
 
-    useEffect(() => {
-        if (openEditFilterDialog) {
-            setFieldId(fields[0].id)
-        }
-    }, [fields, openEditFilterDialog]);
+    const isInitializingFromProps = useRef(false);
+    const prevOpenEditFilterDialog = useRef(openEditFilterDialog);
+    const prevEditingFilter = useRef(editingFilter);
 
-    const field = useMemo(() => {
-        return fields.find(it => it.id === fieldId)!
-    }, [fieldId])
+    const field = useMemo<EntityField | undefined>(() => {
+        if (!fieldId) return undefined;
+        return fields.find(it => it.id === fieldId);
+    }, [fieldId, fields]);
 
-    useEffect(() => {
-        if (field) {
-            const newFilters = getFieldFilters(field.type).map(id => FILTERS.find(f => f.id === id)!)
-            console.info({
-                newFilters
-            })
-            setAvailableFilters(newFilters)
-        }
-    }, [field]);
-
-    useEffect(() => {
-        availableFilters.length && setFilterId(availableFilters[0].id)
-    }, [availableFilters]);
-
-    const filter = useMemo(() => {
-        if (filterId) {
-            return FILTERS.find(f => f.id === filterId)!
-        } else {
-            return FILTERS.find(f => f.id === 'value_not_null')!
-        }
-    }, [filterId])
+    const filter = useMemo<FilterConfiguration | undefined>(() => {
+        if (!filterId) return undefined;
+        return FILTERS.find(f => f.id === filterId);
+    }, [filterId]);
 
     const schema = useMemo(() => {
-        return z.object(Object.fromEntries(filter.params.map(param => {
-            let type;
+        if (!filter || !filter.params || filter.params.length === 0) {
+            return z.object({});
+        }
+
+        const shape: Record<string, z.ZodTypeAny> = {};
+        filter.params.forEach(param => {
+            let fieldSchema: z.ZodTypeAny;
             switch (param.type) {
                 case "int":
-                    type = z.preprocess(
-                        (arg) => {
-                            if (typeof arg === 'string' && arg.trim() === '') {
-                                return undefined;
-                            }
-                            return arg;
-                        },
+                    fieldSchema = z.preprocess(
+                        (arg: unknown) => (typeof arg === 'string' && arg.trim() === '') ? undefined : arg,
                         z.coerce.number({
                             required_error: "Обязательное поле",
                             invalid_type_error: "Обязательное поле",
-                        })
-                            .int("Ожидается целое число")
-                    )
-                    break
+                        }).int("Ожидается целое число")
+                    );
+                    break;
                 case "string":
-                    type = z.string({
+                    fieldSchema = z.string({
                         required_error: 'Обязательное поле'
-                    }).min(1, 'Обязательное поле')
+                    }).min(1, 'Обязательное поле');
                     break;
                 case "boolean":
-                    type = z.boolean()
+                    fieldSchema = z.boolean().default(false);
                     break;
                 case "date":
-                    type = z.preprocess(
-                        (arg) => {
+                    fieldSchema = z.preprocess(
+                        (arg: unknown) => {
+                            if (arg === '' || arg === null || arg === undefined) return undefined;
                             if (typeof arg === 'string' || arg instanceof Date) {
-                                const date = new Date(arg);
+                                const date = new Date(arg as string | Date);
                                 return isNaN(date.getTime()) ? undefined : date;
                             }
                             return undefined;
@@ -152,83 +143,204 @@ function FilterDialog(
                             required_error: "Обязательное поле",
                             invalid_type_error: "Некорректный формат даты",
                         })
-                    )
+                    );
                     break;
-
             }
-            return [param.id, type]
-        })))
-    }, [JSON.stringify(filter.params)])
+            shape[param.id] = fieldSchema;
+        });
+
+        let baseSchema = z.object(shape);
+
+        if (filter.validate) {
+            baseSchema = baseSchema.superRefine((data, ctx) => {
+                const validationMessage = filter.validate!(data);
+
+                if (validationMessage) {
+                    let errorPath: string[] = [];
+
+                    if (errorPath.length === 0 && filter.params.length > 0) {
+                        errorPath = [filter.params[0].id];
+                    }
+
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: validationMessage,
+                        path: errorPath,
+                    });
+                }
+            }) as unknown as z.ZodObject<any, any, any, any, any>;
+        }
+        return baseSchema;
+    }, [filter]);
 
     const form = useForm({
-        context: {
-            schema
-        },
+        resolver: zodResolver(schema),
         reValidateMode: "onSubmit",
         mode: "all",
-        resolver: (...opts) => {
-            return zodResolver(opts[1].schema)(...opts)
-        }
-    })
+        defaultValues: {}
+    });
 
     useEffect(() => {
-        if (editingFilter && filter.id === editingFilter.kind) {
-            return
+        form.reset({}, {
+            resolver: zodResolver(schema)
+        });
+    }, [schema, form]);
+
+    useEffect(() => {
+        if (field && field.type) {
+            const newFilterIds = getFieldFilters(field.type);
+            const newFilters = newFilterIds
+                .map(id => FILTERS.find(f => f.id === id))
+                .filter((f): f is FilterConfiguration => f !== undefined);
+            setAvailableFilters(newFilters);
+        } else {
+            setAvailableFilters([]);
+        }
+    }, [field]);
+
+    useEffect(() => {
+        const dialogJustOpened = openEditFilterDialog && !prevOpenEditFilterDialog.current;
+        const editingFilterItselfChanged = editingFilter !== prevEditingFilter.current;
+
+        const editingFilterContentChanged = editingFilter && prevEditingFilter.current &&
+            (editingFilter.field !== prevEditingFilter.current.field ||
+                editingFilter.kind !== prevEditingFilter.current.kind ||
+                JSON.stringify(editingFilter.params) !== JSON.stringify(prevEditingFilter.current.params));
+
+        const needsReinitialization = openEditFilterDialog && (dialogJustOpened || editingFilterItselfChanged || editingFilterContentChanged);
+
+        if (needsReinitialization) {
+            isInitializingFromProps.current = true;
+
+            if (editingFilter) {
+                setFieldId(editingFilter.field);
+                setFilterId(editingFilter.kind || undefined);
+                if (editingFilter.params && Object.keys(editingFilter.params).length > 0) {
+                    form.reset(editingFilter.params);
+                } else {
+                    form.reset({});
+                }
+            } else {
+                if (fields.length > 0) {
+                    setFieldId(fields[0].id);
+                } else {
+                    setFieldId(undefined);
+                }
+                setFilterId(undefined);
+                form.reset({});
+            }
         }
 
-        form.reset(Object.fromEntries(
-            filter.params.map(p => {
-                let value;
+        prevOpenEditFilterDialog.current = openEditFilterDialog;
+        prevEditingFilter.current = editingFilter;
+
+        const timerId = setTimeout(() => {
+            if (needsReinitialization) {
+                isInitializingFromProps.current = false;
+            }
+        }, 0);
+
+        return () => clearTimeout(timerId);
+
+    }, [openEditFilterDialog, editingFilter, fields, form]);
+
+    useEffect(() => {
+        if (isInitializingFromProps.current) {
+            return;
+        }
+
+        let newFilterIdToSet: string | undefined = filterId;
+        let formNeedsResetToDefaults = false;
+
+        if (fieldId && availableFilters.length > 0) {
+            const currentFilterIdIsValidForAvailable = filterId && availableFilters.some(f => f.id === filterId);
+            if (!currentFilterIdIsValidForAvailable) {
+                newFilterIdToSet = availableFilters[0].id;
+            }
+        } else if (fieldId && availableFilters.length === 0 && filterId !== undefined) {
+            newFilterIdToSet = undefined;
+        }
+
+        if (newFilterIdToSet !== filterId) {
+            setFilterId(newFilterIdToSet);
+            return;
+        }
+
+        if (filter && filter.params) {
+            const isEditingOriginalFilterKind = editingFilter && filter.id === editingFilter.kind;
+            let shouldReset = true;
+
+            if (isEditingOriginalFilterKind) {
+                const formValues = form.getValues();
+                const editingParams = editingFilter?.params || {};
+                const formMatchesEditingParams = Object.keys(editingParams).length > 0 &&
+                    Object.keys(editingParams).every(key => editingParams[key] === formValues[key]) &&
+                    filter.params.every(p => Object.prototype.hasOwnProperty.call(formValues, p.id));
+
+                if (formMatchesEditingParams) {
+                    shouldReset = false;
+                }
+            }
+
+            if (shouldReset) {
+                formNeedsResetToDefaults = true;
+            }
+        } else if (!filter && Object.keys(form.getValues()).length > 0) {
+            form.reset({});
+            return;
+        }
+
+        if (formNeedsResetToDefaults && filter && filter.params) {
+            const defaultValues = {};
+            filter.params.forEach(p => {
                 switch (p.type) {
                     case "int":
-                        value = 0;
-                        break
+                        defaultValues[p.id] = 0;
+                        break;
                     case "string":
-                        value = '';
-                        break
+                        defaultValues[p.id] = '';
+                        break;
                     case "boolean":
-                        value = false;
-                        break
+                        defaultValues[p.id] = false;
+                        break;
                     case "date":
-                        value = ''
-                        break
+                        defaultValues[p.id] = '';
+                        break;
                 }
-                return [p.id, value]
-            })
-        ))
-    }, [JSON.stringify(filter.params), editingFilter]);
-
-    useEffect(() => {
-        if (editingFilter) {
-            if (!editingFilterChecked) {
-                setFieldId(editingFilter.field)
-                setFilterId(editingFilter.kind)
-                form.reset(editingFilter.params)
-
-                setEditingFilterChecked(true)
-                // setFormAppliedAfterEditingFilterChecked(false)
-            }
+            });
+            form.reset(defaultValues);
+        } else if (!filter && Object.keys(form.getValues()).length > 0) {
+            form.reset({});
         } else {
-            if (editingFilterChecked) {
-                setEditingFilterChecked(false)
-                // setFormAppliedAfterEditingFilterChecked(false)
-            }
         }
-    }, [editingFilter, editingFilterChecked]);
+    }, [
+        fieldId,
+        availableFilters,
+        filterId,
+        filter,
+        editingFilter,
+        form,
+    ]);
 
     const handleSubmit = useCallback(() => {
-        const params = Object.fromEntries(Object.entries(form.getValues())
-            .filter(([k,]) => filter.params.find(it => it.id === k))
-            .map(([k, v]) => {
-                return [k, v]
-            }))
+        const currentValues = form.getValues();
+
+        if (!filter || !filter.params || !field) {
+            return;
+        }
+
+        const paramsToSave: Record<string, any> = {};
+        filter.params.forEach(paramInfo => {
+            paramsToSave[paramInfo.id] = currentValues[paramInfo.id];
+        });
+
         save({
-            params,
+            params: paramsToSave,
             field: field.id,
             kind: filter.id
-        })
-        setOpenEditFilterDialog(false)
-    }, [filter])
+        });
+        setOpenEditFilterDialog(false);
+    }, [filter, field, form, save, setOpenEditFilterDialog]);
 
     return (
         <Dialog open={openEditFilterDialog} onOpenChange={setOpenEditFilterDialog}>
@@ -241,7 +353,12 @@ function FilterDialog(
 
                 <div className="flex flex-col gap-2">
                     <Label>Атрибут</Label>
-                    <Select value={fieldId} onValueChange={setFieldId}>
+                    <Select value={fieldId} onValueChange={setFieldId} open={selectFieldOpen} onOpenChange={value => {
+                        setSelectFieldOpen(value)
+                        if (value) {
+                            setSelectRelationOpen(false)
+                        }
+                    }}>
                         <SelectTrigger className={"w-full"}>
                             <SelectValue placeholder="Выберите атрибут"/>
                         </SelectTrigger>
@@ -260,7 +377,13 @@ function FilterDialog(
                     </Select>
 
                     <Label>Отношение</Label>
-                    <Select value={filterId} onValueChange={setFilterId}>
+                    <Select value={filterId} onValueChange={setFilterId} open={selectRelationOpen}
+                            onOpenChange={value => {
+                                setSelectRelationOpen(value)
+                                if (value) {
+                                    setSelectFieldOpen(false)
+                                }
+                            }}>
                         <SelectTrigger className={"w-full"}>
                             <SelectValue placeholder="Выберите отношение"/>
                         </SelectTrigger>
@@ -280,7 +403,7 @@ function FilterDialog(
                     </Select>
 
                     <Form {...form}>
-                        {filter!.params.map(p =>
+                        {filter && filter.params.map(p =>
                             <FormField
                                 key={p.id}
                                 control={form.control}
@@ -313,24 +436,47 @@ function TableFilters(
     {
         filters,
         setFilters,
-        fields
+        fields,
+        filterRequest,
+        setFilterRequest
     }: {
         filters: FilterItem[],
         setFilters: (data: FilterItem[]) => void,
-        fields: EntityField[]
+        fields: EntityField[],
+        filterRequest: { field: string, type: string | null } | null,
+        setFilterRequest: (value: { field: string, type: string | null } | null) => void
     }
 ) {
     // const [filters, setFilters] = useState<FilterConfig[]>([]);
     const [openEditFilterDialog, setOpenEditFilterDialog] = useState(false);
     const [editingFilterIndex, setEditingFilterIndex] = useState<number | null>(null)
+    const [activeFilterRequest, setActiveFilterRequest] = useState<{ field: string, type: string | null } | null>(null)
 
-    const editingFilter = useMemo(() => {
-        return ((editingFilterIndex !== null) && filters[editingFilterIndex!]) || null
-    }, [filters, editingFilterIndex])
+    const editingFilter = useMemo<FilterInitialState | null>(() => {
+        if (editingFilterIndex !== null) {
+            return filters[editingFilterIndex!]
+        }
+        if (activeFilterRequest != null) {
+            return {
+                kind: activeFilterRequest.type,
+                field: activeFilterRequest.field,
+                params: {}
+            }
+        }
+        return null
+    }, [filters, editingFilterIndex, activeFilterRequest])
 
     const addFilter = useCallback(() => {
         setOpenEditFilterDialog(true)
     }, [])
+
+    useEffect(() => {
+        if (filterRequest) {
+            setFilterRequest(null)
+            setActiveFilterRequest(filterRequest)
+            setOpenEditFilterDialog(true)
+        }
+    }, [filterRequest]);
 
     return (
         <div className="flex flex-wrap gap-2 pb-2">
@@ -338,14 +484,19 @@ function TableFilters(
                 fields={fields}
                 openEditFilterDialog={openEditFilterDialog}
                 setOpenEditFilterDialog={(value) => {
-                    setOpenEditFilterDialog(false)
-                    if (!value && editingFilter !== null) {
-                        setEditingFilterIndex(null)
+                    if (!value) {
+                        setOpenEditFilterDialog(false)
+                        if (editingFilterIndex !== null) {
+                            setEditingFilterIndex(null)
+                        }
+                        if (activeFilterRequest != null) {
+                            setActiveFilterRequest(null)
+                        }
                     }
                 }}
                 editingFilter={editingFilter}
                 save={(filter) => {
-                    if (editingFilter === null) {
+                    if (editingFilterIndex === null) {
                         setFilters([...filters, filter]);
                     } else {
                         setFilters(filters.map((f, i) => {

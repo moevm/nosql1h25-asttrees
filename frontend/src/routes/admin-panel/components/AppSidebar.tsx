@@ -31,12 +31,17 @@ function AppSidebar() {
                         </Button>
                         <Button asChild variant="ghost" className="justify-start px-3">
                             <NavLink to="files">
-                                🚧 Файлы не тыкайте сюда 🚧
+                                Файлы
                             </NavLink>
                         </Button>
                         <Button asChild variant="ghost" className="justify-start px-3">
                             <NavLink to="ast-trees">
                                 AST-деревья
+                            </NavLink>
+                        </Button>
+                        <Button asChild variant="ghost" className="justify-start px-3">
+                            <NavLink to="ast-nodes">
+                                AST-узлы
                             </NavLink>
                         </Button>
                         <Button asChild variant="ghost" className="justify-start px-3">

@@ -1,8 +1,9 @@
-import {atom, createStore} from "jotai";
+import {atom, createStore, type WritableAtom} from "jotai";
 import type {components} from "@/schema.ts";
 import {$api, $authToken, loadableQuery} from "@/api";
 import {atomWithQuery} from "jotai-tanstack-query";
 import type {EntityField} from "@/lib/utils.ts";
+import {atomFamily, atomWithStorage} from "jotai/utils";
 
 export const store = createStore()
 
@@ -91,6 +92,41 @@ export const $adminAstTreeQuery = atomWithQuery((get) => {
 })
 export const $adminAstTree = loadableQuery($adminAstTreeQuery)
 
+
+export const $adminCommitFileQueryOptions = (commitFileId: string) => $api.queryOptions(
+    'get',
+    `/entities/commit_files/{commitFileId}`,
+    {
+        params: {
+            path: {
+                commitFileId
+            }
+        },
+    },
+);
+export const $adminCommitFileQuery = atomWithQuery((get) => {
+    const commitFileId = get($adminFileId)
+    return $adminCommitFileQueryOptions(commitFileId!)
+})
+export const $adminCommitFile = loadableQuery($adminCommitFileQuery)
+
+export const $adminAstNodeQueryOptions = (astNodeId: string) => $api.queryOptions(
+    'get',
+    `/entities/ast_nodes/{astNodeId}`,
+    {
+        params: {
+            path: {
+                astNodeId
+            }
+        },
+    },
+);
+export const $adminAstNodeQuery = atomWithQuery((get) => {
+    const astNodeId = get($adminAstNodeId)
+    return $adminAstNodeQueryOptions(astNodeId!)
+})
+export const $adminAstNode = loadableQuery($adminAstNodeQuery)
+
 export type ApiCommitModel = components['schemas']['CommitDto']
 export type ApiRepositoryModel = components['schemas']['RepositoryDto']
 export type ApiRepositoryViewModel = components['schemas']['RepositoryViewDto']
@@ -99,9 +135,11 @@ export type ApiFileContentModel = components['schemas']["FileContentDto"]
 export type ApiFileAstModel = components['schemas']["FileAstDto"]
 export type ApiEntityRepositoryModel = components['schemas']['EntityRepositoryDto']
 export type ApiEntityCommitModel = components['schemas']['EntityCommitDto']
+export type ApiEntityCommitFileModel = components['schemas']['EntityCommitFileDto']
 export type ApiEntityBranchModel = components['schemas']['EntityBranchDto']
 export type ApiEntityUserModel = components['schemas']['EntityUserDto']
 export type ApiEntityAstTreeModel = components['schemas']['EntityAstTreeDto']
+export type ApiEntityAstNodeModel = components['schemas']['EntityAstNodeDto']
 
 export const $repoId = atom<string | null>(null)
 export const $fileId = atom<string | null>(null)
@@ -110,9 +148,11 @@ export const $commitId = atom<string | null>(null)
 export const $userId = atom<string | null>(null)
 export const $adminUserId = atom<string | null>(null)
 export const $adminRepoId = atom<string | null>(null)
+export const $adminFileId = atom<string | null>(null)
 export const $adminBranchId = atom<string | null>(null)
 export const $adminCommitId = atom<string | null>(null)
 export const $adminAstTreeId = atom<string | null>(null)
+export const $adminAstNodeId = atom<string | null>(null)
 export const $path = atom("")
 
 export const $astQuery = atom<{ typename: string, types: string[] } | null>(null)
@@ -315,6 +355,11 @@ export const $showEditRepoDialog = atom(false)
 export const $showEditBranchDialog = atom(false)
 export const $showEditCommitDialog = atom(false)
 export const $showEditAstTreeDialog = atom(false)
+export const $showEditAstNodeDialog = atom(false)
 export const $showEditFileDialog = atom(false)
 export const $repoSettingsDialogRepo = atom<ApiRepositoryModel | null>(null)
 export const $currentEntitiesFieldsAtom = atom<EntityField[] | null>(null);
+
+export const $hideColumnsAtomFamily = atomFamily<string, WritableAtom<string[], [string[]], void>>(
+    (id: string) => atomWithStorage(`${id}_hide`, [] as string[], undefined, {getOnInit: true})
+)

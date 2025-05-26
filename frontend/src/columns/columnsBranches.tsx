@@ -4,7 +4,13 @@ import type {ApiEntityBranchModel} from "@/store/store.ts";
 import dayjs from "dayjs";
 import {type TypedColumnDef, typesVisibilityType} from "@/lib/table.ts";
 import type {EntityField} from "@/lib/utils.ts";
-import {CheckboxRenderer, DateRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
+import {
+    CheckboxRenderer,
+    DateRenderer,
+    EntityIdRenderer,
+    MonoRenderer,
+    OptRenderer
+} from "@/components/custom/utils/ValueRenderers.tsx";
 
 export const fieldsBranches: EntityField[] = [
     {
@@ -28,6 +34,11 @@ export const fieldsBranches: EntityField[] = [
         type: "string"
     },
     {
+        id: "repository.createdAt",
+        name: "Дата создания репозитория",
+        type: "date"
+    },
+    {
         id: "repository.owner.id",
         name: "ID владельца репозитория",
         type: "string"
@@ -46,11 +57,6 @@ export const fieldsBranches: EntityField[] = [
         id: "repository.visibility",
         name: "Публичность репозитория",
         type: "string"
-    },
-    {
-        id: "repository.createdAt",
-        name: "Дата создания репозитория",
-        type: "date"
     },
     {
         id: "isDefault",
@@ -98,11 +104,7 @@ export const columnsBranches = [
     },
     {
         accessorKey: "id",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="ID"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "id",
             type: 'string',
@@ -112,11 +114,7 @@ export const columnsBranches = [
     },
     {
         accessorKey: "name",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Название"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "Название",
             type: 'string',
@@ -125,12 +123,18 @@ export const columnsBranches = [
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
-        accessorKey: "repository.name",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Название репозитория"/>
-            );
+        accessorKey: "repository.id",
+        header: DataTableColumnHeader,
+        meta: {
+            title: "ID репозитория",
+            type: 'string',
+            field: "repository.id"
         },
+        cell: ({cell}) => <EntityIdRenderer value={cell.getValue()} entity={'repos'}/>
+    },
+    {
+        accessorKey: "repository.name",
+        header: DataTableColumnHeader,
         meta: {
             title: "Название репозитория",
             type: 'string',
@@ -139,14 +143,43 @@ export const columnsBranches = [
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
-        accessorKey: "repository.owner.username",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Владелец репозитория"/>
-            )
+        accessorKey: "repository.visibility",
+        header: DataTableColumnHeader,
+        meta: {
+            title: "Публичность репозитория",
+            type: 'string',
+            field: "repository.visibility"
+        },
+        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
+    },
+    {
+        accessorKey: "repository.createdAt",
+        header: DataTableColumnHeader,
+        accessorFn: (row) => {
+            return row.repository ? dayjs(row.repository!.createdAt) : undefined
         },
         meta: {
-            title: "Владелец репозитория",
+            title: "Дата создания репозитория",
+            type: 'datetime',
+            field: "repository.createdAt"
+        },
+        cell: ({cell}) => <DateRenderer value={cell.getValue()} />
+    },
+    {
+        accessorKey: "repository.owner.id",
+        header: DataTableColumnHeader,
+        meta: {
+            title: "ID владельца репозитория",
+            type: 'string',
+            field: "repository.owner.id"
+        },
+        cell: ({cell}) => <EntityIdRenderer value={cell.getValue()} entity={'users'}/>
+    },
+    {
+        accessorKey: "repository.owner.username",
+        header: DataTableColumnHeader,
+        meta: {
+            title: "Никнейм владельца репозитория",
             type: 'string',
             field: "repository.owner.username"
         },
@@ -154,11 +187,7 @@ export const columnsBranches = [
     },
     {
         accessorKey: "repository.originalLink",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Источник репозитория"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "Источник репозитория",
             type: 'string',
@@ -167,46 +196,8 @@ export const columnsBranches = [
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
     },
     {
-        accessorKey: "repository.visibility",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Публичность репозитория"/>
-            )
-        },
-        meta: {
-            title: "Публичность репозитория",
-            type: 'string',
-            field: "repository.visibility"
-        },
-        accessorFn: (row) => {
-            return typesVisibilityType[row.repository.visibility] ?? row.repository.visibility
-        },
-        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
-    },
-    {
-        accessorKey: "repository.createdAt",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Дата создания репозитория"/>
-            )
-        },
-        accessorFn: (row) => {
-            return dayjs(row.createdAt);
-        },
-        meta: {
-            title: "Дата создания репозитория",
-            type: 'datetime',
-            field: "repository.createdAt"
-        },
-        cell: ({cell}) => <DateRenderer value={cell.getValue()}/>,
-    },
-    {
         accessorKey: "isDefault",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Основная ветка"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "Основная ветка",
             type: 'boolean',
@@ -216,11 +207,7 @@ export const columnsBranches = [
     },
     {
         accessorKey: "createdAt",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Дата создания"/>
-            )
-        },
+        header: DataTableColumnHeader,
         accessorFn: (row) => {
             return dayjs(row.createdAt);
         },
@@ -233,11 +220,7 @@ export const columnsBranches = [
     },
     {
         accessorKey: "commitCount",
-        header: ({column}) => {
-            return (
-                <DataTableColumnHeader column={column} title="Количество коммитов"/>
-            )
-        },
+        header: DataTableColumnHeader,
         meta: {
             title: "Количество коммитов",
             type: 'number',

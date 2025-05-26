@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetgit.backend.annotation.IsAdmin;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.request.EntitySearchRequest;
 import ru.sweetgit.backend.dto.request.EntityStatsRequest;
@@ -28,7 +27,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@IsAdmin
+//@IsAdmin
 public class EntityController {
     private final EntityService entityService;
     private final EntityMapper entityMapper;
@@ -161,7 +160,6 @@ public class EntityController {
         return ResponseEntity.ok(entityMapper.toEntityDto(entity));
     }
 
-
     @PostMapping("/entities/ast_trees/query")
     public ResponseEntity<Page<EntityAstTreeDto>> queryAstTrees(
             @Valid @RequestBody EntitySearchRequest request
@@ -190,6 +188,70 @@ public class EntityController {
 
         var entity = page.stream().findFirst()
                 .orElseThrow(() -> ApiException.notFound("AST-дерево", "хэш", astTreeId).build());
+
+        return ResponseEntity.ok(entityMapper.toEntityDto(entity));
+    }
+
+
+    @PostMapping("/entities/commit_files/query")
+    public ResponseEntity<Page<EntityCommitFileDto>> queryCommitFiles(
+            @Valid @RequestBody EntitySearchRequest request
+    ) {
+        var searchDto = convert(request);
+        var page = entityService.getCommitFileEntities(searchDto);
+        return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
+    }
+
+
+    @PostMapping("/entities/commit_files/stats")
+    public ResponseEntity<EntityStatsDto> statsCommitFiles(
+            @Valid @RequestBody EntityStatsRequest request
+    ) {
+        var searchDto = convert(request);
+        var result = entityService.getCommitFileEntityStats(searchDto);
+        return ResponseEntity.ok(entityMapper.toEntityDto(result));
+    }
+
+    @GetMapping("/entities/commit_files/{commitFileId}")
+    public ResponseEntity<EntityCommitFileDto> getCommitFile(
+            @PathVariable String commitFileId
+    ) {
+        var searchDto = queryById(commitFileId);
+        var page = entityService.getCommitFileEntities(searchDto);
+
+        var entity = page.stream().findFirst()
+                .orElseThrow(() -> ApiException.notFound("AST-дерево", "хэш", commitFileId).build());
+
+        return ResponseEntity.ok(entityMapper.toEntityDto(entity));
+    }
+    @PostMapping("/entities/ast_nodes/query")
+    public ResponseEntity<Page<EntityAstNodeDto>> queryAstNodes(
+            @Valid @RequestBody EntitySearchRequest request
+    ) {
+        var searchDto = convert(request);
+        var page = entityService.getAstNodeEntities(searchDto);
+        return ResponseEntity.ok(page.map(entityMapper::toEntityDto));
+    }
+
+
+    @PostMapping("/entities/ast_nodes/stats")
+    public ResponseEntity<EntityStatsDto> statsAstNodes(
+            @Valid @RequestBody EntityStatsRequest request
+    ) {
+        var searchDto = convert(request);
+        var result = entityService.getAstNodeEntityStats(searchDto);
+        return ResponseEntity.ok(entityMapper.toEntityDto(result));
+    }
+
+    @GetMapping("/entities/ast_nodes/{astNodeId}")
+    public ResponseEntity<EntityAstNodeDto> getAstNode(
+            @PathVariable String astNodeId
+    ) {
+        var searchDto = queryById(astNodeId);
+        var page = entityService.getAstNodeEntities(searchDto);
+
+        var entity = page.stream().findFirst()
+                .orElseThrow(() -> ApiException.notFound("AST-дерево", "хэш", astNodeId).build());
 
         return ResponseEntity.ok(entityMapper.toEntityDto(entity));
     }

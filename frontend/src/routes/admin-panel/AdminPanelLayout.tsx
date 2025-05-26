@@ -18,6 +18,11 @@ function AdminPanelLayout() {
 
     useEffect(() => {
         if (!currentUserIsAdmin) {
+            console.info({
+                currentUserIsAdmin,
+                state: currentUser.state,
+                authToken
+            })
             toast.error('Доступ запрещён')
             navigate('/')
         }

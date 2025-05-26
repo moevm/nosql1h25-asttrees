@@ -202,7 +202,7 @@ function FileTableContent({repo, fileContent, fileAst}: {
                             ) : (
                                 <BatchLoader states={[fileAst]} loadingMessage={'Загрузка AST-дерева'} display={() => (
                                     <span
-                                        className={"text-sm text-primary/60 font-medium leading-none py-3"}>Узлов: {loaded(fileAst).data.astTree.nodes.length} &middot; Глубина: {loaded(fileAst).data.astTree.depth}</span>
+                                        className={"text-sm text-primary/60 font-medium leading-none py-3"}>Узлов: {loaded(fileAst).data.astTree.size} &middot; Глубина: {loaded(fileAst).data.astTree.depth}</span>
                                 )}/>
                             )}
                         </div>

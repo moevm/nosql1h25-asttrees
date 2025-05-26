@@ -20,6 +20,6 @@ public record EntitySearchRequest(
     public record SortOrder(@Pattern(regexp = "^[a-zA-Z0-9_.]+$") String field, boolean asc) {
     }
 
-    public record Filter(@Pattern(regexp = "^[a-zA-Z0-9_.]+$") String field, @NotBlank String kind, @NotNull Map<String, Object> params) {
+    public record Filter(@Pattern(regexp = "^[a-zA-Z0-9_.]+$") String field, @NotNull @NotBlank String kind, @NotNull Map<String, Object> params) {
     }
 }

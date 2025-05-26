@@ -1,0 +1,103 @@
+import {Label} from "@/components/ui/label.tsx";
+import {Button} from "@/components/ui/button.tsx";
+import {
+    DateRenderer,
+    MonoRenderer
+} from "@/components/custom/utils/ValueRenderers.tsx";
+import {
+    $adminAstNode,
+    $adminAstNodeId, $adminAstNodeQueryOptions, $adminUserQueryOptions, $showEditAstNodeDialog,
+    type ApiEntityAstNodeModel
+} from "@/store/store.ts";
+import EntityCard from "@/components/custom/EntityCard.tsx"
+import dayjs from "dayjs";
+import {useNavigate, useParams} from "react-router-dom";
+import {useAtomValue, useSetAtom} from "jotai/react";
+import {useCallback, useEffect} from "react";
+import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
+import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
+import EditAstNodeDialog from "@/components/dialogs/EditAstNodeDialog.tsx";
+import {columnsAstNodes} from "@/columns/columnsAstNodes.tsx";
+import {z} from "zod";
+import {astNodeSchema, type userSchema} from "@/lib/formSchemas.ts";
+import {toast} from "sonner";
+
+function AdminAstNodePageContent(props: {
+    data: ApiEntityAstNodeModel
+}) {
+    const navigate = useNavigate()
+    const setShowEditAstNodeDialog = useSetAtom($showEditAstNodeDialog)
+
+    const {mutate} = $api.useMutation(
+        'patch',
+        '/admin/ast_nodes/{astNodeId}'
+    )
+
+    const onSave = useCallback(async (data: z.infer<typeof astNodeSchema>) => {
+        mutate({
+            params: {
+                path: {
+                    astNodeId: props.data.id!
+                }
+            },
+            body: {
+                type: data.type,
+                label: data.label,
+                tree: data.tree
+            }
+        }, {
+            onSuccess() {
+                toast.info('AST-узел изменён')
+                queryClient.invalidateQueries({ queryKey: $adminAstNodeQueryOptions(props.data.id!).queryKey });
+                setShowEditAstNodeDialog(false)
+            },
+            onError: defaultOnErrorHandler
+        })
+    }, [])
+
+    return (
+        <>
+            <EditAstNodeDialog data={props.data} onSave={onSave}/>
+            <div className="flex flex-col py-6 mx-6">
+                <div className="flex flex-col gap-2">
+                    <Label className={"text-3xl"}>{props.data.commitFile?.name}</Label>
+
+                    <EntityCard
+                        entity={props.data}
+                        columns={columnsAstNodes}
+                    />
+                    <div className={"flex justify-between gap-6"}>
+                        <div className="flex justify-between gap-2">
+                            <Button variant="outline" onClick={() => {
+                                setShowEditAstNodeDialog(true)
+                            }}>
+                                Настройка AST-узла
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}
+
+function AdminAstNodePage() {
+    const adminAstNodeId = useParams()['adminAstNodeId']
+    const setSelectedAdminAstNodeId = useSetAtom($adminAstNodeId)
+    const adminAstNode = useAtomValue($adminAstNode)
+
+    useEffect(() => {
+        setSelectedAdminAstNodeId(adminAstNodeId!)
+    }, [setSelectedAdminAstNodeId, adminAstNodeId]);
+
+    return (
+        <BatchLoader states={[adminAstNode]}
+                     loadingMessage={"Загрузка AST-узла"}
+                     display={() =>
+                         <AdminAstNodePageContent data={loaded(adminAstNode).data}/>
+                     }
+        />
+    )
+}
+
+export default AdminAstNodePage;

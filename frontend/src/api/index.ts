@@ -12,7 +12,7 @@ import {toast} from "sonner";
 import type {Loadable} from "jotai/utils";
 import {$currentUserQueryOptions, store} from "@/store/store.ts";
 
-export const $authToken = atomWithStorage<string | null>('auth_token', null)
+export const $authToken = atomWithStorage<string | null>('auth_token', null, undefined, {getOnInit: true})
 
 export const queryClient = new QueryClient({
     defaultOptions: {

@@ -6,38 +6,62 @@ import {
 } from "@/components/custom/utils/ValueRenderers.tsx";
 import {
     $adminAstTree,
-    $adminAstTreeId, $showEditAstTreeDialog,
+    $adminAstTreeId, $adminAstTreeQueryOptions, $adminUserQueryOptions, $showEditAstTreeDialog,
     type ApiEntityAstTreeModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import dayjs from "dayjs";
 import {useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {useEffect} from "react";
-import {loaded} from "@/api";
+import {useCallback, useEffect} from "react";
+import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import EditAstTreeDialog from "@/components/dialogs/EditAstTreeDialog.tsx";
+import {columnsAstTrees} from "@/columns/columnsAstTrees.tsx";
+import {z} from "zod";
+import {astTreeSchema, type userSchema} from "@/lib/formSchemas.ts";
+import {toast} from "sonner";
 
 function AdminAstTreePageContent(props: {
     data: ApiEntityAstTreeModel
 }) {
     const setShowEditAstTreeDialog = useSetAtom($showEditAstTreeDialog)
+
+    const {mutate} = $api.useMutation(
+        'patch',
+        '/admin/ast_trees/{astTreeId}'
+    )
+
+    const onSave = useCallback(async (data: z.infer<typeof astTreeSchema>) => {
+        mutate({
+            params: {
+                path: {
+                    astTreeId: props.data.id!
+                }
+            },
+            body: {
+                createdAt: data.createdAt.toISOString(),
+            }
+        }, {
+            onSuccess() {
+                toast.info('AST-дерево изменено')
+                queryClient.invalidateQueries({ queryKey: $adminAstTreeQueryOptions(props.data.id!).queryKey });
+                setShowEditAstTreeDialog(false)
+            },
+            onError: defaultOnErrorHandler
+        })
+    }, [])
+
     return (
         <>
-            <EditAstTreeDialog data={props.data}/>
+            <EditAstTreeDialog data={props.data} onSave={onSave}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
                     <Label className={"text-3xl"}>{props.data.commitFile?.name}</Label>
 
                     <EntityCard
-                        items={[
-                            ['id', <MonoRenderer value={props.data.id}/>],
-                            ['Дата создания', <DateRenderer value={dayjs(props.data.createdAt)}/>],
-                            ['Глубина', props.data.depth],
-                            ['Размер', props.data.size],
-                            ['Название файла', props.data.commitFile?.name],
-                            ['Hash файла', props.data.commitFile?.hash],
-                        ]}
+                        entity={props.data}
+                        columns={columnsAstTrees}
                     />
                     <div className={"flex justify-between gap-6"}>
                         <div className="flex justify-between gap-2">
