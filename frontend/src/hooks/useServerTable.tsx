@@ -17,7 +17,7 @@ import type {EntityField} from "@/lib/utils.ts";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {$path} from "@/store/store.ts";
 import {useNavigate, useSearchParams} from "react-router-dom";
-import {type FilterItem, FILTERS} from "@/lib/FILTERS.ts";
+import {type FilterItem, FILTERS} from "@/lib/filters.ts";
 import dayjs from "dayjs";
 
 type SortItem = {
