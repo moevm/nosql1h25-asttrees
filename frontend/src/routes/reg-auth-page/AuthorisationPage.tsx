@@ -93,7 +93,7 @@ function RegisterPage() {
                                 <FormItem>
                                     <FormLabel>Логин</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Введите ваш логин" {...field} />
+                                        <Input autoComplete="username" placeholder="Введите ваш логин" {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -106,7 +106,7 @@ function RegisterPage() {
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Введите ваш email" {...field} />
+                                        <Input autoComplete="email" placeholder="Введите ваш email" {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -198,7 +198,7 @@ function LoginPage() {
                                 <FormItem>
                                     <FormLabel>Логин</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Введите ваш логин" {...field} />
+                                        <Input autoComplete="username" placeholder="Введите ваш логин" {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
