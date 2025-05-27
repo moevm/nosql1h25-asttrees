@@ -19,7 +19,7 @@ import {toast} from "sonner";
 import {
     AstView
 } from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/components/AstView.tsx";
-import {Card, CardContent} from "@/components/ui/card.tsx";
+import {Card, CardContent, CardDescription, CardHeader} from "@/components/ui/card.tsx";
 
 function AdminAstTreePageContent(props: {
     data: ApiEntityAstTreeModel,
@@ -95,7 +95,10 @@ function AdminAstTreePageContent(props: {
                         }>Фильтр AST-узлов</Button>
                     </div>
 
-                    <Card>
+                    <Card className={"gap-2"}>
+                        <CardHeader className={"font-mono text-sm"}>
+                            Узлов: {props.view!.size} &middot; Глубина: {props.view!.depth}
+                        </CardHeader>
                         <CardContent>
                             <AstView data={props.view} search={false} />
                         </CardContent>

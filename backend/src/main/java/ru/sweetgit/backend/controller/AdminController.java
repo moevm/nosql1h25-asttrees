@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.sweetgit.backend.annotation.IsAdmin;
 import ru.sweetgit.backend.dto.request.*;
 import ru.sweetgit.backend.dto.response.AstTreeViewDto;
+import ru.sweetgit.backend.dto.response.FileContentDto;
 import ru.sweetgit.backend.mapper.AstMapper;
+import ru.sweetgit.backend.mapper.FileViewMapper;
 import ru.sweetgit.backend.service.AdminService;
 import ru.sweetgit.backend.service.RepositoryService;
 
@@ -18,6 +20,7 @@ public class AdminController {
     private final AdminService adminService;
     private final RepositoryService repositoryService;
     private final AstMapper astMapper;
+    private final FileViewMapper fileViewMapper;
 
     @PatchMapping("/admin/users/{userId}")
     public ResponseEntity<Void> patchUser(
@@ -82,6 +85,15 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/admin/commit_files/{commitFileId}/content")
+    public ResponseEntity<FileContentDto> viewFileContent(
+            @PathVariable("commitFileId") String commitFileId
+    ) {
+        return ResponseEntity.ok(
+                fileViewMapper.toFileContentResponseDto(repositoryService.adminViewFileContent(commitFileId))
+        );
+    }
+
     @PatchMapping("/admin/ast_trees/{astTreeId}")
     public ResponseEntity<Void> patchAstTree(
             @PathVariable("astTreeId") String astTreeId,
@@ -114,7 +126,7 @@ public class AdminController {
             @PathVariable("astTreeId") String astTreeId
     ) {
         return ResponseEntity.ok(
-                astMapper.toAstTreeViewDto(repositoryService.viewAst(astTreeId))
+                astMapper.toAstTreeViewDto(repositoryService.adminViewAst(astTreeId))
         );
     }
 }

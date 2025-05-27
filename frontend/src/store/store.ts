@@ -126,6 +126,27 @@ export const $adminCommitFileQuery = atomWithQuery((get) => {
 })
 export const $adminCommitFile = loadableQuery($adminCommitFileQuery)
 
+export const $adminCommitFileViewQueryOptions = (commitFileId: string, enabled: boolean) => $api.queryOptions(
+    'get',
+    `/admin/commit_files/{commitFileId}/content`,
+    {
+        params: {
+            path: {
+                commitFileId
+            }
+        },
+    },
+    {enabled}
+);
+export const $adminCommitFileViewQuery = atomWithQuery((get) => {
+    const commitFileData = get($adminCommitFile)
+    if (!(commitFileData.state === 'hasData' && commitFileData.data.type === 'FILE')) {
+        return $adminCommitFileViewQueryOptions('', false)
+    }
+    return $adminCommitFileViewQueryOptions(commitFileData.data.id, true)
+})
+export const $adminCommitFileView = loadableQuery($adminCommitFileViewQuery)
+
 export const $adminAstNodeQueryOptions = (astNodeId: string) => $api.queryOptions(
     'get',
     `/entities/ast_nodes/{astNodeId}`,
@@ -137,6 +158,9 @@ export const $adminAstNodeQueryOptions = (astNodeId: string) => $api.queryOption
         },
     },
 );
+
+
+
 export const $adminAstNodeQuery = atomWithQuery((get) => {
     const astNodeId = get($adminAstNodeId)
     return $adminAstNodeQueryOptions(astNodeId!)
