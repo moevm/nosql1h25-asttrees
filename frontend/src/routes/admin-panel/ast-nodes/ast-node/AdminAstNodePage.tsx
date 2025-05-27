@@ -1,16 +1,11 @@
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
-    DateRenderer,
-    MonoRenderer
-} from "@/components/custom/utils/ValueRenderers.tsx";
-import {
     $adminAstNode,
-    $adminAstNodeId, $adminAstNodeQueryOptions, $adminUserQueryOptions, $showEditAstNodeDialog,
+    $adminAstNodeId, $adminAstNodeQueryOptions, $showEditAstNodeDialog,
     type ApiEntityAstNodeModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
-import dayjs from "dayjs";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useCallback, useEffect} from "react";
@@ -19,7 +14,7 @@ import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import EditAstNodeDialog from "@/components/dialogs/EditAstNodeDialog.tsx";
 import {columnsAstNodes} from "@/columns/columnsAstNodes.tsx";
 import {z} from "zod";
-import {astNodeSchema, type userSchema} from "@/lib/formSchemas.ts";
+import {astNodeSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
 
 function AdminAstNodePageContent(props: {
@@ -48,7 +43,7 @@ function AdminAstNodePageContent(props: {
         }, {
             onSuccess() {
                 toast.info('AST-узел изменён')
-                queryClient.invalidateQueries({ queryKey: $adminAstNodeQueryOptions(props.data.id!).queryKey });
+                queryClient.invalidateQueries({queryKey: $adminAstNodeQueryOptions(props.data.id!).queryKey});
                 setShowEditAstNodeDialog(false)
             },
             onError: defaultOnErrorHandler
@@ -60,20 +55,30 @@ function AdminAstNodePageContent(props: {
             <EditAstNodeDialog data={props.data} onSave={onSave}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
-                    <Label className={"text-3xl"}>{props.data.commitFile?.name}</Label>
+                    <Label className={"text-3xl"}>{props.data.id}</Label>
 
                     <EntityCard
                         entity={props.data}
                         columns={columnsAstNodes}
                     />
-                    <div className={"flex justify-between gap-6"}>
-                        <div className="flex justify-between gap-2">
+                    <div className={"flex flex-wrap gap-2"}>
+                        <Button variant="outline" onClick={() => {
+                            setShowEditAstNodeDialog(true)
+                        }}>
+                            Настройка AST-узла
+                        </Button>
+                        {props.data.parent && (
                             <Button variant="outline" onClick={() => {
-                                setShowEditAstNodeDialog(true)
+                                navigate(`/admin/ast-nodes/${props.data.parent}`)
                             }}>
-                                Настройка AST-узла
+                                Перейти к родителю
                             </Button>
-                        </div>
+                        )}
+                        <Button variant="outline" onClick={() => {
+                            navigate(`/admin/ast-trees/${props.data.tree}`)
+                        }}>
+                            Перейти к AST-дереву
+                        </Button>
                     </div>
                 </div>
             </div>
