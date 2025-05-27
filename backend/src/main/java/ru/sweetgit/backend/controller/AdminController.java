@@ -46,12 +46,30 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/admin/branches/{branchId}/commits")
+    public ResponseEntity<Void> setBranchCommits(
+            @PathVariable("branchId") String branchId,
+            @Valid @RequestBody AdminSetLinksRequest request
+    ) {
+        adminService.setBranchCommits(branchId, request.links());
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/admin/commits/{commitId}")
     public ResponseEntity<Void> patchCommit(
             @PathVariable("commitId") String commitId,
             @Valid @RequestBody AdminPatchCommitRequest request
     ) {
         adminService.editCommit(commitId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/admin/commits/{commitId}/branches")
+    public ResponseEntity<Void> setCommitBranches(
+            @PathVariable("commitId") String commitId,
+            @Valid @RequestBody AdminSetLinksRequest request
+    ) {
+        adminService.setCommitBranches(commitId, request.links());
         return ResponseEntity.ok().build();
     }
 
@@ -79,6 +97,15 @@ public class AdminController {
             @Valid @RequestBody AdminPatchAstNodeRequest request
     ) {
         adminService.editAstNode(astNodeId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/admin/ast_nodes/{astNodeId}/children")
+    public ResponseEntity<Void> setAstNodeChildren(
+            @PathVariable("astNodeId") String astNodeId,
+            @Valid @RequestBody AdminSetLinksRequest request
+    ) {
+        adminService.setAstNodeChildren(astNodeId, request.links());
         return ResponseEntity.ok().build();
     }
 

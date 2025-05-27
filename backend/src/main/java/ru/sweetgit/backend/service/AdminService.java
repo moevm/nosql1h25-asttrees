@@ -2,13 +2,16 @@ package ru.sweetgit.backend.service;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.request.*;
-import ru.sweetgit.backend.model.FileTypeModel;
-import ru.sweetgit.backend.model.RepositoryVisibilityModel;
-import ru.sweetgit.backend.model.UserVisibilityModel;
+import ru.sweetgit.backend.model.*;
 import ru.sweetgit.backend.repo.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,8 @@ public class AdminService {
     private final CommitFileRepository commitFileRepository;
     private final AstTreeRepository astTreeRepository;
     private final AstNodeRepository astNodeRepository;
+    private final BranchCommitRepository branchCommitRepository;
+    private final AstParentRepository astParentRepository;
 
     public void editUser(String id, @Valid AdminPatchUserRequest request) {
         var original = userRepository.findById(id).orElseThrow(
@@ -199,5 +204,65 @@ public class AdminService {
                         .tree(tree)
                         .build()
         );
+    }
+
+    public void setBranchCommits(String branchId, List<String> links) {
+        branchRepository.findById(branchId).orElseThrow(
+                () -> ApiException.notFound("Ветка", "id", branchId).build()
+        );
+        var found = StreamUtils.createStreamFromIterator(commitRepository.findAllById(links).iterator())
+                .map(CommitModel::getId)
+                .collect(Collectors.toSet());
+
+        var notFound = links.stream().filter(it -> !found.contains(it)).toList();
+        if (!notFound.isEmpty()) {
+            throw ApiException.notFound().message("Коммиты не найдены: %s".formatted(Arrays.toString(notFound.toArray()))).build();
+        }
+
+        branchCommitRepository.deleteAllByBranchId(branchId);
+        branchCommitRepository.saveAll(links.stream().map(it -> new BranchCommitModel(
+                BranchModel.builder().id(branchId).build(),
+                CommitModel.builder().id(it).build()
+        )).toList());
+    }
+
+    public void setCommitBranches(String commitId, List<String> links) {
+        commitRepository.findById(commitId).orElseThrow(
+                () -> ApiException.notFound("Коммит", "id", commitId).build()
+        );
+        var found = StreamUtils.createStreamFromIterator(branchRepository.findAllById(links).iterator())
+                .map(BranchModel::getId)
+                .collect(Collectors.toSet());
+
+        var notFound = links.stream().filter(it -> !found.contains(it)).toList();
+        if (!notFound.isEmpty()) {
+            throw ApiException.notFound().message("Ветки не найдены: %s".formatted(Arrays.toString(notFound.toArray()))).build();
+        }
+
+        branchCommitRepository.deleteAllByCommitId(commitId);
+        branchCommitRepository.saveAll(links.stream().map(it -> new BranchCommitModel(
+                BranchModel.builder().id(it).build(),
+                CommitModel.builder().id(commitId).build()
+        )).toList());
+    }
+
+    public void setAstNodeChildren(String astNodeId, List<String> links) {
+        astNodeRepository.findById(astNodeId).orElseThrow(
+                () -> ApiException.notFound("AST-узел", "id", astNodeId).build()
+        );
+        var found = StreamUtils.createStreamFromIterator(astNodeRepository.findAllById(links).iterator())
+                .map(AstNodeModel::getId)
+                .collect(Collectors.toSet());
+
+        var notFound = links.stream().filter(it -> !found.contains(it)).toList();
+        if (!notFound.isEmpty()) {
+            throw ApiException.notFound().message("AST-узлы не найдены: %s".formatted(Arrays.toString(notFound.toArray()))).build();
+        }
+
+        astParentRepository.deleteAllByFromId(astNodeId);
+        astParentRepository.saveAll(links.stream().map(it -> new AstParentModel(
+                AstNodeModel.builder().id(astNodeId).build(),
+                AstNodeModel.builder().id(it).build()
+        )).toList());
     }
 }

@@ -58,6 +58,7 @@ function AdminFilePageContent(props: {
 
     return (
         <>
+
             <EditCommitFileDialog data={props.data} onSave={onSave}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">

@@ -2,13 +2,13 @@ import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
     $adminAstNode,
-    $adminAstNodeId, $adminAstNodeQueryOptions, $showEditAstNodeDialog,
+    $adminAstNodeId, $adminAstNodeQueryOptions, $adminBranchQueryOptions, $showEditAstNodeDialog,
     type ApiEntityAstNodeModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import EditAstNodeDialog from "@/components/dialogs/EditAstNodeDialog.tsx";
@@ -16,16 +16,22 @@ import {columnsAstNodes} from "@/columns/columnsAstNodes.tsx";
 import {z} from "zod";
 import {astNodeSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
+import {ListLinker} from "@/routes/admin-panel/components/ListLinker.tsx";
 
 function AdminAstNodePageContent(props: {
     data: ApiEntityAstNodeModel
 }) {
     const navigate = useNavigate()
     const setShowEditAstNodeDialog = useSetAtom($showEditAstNodeDialog)
+    const [showEditChildrenDialog, setShowEditChildrenDialog] = useState(false)
 
     const {mutate} = $api.useMutation(
         'patch',
         '/admin/ast_nodes/{astNodeId}'
+    )
+    const {mutate: mutateSetLinks} = $api.useMutation(
+        'post',
+        '/admin/ast_nodes/{astNodeId}/children'
     )
 
     const onSave = useCallback(async (data: z.infer<typeof astNodeSchema>) => {
@@ -50,8 +56,29 @@ function AdminAstNodePageContent(props: {
         })
     }, [])
 
+    const onSaveLinks = useCallback(async (data: string[]) => {
+        mutateSetLinks({
+            params: {
+                path: {
+                    astNodeId: props.data.id!
+                },
+            },
+            body: {
+                links: data
+            }
+        }, {
+            onSuccess() {
+                toast.info('AST-узел изменён')
+                queryClient.invalidateQueries({queryKey: $adminAstNodeQueryOptions(props.data.id!).queryKey});
+                setShowEditChildrenDialog(false)
+            },
+            onError: defaultOnErrorHandler
+        })
+    }, [])
+
     return (
         <>
+            <ListLinker open={showEditChildrenDialog} setOpen={setShowEditChildrenDialog} initialValue={props.data.children ?? []} onSave={onSaveLinks} />
             <EditAstNodeDialog data={props.data} onSave={onSave}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
@@ -66,6 +93,11 @@ function AdminAstNodePageContent(props: {
                             setShowEditAstNodeDialog(true)
                         }}>
                             Настройка AST-узла
+                        </Button>
+                        <Button variant={"outline"} onClick={() => {
+                            setShowEditChildrenDialog(true)
+                        }}>
+                            Привязка потомков
                         </Button>
                         {props.data.parent && (
                             <Button variant="outline" onClick={() => {

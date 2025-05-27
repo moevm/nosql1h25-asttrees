@@ -7,7 +7,7 @@ import {
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import EditCommitDialog from "@/components/dialogs/EditCommitDialog.tsx";
@@ -15,16 +15,22 @@ import {columnsCommits} from "@/columns/columnsCommits.tsx";
 import {z} from "zod";
 import {commitSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
+import {ListLinker} from "@/routes/admin-panel/components/ListLinker.tsx";
 
 function AdminCommitPageContent(props: {
     data: ApiEntityCommitModel
 }) {
     const setShowEditCommitDialog = useSetAtom($showEditCommitDialog)
+    const [showEditBranchesDialog, setShowEditBranchesDialog] = useState(false)
     const navigate = useNavigate()
 
     const {mutate} = $api.useMutation(
         'patch',
         '/admin/commits/{commitId}'
+    )
+    const {mutate: mutateSetLinks} = $api.useMutation(
+        'post',
+        '/admin/commits/{commitId}/branches'
     )
 
     const onSave = useCallback(async (data: z.infer<typeof commitSchema>) => {
@@ -54,8 +60,29 @@ function AdminCommitPageContent(props: {
         })
     }, [])
 
+    const onSaveLinks = useCallback(async (data: string[]) => {
+        mutateSetLinks({
+            params: {
+                path: {
+                    commitId: props.data.id!
+                },
+            },
+            body: {
+                links: data
+            }
+        }, {
+            onSuccess() {
+                toast.info('Коммит изменён')
+                queryClient.invalidateQueries({queryKey: $adminCommitQueryOptions(props.data.id!).queryKey});
+                setShowEditBranchesDialog(false)
+            },
+            onError: defaultOnErrorHandler
+        })
+    }, [])
+
     return (
         <>
+            <ListLinker open={showEditBranchesDialog} setOpen={setShowEditBranchesDialog} initialValue={props.data.branches ?? []} onSave={onSaveLinks} />
             <EditCommitDialog data={props.data} onSave={onSave}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
@@ -70,6 +97,11 @@ function AdminCommitPageContent(props: {
                             setShowEditCommitDialog(true)
                         }}>
                             Настройка коммита
+                        </Button>
+                        <Button variant={"outline"} onClick={() => {
+                            setShowEditBranchesDialog(true)
+                        }}>
+                            Привязка веток
                         </Button>
                         <Button variant="outline" onClick={() =>
                             navigate(`/users/${props.data?.repository?.owner?.id}/repo/${props.data.repository?.id}/branch/default/commit/latest`)}>

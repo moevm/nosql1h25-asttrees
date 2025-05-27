@@ -2,13 +2,13 @@ import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
     $adminBranch,
-    $adminBranchId, $adminBranchQueryOptions, $showEditBranchDialog,
+    $adminBranchId, $adminBranchQueryOptions, $adminCommitQueryOptions, $showEditBranchDialog,
     type ApiEntityBranchModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import EditBranchDialog from "@/components/dialogs/EditBranchDialog.tsx";
@@ -16,16 +16,22 @@ import {columnsBranches} from "@/columns/columnsBranches.tsx";
 import {z} from "zod";
 import {branchSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
+import {ListLinker} from "@/routes/admin-panel/components/ListLinker.tsx";
 
 function AdminBranchPageContent(props: {
     data: ApiEntityBranchModel
 }) {
     const showEditBranchDialog = useSetAtom($showEditBranchDialog)
+    const [showEditCommitsDialog, setShowEditCommitsDialog] = useState(false)
     const navigate = useNavigate()
 
     const {mutate} = $api.useMutation(
         'patch',
         '/admin/branches/{branchId}'
+    )
+    const {mutate: mutateSetLinks} = $api.useMutation(
+        'post',
+        '/admin/branches/{branchId}/commits'
     )
 
     const onSave = useCallback(async (data: z.infer<typeof branchSchema>) => {
@@ -51,8 +57,29 @@ function AdminBranchPageContent(props: {
         })
     }, [])
 
+    const onSaveLinks = useCallback(async (data: string[]) => {
+        mutateSetLinks({
+            params: {
+                path: {
+                    branchId: props.data.id!
+                },
+            },
+            body: {
+                links: data
+            }
+        }, {
+            onSuccess() {
+                toast.info('Ветка изменена')
+                queryClient.invalidateQueries({queryKey: $adminBranchQueryOptions(props.data.id!).queryKey});
+                setShowEditCommitsDialog(false)
+            },
+            onError: defaultOnErrorHandler
+        })
+    }, [])
+
     return (
         <>
+            <ListLinker open={showEditCommitsDialog} setOpen={setShowEditCommitsDialog} initialValue={props.data.commits ?? []} onSave={onSaveLinks} />
             <EditBranchDialog data={props.data} onSave={onSave} />
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
@@ -67,6 +94,11 @@ function AdminBranchPageContent(props: {
                             showEditBranchDialog(true)
                         }}>
                             Настройка ветки
+                        </Button>
+                        <Button variant={"outline"} onClick={() => {
+                            setShowEditCommitsDialog(true)
+                        }}>
+                            Привязка коммитов
                         </Button>
                         <Button variant="outline" onClick={() =>
                             navigate(`/users/${props.data?.repository?.owner?.id}/repo/${props.data?.repository?.id}/branch/${props.data.id}/commit/latest`)}>
