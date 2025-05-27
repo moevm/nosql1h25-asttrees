@@ -16,12 +16,14 @@ import {z} from "zod";
 import {commitSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
 import {ListLinker} from "@/routes/admin-panel/components/ListLinker.tsx";
+import EntitySelector from "@/routes/admin-panel/components/EntitySelector.tsx";
 
 function AdminCommitPageContent(props: {
     data: ApiEntityCommitModel
 }) {
     const setShowEditCommitDialog = useSetAtom($showEditCommitDialog)
     const [showEditBranchesDialog, setShowEditBranchesDialog] = useState(false)
+    const [showSelectBranchForCommitJumpDialog, setShowSelectBranchForCommitJumpDialog] = useState(false)
     const navigate = useNavigate()
 
     const {mutate} = $api.useMutation(
@@ -82,7 +84,19 @@ function AdminCommitPageContent(props: {
 
     return (
         <>
-            <ListLinker open={showEditBranchesDialog} setOpen={setShowEditBranchesDialog} initialValue={props.data.branches ?? []} onSave={onSaveLinks} />
+            {props.data?.branches?.length &&
+                <EntitySelector
+                    entities={props.data.branches}
+                    open={showSelectBranchForCommitJumpDialog}
+                    setOpen={setShowSelectBranchForCommitJumpDialog}
+                    onSubmit={(branchId) => {
+                        navigate(`/users/${props.data?.repository?.owner?.id}/repo/${props.data.repository?.id}/branch/${branchId}/commit/${props.data.id}`)
+                    }}
+                    title={"Выберите ветку"}
+                />
+                || false}
+            <ListLinker open={showEditBranchesDialog} setOpen={setShowEditBranchesDialog}
+                        initialValue={props.data.branches ?? []} onSave={onSaveLinks}/>
             <EditCommitDialog data={props.data} onSave={onSave}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
@@ -103,9 +117,8 @@ function AdminCommitPageContent(props: {
                         }}>
                             Привязка веток
                         </Button>
-                        <Button variant="outline" onClick={() =>
-                            navigate(`/users/${props.data?.repository?.owner?.id}/repo/${props.data.repository?.id}/branch/default/commit/latest`)}>
-                            Перейти на страницу коммита (пока не рабоатет)
+                        <Button variant="outline" onClick={() => setShowSelectBranchForCommitJumpDialog(true)}>
+                            Перейти на страницу коммита
                         </Button>
                         <Button variant="outline" onClick={() =>
                             navigate(`/users/${props.data?.repository?.owner?.id}/repo/${props.data.repository?.id}/branch/default/commit/latest`)}>
