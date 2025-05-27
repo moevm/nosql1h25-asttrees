@@ -41,7 +41,9 @@ function AdminFilePageContent(props: {
                 // type: data.type,
                 hash: data.hash || undefined,
                 parent: data.parent || undefined,
-                commit: data.commit
+                commit: data.commit,
+                originalAuthor: data.originalAuthor,
+                lastChangedBy: data.lastChangedBy
             }
         }, {
             onSuccess() {

@@ -81,6 +81,8 @@ export const commitFileSchema = z.object({
     hash: z.optional(z.string()).describe('Hash'),
     parent: z.optional(z.string()).describe('ID родителя'),
     commit: z.string().min(1, 'Обязательное поле').describe('ID коммита'),
+    originalAuthor: z.string().min(1, "Обязательное поле").describe('Первый автор'),
+    lastChangedBy: z.string().min(1, "Обязательное поле").describe('Последний изменивший'),
 })
 
 export const getInitialDate = (dateString?: string | null): string | undefined => {

@@ -5,8 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.sweetgit.backend.dto.ApiException;
 import ru.sweetgit.backend.dto.request.*;
-import ru.sweetgit.backend.dto.response.FileTypeDto;
-import ru.sweetgit.backend.model.*;
+import ru.sweetgit.backend.model.FileTypeModel;
+import ru.sweetgit.backend.model.RepositoryVisibilityModel;
+import ru.sweetgit.backend.model.UserVisibilityModel;
 import ru.sweetgit.backend.repo.*;
 
 @Service
@@ -164,6 +165,8 @@ public class AdminService {
                         .hash(request.hash())
                         .parent(parent)
                         .commit(commit)
+                        .originalAuthor(request.originalAuthor())
+                        .lastChangedBy(request.lastChangedBy())
                         .build()
         );
     }

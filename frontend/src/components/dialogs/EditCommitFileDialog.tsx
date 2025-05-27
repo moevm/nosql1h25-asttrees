@@ -34,6 +34,8 @@ function EditCommitFileContent(props: {
         hash: props.data.hash ?? '',
         parent: props.data.parent ?? '',
         commit: props.data.commit?.id,
+        originalAuthor: props.data.originalAuthor,
+        lastChangedBy: props.data.lastChangedBy,
     };
 
     const onSubmit = useCallback(async (data: z.infer<typeof commitSchema>) => {

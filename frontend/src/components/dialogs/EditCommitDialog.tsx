@@ -24,7 +24,7 @@ function EditCommitContent(props: {
         filesChanged: props.data.filesChanged,
         linesAdded: props.data.linesAdded,
         linesRemoved: props.data.linesRemoved,
-        createdAt: getInitialDate(props.data.createdAt),
+        createdAt: getInitialDate(props.data.createdAt)
     };
 
 

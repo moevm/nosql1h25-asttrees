@@ -911,6 +911,8 @@ export interface components {
             hash?: string;
             parent?: string;
             commit: string;
+            originalAuthor: string;
+            lastChangedBy: string;
         };
         AdminPatchBranchRequest: {
             name: string;
@@ -1024,6 +1026,8 @@ export interface components {
             /** Format: int32 */
             branchCount?: number;
             branches?: string[];
+            originalAuthor?: string;
+            lastChangedBy?: string;
         };
         EntityBranchDto: {
             id?: string;
