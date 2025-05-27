@@ -7,7 +7,7 @@ import {
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {columnsFiles} from "@/columns/columnsFiles.tsx";
@@ -15,13 +15,16 @@ import EditCommitFileDialog from "@/components/dialogs/EditCommitFileDialog.tsx"
 import {z} from "zod";
 import {commitFileSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
+import EntitySelector from "@/routes/admin-panel/components/EntitySelector.tsx";
 
 function AdminFilePageContent(props: {
     data: ApiEntityCommitFileModel
 }) {
     const setShowEditCommitFileDialog = useSetAtom($showEditFileDialog)
     const navigate = useNavigate()
-
+    const [showSelectBranchForCommitJumpDialog, setShowSelectBranchForCommitJumpDialog] = useState(false)
+    const [showSelectBranchForFileJumpDialog, setShowSelectBranchForFileJumpDialog] = useState(false)
+    const [showSelectBranchForBranchFilterDialog, setShowSelectBranchForBranchFilterDialog] = useState(false)
 
     const {mutate} = $api.useMutation(
         'patch',
@@ -58,7 +61,28 @@ function AdminFilePageContent(props: {
 
     return (
         <>
-
+            {props.data?.branches?.length &&
+                <EntitySelector
+                    entities={props.data.branches}
+                    open={showSelectBranchForCommitJumpDialog}
+                    setOpen={setShowSelectBranchForCommitJumpDialog}
+                    onSubmit={(branchId) => {
+                        navigate(`/users/${props.data?.repository?.owner}/repo/${props.data.repository?.id}/branch/${branchId}/commit/${props.data.commit?.id}`)
+                    }}
+                    title={"Выберите ветку"}
+                />
+                || false}
+            {props.data?.branches?.length &&
+                <EntitySelector
+                    entities={props.data.branches}
+                    open={showSelectBranchForFileJumpDialog}
+                    setOpen={setShowSelectBranchForFileJumpDialog}
+                    onSubmit={(branchId) => {
+                        navigate(`/users/${props.data?.repository?.owner}/repo/${props.data.repository?.id}/branch/${branchId}/commit/${props.data.commit?.id}/file/${props.data.id}`)
+                    }}
+                    title={"Выберите ветку"}
+                />
+                || false}
             <EditCommitFileDialog data={props.data} onSave={onSave}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
@@ -74,14 +98,13 @@ function AdminFilePageContent(props: {
                         }}>
                             Настройка файла
                         </Button>
-
                         <Button variant="outline" onClick={() =>
-                            navigate(`/users/${props.data?.repository?.owner}/repo/${props.data.repository?.id}/branch/default/commit/latest/file/${props.data.id}`)}>
-                            Перейти на страницу файла (пока не рабоатет)
+                            setShowSelectBranchForFileJumpDialog(true)}>
+                            Перейти на страницу файла
                         </Button>
                         <Button variant="outline" onClick={() =>
-                            navigate(`/users/${props.data?.repository?.owner}/repo/${props.data.repository?.id}/branch/default/commit/${props.data?.commit?.id}`)}>
-                            Перейти на страницу коммита (пока не рабоатет)
+                            setShowSelectBranchForCommitJumpDialog(true)}>
+                            Перейти на страницу коммита
                         </Button>
                         <Button variant="outline" onClick={() =>
                             navigate(`/users/${props.data?.repository?.owner}/repo/${props.data.repository?.id}/branch/default/commit/latest`)}>
@@ -91,6 +114,12 @@ function AdminFilePageContent(props: {
                             navigate(`/users/${props.data?.repository?.owner}`)}>
                             Перейти на страницу владельца
                         </Button>
+                        {props.data.hasAst &&
+                            <Button variant="outline" onClick={() =>
+                                navigate(`/admin/ast-trees/${props.data.hash}`)}>
+                                Перейти на страницу AST-дерева
+                            </Button>
+                        }
                         <Button variant="outline" onClick={() =>
                             navigate(`/admin/users?filters=` + JSON.stringify([
                                 {
@@ -116,14 +145,14 @@ function AdminFilePageContent(props: {
                         <Button variant="outline" onClick={() =>
                             navigate(`/admin/branches?filters=` + JSON.stringify([
                                 {
-                                    kind: 'string_equals',
-                                    field: 'id',
+                                    kind: 'list_contains_string',
+                                    field: 'commits',
                                     params: {
-                                        value: props.data.id
+                                        value: props.data.commit?.id
                                     }
                                 }
                             ]))
-                        }>Фильтр веток (пока не работает)</Button>
+                        }>Фильтр веток</Button>
                         <Button variant="outline" onClick={() =>
                             navigate(`/admin/commits?filters=` + JSON.stringify([
                                 {
@@ -135,8 +164,20 @@ function AdminFilePageContent(props: {
                                 }
                             ]))
                         }>Фильтр коммитов</Button>
+                        {props.data.hasAst &&
+                            <Button variant="outline" onClick={() =>
+                                navigate(`/admin/ast-trees?filters=` + JSON.stringify([
+                                    {
+                                        kind: 'string_equals',
+                                        field: 'id',
+                                        params: {
+                                            value: props.data.hash
+                                        }
+                                    }
+                                ]))
+                            }>Фильтр AST-деревьев</Button>
+                        }
                     </div>
-
                 </div>
             </div>
         </>

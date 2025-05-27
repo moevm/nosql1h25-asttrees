@@ -1,4 +1,3 @@
-import {Label} from "@/components/ui/label.tsx";
 import {File, Folder, History} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Link, useNavigate} from "react-router-dom";
