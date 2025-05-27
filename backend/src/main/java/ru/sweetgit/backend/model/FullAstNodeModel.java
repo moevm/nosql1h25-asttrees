@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Value
 @Builder(toBuilder = true)
@@ -18,5 +20,6 @@ public class FullAstNodeModel {
     String tree;
     @Nullable
     String parent;
+    List<String> children;
     Long childrenCount;
 }

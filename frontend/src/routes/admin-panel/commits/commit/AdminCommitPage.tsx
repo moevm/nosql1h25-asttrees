@@ -108,14 +108,14 @@ function AdminCommitPageContent(props: {
                         <Button variant="outline" onClick={() =>
                             navigate(`/admin/branches?filters=` + JSON.stringify([
                                 {
-                                    kind: 'string_equals',
-                                    field: 'id',
+                                    kind: 'list_contains_string',
+                                    field: 'commits',
                                     params: {
                                         value: props.data.id
                                     }
                                 }
                             ]))
-                        }>Фильтр веток (пока не работает)</Button>
+                        }>Фильтр веток</Button>
                         <Button variant="outline" onClick={() =>
                             navigate(`/admin/files?filters=` + JSON.stringify([
                                 {

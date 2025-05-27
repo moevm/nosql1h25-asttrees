@@ -1,6 +1,12 @@
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHeader.tsx";
-import {DateRenderer, EntityIdRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
+import {
+    DateRenderer,
+    EntityIdRenderer,
+    ListRenderer,
+    MonoRenderer,
+    OptRenderer
+} from "@/components/custom/utils/ValueRenderers.tsx";
 import type {ApiEntityAstNodeModel, ApiEntityAstTreeModel} from "@/store/store.ts";
 import {type TypedColumnDef} from "@/lib/table.ts";
 import dayjs from "dayjs";
@@ -39,8 +45,13 @@ export const fieldsAstNodes: EntityField[] = [
     },
     {
         id: "childrenCount",
-        name: "Прямые потомки",
+        name: "Число прямых потомков",
         type: "int"
+    },
+    {
+        id: 'children',
+        name: 'Прямые потомки',
+        type: 'list'
     },
 ];
 
@@ -105,8 +116,13 @@ export const columnsAstNodes = [
     {
         accessorKey: "childrenCount",
         header: DataTableColumnHeader,
-        meta: {title: "Прямые потомки", type: "int", field: "childrenCount"},
+        meta: {title: "Число прямых потомков", type: "int", field: "childrenCount"},
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>,
     },
-
+    {
+        accessorKey: 'children',
+        header: DataTableColumnHeader,
+        meta: { title: 'Прямые потомки', type: 'list', field: 'children' },
+        cell: ({cell}) => <ListRenderer value={cell.getValue()} renderer={({value}) => <EntityIdRenderer value={value} entity={"ast-nodes"} /> } />
+    },
 ] as TypedColumnDef<ApiEntityAstNodeModel>[]

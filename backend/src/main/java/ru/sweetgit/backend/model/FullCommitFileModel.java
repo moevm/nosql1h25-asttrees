@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Value
 @Builder(toBuilder = true)
@@ -23,4 +25,8 @@ public class FullCommitFileModel {
     CommitModel commit;
     RepositoryModel repository;
     Boolean hasAst;
+    Integer branchCount;
+    List<String> branches;
+    String originalAuthor;
+    String lastChangedBy;
 }

@@ -6,6 +6,7 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 
 import java.time.Instant;
+import java.util.List;
 
 @AllArgsConstructor
 @Value
@@ -18,5 +19,6 @@ public class FullBranchModel {
     RepositoryModel repository;
     Boolean isDefault;
     Instant createdAt;
+    List<String> commits;
     Integer commitCount;
 }

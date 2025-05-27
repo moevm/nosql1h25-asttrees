@@ -27,26 +27,10 @@ import {
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible.tsx";
 import {useAtom} from "jotai";
-
-const REFERENCE_TYPES = new Set([
-    'TypeParameter',
-    'SUPER_TYPE',
-    'RETURN_TYPE',
-    'TYPE_ARGUMENT',
-    'Annotation',
-    'VARIABLE_TYPE',
-    'ConstructorCall',
-    'INTERFACE',
-    'TypeAccess',
-    'SUPER_INTERFACES',
-
-])
-
-const DECLARATION_TYPES = new Set([
-    'Class',
-    'Interface'
-])
-
+import {
+    AstLabelRenderer,
+    AstView
+} from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/components/AstView.tsx";
 
 function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     return (
@@ -85,74 +69,6 @@ function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
             </table>
         </div>
     )
-}
-
-function AstLabelRenderer({label, type}: { label: string, type: string }) {
-    return <div className={"flex items-center gap-2 font-mono text-xs"}>
-        <span className={"rounded-full text-background px-2 py-0.5 bg-slate-700 whitespace-nowrap"}>{type}</span>
-        <span className={"whitespace-nowrap"}>{label}</span>
-    </div>
-}
-
-function AstNode({node, style, dragHandle}: NodeRendererProps<any>) {
-    const setAstQuery = useSetAtom($astQuery)
-
-    const {id, data} = node
-    const {label, type} = data
-
-    const includesDot = label.includes('.')
-    const isDeclaration = DECLARATION_TYPES.has(type)
-    const isReference = REFERENCE_TYPES.has(type)
-
-    const refSearchAvailable = (isDeclaration || (includesDot && isReference))
-    const declarationSearchAvailable = includesDot && isReference
-
-    const anySearchAvailable = (refSearchAvailable || declarationSearchAvailable)
-
-    return (
-        <div
-            style={style}
-            ref={dragHandle}
-            onClick={() => node.toggle()}
-            className={"hover:bg-accent/50 rounded cursor-pointer flex items-center gap-2 text-xs"}
-        >
-            <span style={{width: 16, height: 16}}>
-                 {node.children?.length !== 0 && (
-                     !node.isOpen ? <ChevronDown size={16}/> : <ChevronUp size={16}/>
-                 )}
-            </span>
-            <AstLabelRenderer label={label} type={type}/>
-            {anySearchAvailable && (
-                <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <Button variant={"secondary"} className={"!p-1 h-auto ml-1"}>
-                            <Search className={"size-[12px]"}/>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        {refSearchAvailable && <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation()
-                            setAstQuery({
-                                typename: label as string,
-                                types: [...REFERENCE_TYPES]
-                            })
-                        }}>
-                            Найти использования
-                        </DropdownMenuItem>}
-                        {declarationSearchAvailable && <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation()
-                            setAstQuery({
-                                typename: label as string,
-                                types: [...DECLARATION_TYPES]
-                            })
-                        }}>
-                            Найти объявления
-                        </DropdownMenuItem>}
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )}
-        </div>
-    );
 }
 
 function FileTableContent({repo, fileContent, fileAst}: {
@@ -241,18 +157,7 @@ function FileTableContent({repo, fileContent, fileAst}: {
                         <tr>
                             <td  className="py-4 px-4">
                                 <div className={"flex min-w-0 w-full h-full gap-4 max-h-[600px]"}>
-                                    <Tree
-                                        rowHeight={22}
-                                        height={600}
-                                        disableDrag={true}
-                                        disableEdit={true}
-                                        disableDrop={true}
-                                        width={'auto'}
-                                        childrenAccessor={d => [...d.children].reverse()}
-                                        initialData={loaded(fileAst).data.astTree.nodes}
-                                    >
-                                        {AstNode}
-                                    </Tree>
+                                    <AstView data={loaded(fileAst).data.astTree} search={true} />
                                     {astQuery && <Card className={"min-w-sm flex-2"}>
                                         <CardHeader>
                                             <CardTitle className={"flex justify-between items-center"}>
@@ -288,10 +193,10 @@ function FileTableContent({repo, fileContent, fileAst}: {
                                                                                     className="size-[14px]"/>
                                                                             </Button>
                                                                         </CollapsibleTrigger>
-                                                                        <Button variant="outline" className={"!px-3"}
-                                                                                onClick={() => navigate(`/users/${repo.owner!.id}/repo/${repo.repository!.id}/branch/${repo.branch!.id}/commit/${repo.commit!.id}/file/${item.file.id}`)}>
+                                                                        {item.file.id !== fileContent.commitFile?.id &&<Button variant="outline" className={"!px-3"}
+                                                                                                                               onClick={() => navigate(`/users/${repo.owner!.id}/repo/${repo.repository!.id}/branch/${repo.branch!.id}/commit/${repo.commit!.id}/file/${item.file.id}`)}>
                                                                             <Eye className="size-[14px]"/>
-                                                                        </Button>
+                                                                        </Button>}
                                                                         <div className={"ml-1"}>
                                                                             <div
                                                                                 className={"text-sm"}>{item.file.fullPath}</div>

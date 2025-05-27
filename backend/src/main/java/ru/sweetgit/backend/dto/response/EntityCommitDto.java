@@ -1,6 +1,7 @@
 package ru.sweetgit.backend.dto.response;
 
 import java.time.Instant;
+import java.util.List;
 
 public record EntityCommitDto(
         String id,
@@ -12,6 +13,7 @@ public record EntityCommitDto(
         int linesAdded,
         int linesRemoved,
         RepositoryWithOwnerDetailsDto repository,
+        List<String> branches,
         int branchCount,
         int fileCount,
         int fileWithAstCount,

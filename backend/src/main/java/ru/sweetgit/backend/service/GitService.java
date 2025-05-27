@@ -32,6 +32,8 @@ import java.util.*;
 @Slf4j
 public class GitService {
 
+    private final Map<String, String> originalAuthorCache = new HashMap<>();
+
     public record ImportRepositoryResult(
             RepositoryModel.RepositoryModelBuilder repositoryData,
             Map<String, BranchModel.BranchModelBuilder> branchData,
@@ -102,9 +104,9 @@ public class GitService {
                     RepoFileStats fileStats;
                     if (commit.getParentCount() > 0) {
                         var parent = revWalk.parseCommit(commit.getParent(0).getId());
-                        fileStats = getRepoFileStats(repo, reader, parent.getTree(), commit.getTree());
+                        fileStats = getRepoFileStats(repo, reader, parent.getTree(), commit.getTree(), commit, git);
                     } else {
-                        fileStats = getRepoFileStats(repo, reader, null, commit.getTree());
+                        fileStats = getRepoFileStats(repo, reader, null, commit.getTree(), commit, git);
                     }
 
                     commitModelBuilder = commitModelBuilder
@@ -188,7 +190,9 @@ public class GitService {
             Repository repository,
             ObjectReader reader,
             @Nullable RevTree oldTree,
-            RevTree newTree
+            RevTree newTree,
+            RevCommit currentCommitRev,
+            Git git
     ) {
         var stats = new RepoFileStats();
         var collectedDirectoryPaths = new HashSet<String>();
@@ -279,12 +283,17 @@ public class GitService {
                     var blobId = treeWalk.getObjectId(0);
                     var metadata = getBlobData(reader, blobId);
 
+                    var originalAuthor = findOriginalAuthor(git, filePathString);
+                    var lastChangedAuthor = findLastChangedByAuthor(git, filePathString, currentCommitRev.getId());
+
                     CommitFileModel.CommitFileModelBuilder commitFileModelBuilder = CommitFileModel.builder()
                             .name(treeWalk.getNameString())
                             .fullPath(filePathString)
                             .hash(blobId.name())
                             .type(FileTypeModel.FILE)
-                            .metadata(metadata.getKey());
+                            .metadata(metadata.getKey())
+                            .originalAuthor(originalAuthor)
+                            .lastChangedBy(lastChangedAuthor);
                     byte[] data = metadata.getValue();
 
                     stats.files.add(new FileData(
@@ -302,7 +311,9 @@ public class GitService {
             CommitFileModel.CommitFileModelBuilder dirModelBuilder = CommitFileModel.builder()
                     .name(dirName)
                     .fullPath(dirFullPath)
-                    .type(FileTypeModel.DIRECTORY);
+                    .type(FileTypeModel.DIRECTORY)
+                    .originalAuthor(null)
+                    .lastChangedBy(null);
 
             stats.files.add(new FileData(
                     dirModelBuilder,
@@ -337,5 +348,42 @@ public class GitService {
         } catch (LargeObjectException | MissingObjectException e) {
             return Pair.of(new CommitFileMetadataModel(0, 0L, false), bytes);
         }
+    }
+
+    @SneakyThrows
+    private String findOriginalAuthor(Git git, String filePath) {
+        if (originalAuthorCache.containsKey(filePath)) {
+            return originalAuthorCache.get(filePath);
+        }
+        String author = null;
+        var log = git.log().addPath(filePath).call();
+        RevCommit firstCommitInHistory = null;
+        for (RevCommit rc : log) {
+            firstCommitInHistory = rc;
+        }
+        if (firstCommitInHistory != null) {
+            author = firstCommitInHistory.getAuthorIdent().getName();
+        }
+        originalAuthorCache.put(filePath, author);
+        return author;
+    }
+
+    @SneakyThrows
+    private String findLastChangedByAuthor(Git git, String filePath, ObjectId currentCommitObjectId) {
+        try (var revWalk = new RevWalk(git.getRepository())) {
+            var startCommit = revWalk.parseCommit(currentCommitObjectId);
+            var logIterable = git.log()
+                    .addPath(filePath)
+                    .add(startCommit.getId())
+                    .setMaxCount(1)
+                    .call();
+            var iterator = logIterable.iterator();
+            if (iterator.hasNext()) {
+                var lastChangeCommit = iterator.next();
+                return lastChangeCommit.getAuthorIdent().getName();
+            }
+        } catch (org.eclipse.jgit.api.errors.GitAPIException | org.eclipse.jgit.errors.MissingObjectException ignored) {
+        }
+        return null;
     }
 }

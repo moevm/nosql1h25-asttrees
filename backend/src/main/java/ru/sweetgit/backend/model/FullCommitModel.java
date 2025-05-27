@@ -6,6 +6,7 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 
 import java.time.Instant;
+import java.util.List;
 
 @AllArgsConstructor
 @Value
@@ -22,6 +23,7 @@ public class FullCommitModel {
     Integer linesAdded;
     Integer linesRemoved;
     RepositoryModel repository;
+    List<String> branches;
     Integer branchCount;
     Integer fileCount;
     Integer fileWithAstCount;

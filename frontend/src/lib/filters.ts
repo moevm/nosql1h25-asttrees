@@ -203,6 +203,13 @@ export const FILTERS: FilterConfiguration[] = [
         id: "value_null",
         name: "Значение пусто", // Or "Значение не задано"
         params: []
+    },
+    {
+        id: 'list_contains_string',
+        name: 'Список содержит',
+        params: [
+            {id: "value", name: "Значение", type: "string"}
+        ]
     }
 ] as const;
 
@@ -247,6 +254,10 @@ export function getFieldFilters(
                 'date_between',
             ])
             break;
+        case "list":
+            baseFilters.push(...[
+                'list_contains_string',
+            ])
     }
 
     return [

@@ -32,4 +32,7 @@ public class CommitFileModel {
     @Ref(lazy = true)
     @Nullable
     CommitFileModel parent;
+
+    String originalAuthor;
+    String lastChangedBy;
 }

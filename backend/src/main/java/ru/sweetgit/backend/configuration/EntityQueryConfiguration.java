@@ -93,7 +93,7 @@ public class EntityQueryConfiguration {
                         
                             LET branchesLinkedToCommit = (
                                 FOR b_node IN 1..1 INBOUND entity._id branch_commits
-                                    RETURN 1
+                                    RETURN b_node._key
                             )
                         
                             LET commitFiles = (
@@ -132,6 +132,7 @@ public class EntityQueryConfiguration {
                                          )
                                     }
                                 ),
+                                branches: branchesLinkedToCommit,
                                 branchCount: LENGTH(branchesLinkedToCommit),
                                 fileCount: LENGTH(commitFiles),
                                 fileWithAstCount: filesWithAstCount
@@ -151,7 +152,7 @@ public class EntityQueryConfiguration {
                             LET repoDoc = DOCUMENT(entity.repository)
                             LET commitsForThisBranch = (
                                 FOR commitNode IN 1..1 OUTBOUND entity._id branch_commits
-                                    RETURN 1
+                                    RETURN commitNode._key
                             )
                             LET owner = DOCUMENT(repoDoc.owner)
                         """,
@@ -179,6 +180,7 @@ public class EntityQueryConfiguration {
                                         )
                                     }
                                 ),
+                                commits: commitsForThisBranch,
                                 commitCount: LENGTH(commitsForThisBranch)
                             }
                         )
@@ -225,11 +227,11 @@ public class EntityQueryConfiguration {
                 "FOR entity IN commit_files",
                 """
                         LET commitDoc = DOCUMENT(entity.commit)
-                        LET oneBranchForCommit = FIRST(
+                        LET branches = (
                             FOR branchNode IN 1..1 INBOUND commitDoc._id branch_commits
-                                LIMIT 1
                                 RETURN branchNode
                         )
+                        LET oneBranchForCommit = FIRST(branches)
                         LET repoDoc = DOCUMENT(oneBranchForCommit.repository)
                         LET ownerDocForRepo = DOCUMENT(repoDoc.owner)
                         LET astTreeExists = entity.hash != null AND DOCUMENT(CONCAT("ast_trees/", entity.hash)) != null
@@ -250,6 +252,8 @@ public class EntityQueryConfiguration {
                                         arangoId: commitDoc._id,
                                     }
                                 ),
+                                branchCount: LENGTH(branches),
+                                branches: (FOR b IN branches RETURN b._key),
                                 repository: MERGE(
                                     repoDoc,
                                     {
@@ -282,7 +286,7 @@ public class EntityQueryConfiguration {
                         )
                         LET children = (
                             FOR c_node IN 1..1 OUTBOUND entity._id ast_parents
-                                RETURN 1
+                                RETURN c_node._key
                         )
                         LET childrenCount = LENGTH(children)
                         """,
@@ -296,6 +300,7 @@ public class EntityQueryConfiguration {
                             },
                             {
                                 parent: parentNode == null ? null : parentNode._key,
+                                children: children,
                                 childrenCount: childrenCount
                             }
                         )

@@ -132,6 +132,13 @@ public class RepositoryService {
         );
     }
 
+    public AstTreeViewModel viewAst(
+            String astTreeId
+    ) {
+        return astTreeService.getFileAstTree(astTreeId)
+                .orElseThrow(() -> ApiException.notFound("AST-дерево", "hash", astTreeId).build());
+    }
+
     public boolean isRepositoryVisible(RepositoryModel repository, @Nullable UserDetailsWithId currentUser) {
         if (repository.getVisibility().equals(RepositoryVisibilityModel.PUBLIC)) {
             return true;

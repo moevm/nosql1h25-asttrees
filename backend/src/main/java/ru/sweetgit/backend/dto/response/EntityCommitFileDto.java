@@ -2,6 +2,8 @@ package ru.sweetgit.backend.dto.response;
 
 import jakarta.annotation.Nullable;
 
+import java.util.List;
+
 public record EntityCommitFileDto(
         String id,
         String name,
@@ -11,6 +13,10 @@ public record EntityCommitFileDto(
         @Nullable String parent,
         CommitDto commit,
         RepositoryDto repository,
-        boolean hasAst
+        boolean hasAst,
+        int branchCount,
+        List<String> branches,
+        String originalAuthor,
+        String lastChangedBy
 ) {
 }

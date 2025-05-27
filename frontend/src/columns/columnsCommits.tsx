@@ -4,7 +4,13 @@ import type {ApiEntityCommitModel} from "@/store/store.ts";
 import dayjs from "dayjs";
 import {type TypedColumnDef, typesVisibilityType} from "@/lib/table.ts";
 import type {EntityField} from "@/lib/utils.ts";
-import {DateRenderer, EntityIdRenderer, MonoRenderer, OptRenderer} from "@/components/custom/utils/ValueRenderers.tsx";
+import {
+    DateRenderer,
+    EntityIdRenderer,
+    ListRenderer,
+    MonoRenderer,
+    OptRenderer
+} from "@/components/custom/utils/ValueRenderers.tsx";
 
 export const fieldsCommits: EntityField[] = [
     {
@@ -101,6 +107,11 @@ export const fieldsCommits: EntityField[] = [
         id: "createdAt",
         name: "Дата создания",
         type: "date"
+    },
+    {
+        id: "branches",
+        name: "Ветки",
+        type: 'list'
     }
 ];
 
@@ -254,6 +265,12 @@ export const columnsCommits = [
         cell: ({cell}) => <OptRenderer value={cell.getValue()} />
     },
     {
+        accessorKey: 'branches',
+        header: DataTableColumnHeader,
+        meta: { title: 'Ветки', type: 'list', field: 'branches' },
+        cell: ({cell}) => <ListRenderer value={cell.getValue()} renderer={({value}) => <EntityIdRenderer value={value} entity={"branches"} /> } />
+    },
+    {
         accessorKey: "fileCount",
         header: DataTableColumnHeader,
         meta: { title: "Количество файлов", type: "number", field: "fileCount" },
@@ -271,5 +288,5 @@ export const columnsCommits = [
         meta: { title: "Дата коммита", type: "datetime", field: "createdAt" },
         accessorFn: (row) => dayjs(row.createdAt),
         cell: ({cell}) => <DateRenderer value={cell.getValue()} />
-    },
+    }
 ] as TypedColumnDef<ApiEntityCommitModel>[];

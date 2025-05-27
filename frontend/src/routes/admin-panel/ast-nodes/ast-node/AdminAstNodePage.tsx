@@ -79,6 +79,39 @@ function AdminAstNodePageContent(props: {
                         }}>
                             Перейти к AST-дереву
                         </Button>
+                        {props.data.parent && <Button variant="outline" onClick={() =>
+                            navigate(`/admin/ast-nodes?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data.parent
+                                    }
+                                }
+                            ]))
+                        }>Фильтр родителя</Button>}
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/ast-nodes?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'parent',
+                                    params: {
+                                        value: props.data.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр потомков</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/ast-trees?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data.tree
+                                    }
+                                }
+                            ]))
+                        }>Фильтр AST-дерева</Button>
                     </div>
                 </div>
             </div>

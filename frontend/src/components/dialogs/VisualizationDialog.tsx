@@ -38,6 +38,7 @@ function VisualizationDialog (
         filterString: string,
         searchPosition: string[]
     }) {
+    const filteredDataFields = dataFields.filter(it => it.type !== 'list')
 
     const showDialog = useAtomValue($showVisualizationDialog);
     const setShowDialog = useSetAtom($showVisualizationDialog);
@@ -89,7 +90,7 @@ function VisualizationDialog (
 
                                         <SelectContent>
                                             <SelectGroup>
-                                                {dataFields.map((item) =>
+                                                {filteredDataFields.map((item) =>
                                                     <SelectItem value={item.id} key={item.id}>{item.name}</SelectItem>
                                                 )}
                                             </SelectGroup>
@@ -108,7 +109,7 @@ function VisualizationDialog (
                                         <SelectContent>
                                             <SelectGroup>
                                                 <SelectItem value={'null'} key={'null'} className={"font-bold"}>Не группировать</SelectItem>
-                                                {dataFields.map((item) =>
+                                                {filteredDataFields.map((item) =>
                                                     <SelectItem value={item.id} key={item.id}>{item.name}</SelectItem>
                                                 )}
                                             </SelectGroup>

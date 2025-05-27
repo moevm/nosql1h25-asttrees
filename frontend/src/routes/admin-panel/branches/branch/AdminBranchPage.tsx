@@ -102,6 +102,17 @@ function AdminBranchPageContent(props: {
                                 }
                             ]))
                         }>Фильтр репозиториев</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/commits?filters=` + JSON.stringify([
+                                {
+                                    kind: 'list_contains_string',
+                                    field: 'branches',
+                                    params: {
+                                        value: props.data.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр коммитов</Button>
                     </div>
                 </div>
             </div>

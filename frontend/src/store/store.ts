@@ -92,6 +92,22 @@ export const $adminAstTreeQuery = atomWithQuery((get) => {
 })
 export const $adminAstTree = loadableQuery($adminAstTreeQuery)
 
+export const $adminAstTreeViewQueryOptions = (astTreeId: string) => $api.queryOptions(
+    'get',
+    `/admin/ast_trees/{astTreeId}/view`,
+    {
+        params: {
+            path: {
+                astTreeId: astTreeId
+            }
+        },
+    },
+);
+export const $adminAstTreeViewQuery = atomWithQuery((get) => {
+    const adminAstTreeId = get($adminAstTreeId)
+    return $adminAstTreeViewQueryOptions(adminAstTreeId!)
+})
+export const $adminAstTreeView = loadableQuery($adminAstTreeViewQuery)
 
 export const $adminCommitFileQueryOptions = (commitFileId: string) => $api.queryOptions(
     'get',
@@ -139,6 +155,7 @@ export type ApiEntityCommitFileModel = components['schemas']['EntityCommitFileDt
 export type ApiEntityBranchModel = components['schemas']['EntityBranchDto']
 export type ApiEntityUserModel = components['schemas']['EntityUserDto']
 export type ApiEntityAstTreeModel = components['schemas']['EntityAstTreeDto']
+export type ApiEntityAstTreeViewModel = components['schemas']['AstTreeViewDto']
 export type ApiEntityAstNodeModel = components['schemas']['EntityAstNodeDto']
 
 export const $repoId = atom<string | null>(null)

@@ -7,7 +7,7 @@ import type {EntityField} from "@/lib/utils.ts";
 import {
     CheckboxRenderer,
     DateRenderer,
-    EntityIdRenderer,
+    EntityIdRenderer, ListRenderer,
     MonoRenderer,
     OptRenderer
 } from "@/components/custom/utils/ValueRenderers.tsx";
@@ -72,6 +72,11 @@ export const fieldsBranches: EntityField[] = [
         id: "commitCount",
         name: "Количество коммитов",
         type: "int"
+    },
+    {
+        id: 'commits',
+        name: 'Коммиты',
+        type: 'list'
     }
 ];
 
@@ -227,5 +232,11 @@ export const columnsBranches = [
             field: "commitCount"
         },
         cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
+    },
+    {
+        accessorKey: 'commits',
+        header: DataTableColumnHeader,
+        meta: { title: 'Коммиты', type: 'list', field: 'commits' },
+        cell: ({cell}) => <ListRenderer value={cell.getValue()} renderer={({value}) => <EntityIdRenderer value={value} entity={"commits"} /> } />
     },
 ] as TypedColumnDef<ApiEntityBranchModel>[];

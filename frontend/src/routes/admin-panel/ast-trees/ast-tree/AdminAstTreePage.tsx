@@ -2,8 +2,8 @@ import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
     $adminAstTree,
-    $adminAstTreeId, $adminAstTreeQueryOptions, $showEditAstTreeDialog,
-    type ApiEntityAstTreeModel
+    $adminAstTreeId, $adminAstTreeQueryOptions, $adminAstTreeView, $showEditAstTreeDialog,
+    type ApiEntityAstTreeModel, type ApiEntityAstTreeViewModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import {useNavigate, useParams} from "react-router-dom";
@@ -16,9 +16,14 @@ import {columnsAstTrees} from "@/columns/columnsAstTrees.tsx";
 import {z} from "zod";
 import {astTreeSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
+import {
+    AstView
+} from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/components/AstView.tsx";
+import {Card, CardContent} from "@/components/ui/card.tsx";
 
 function AdminAstTreePageContent(props: {
-    data: ApiEntityAstTreeModel
+    data: ApiEntityAstTreeModel,
+    view: ApiEntityAstTreeViewModel
 }) {
     const setShowEditAstTreeDialog = useSetAtom($showEditAstTreeDialog)
     const navigate = useNavigate()
@@ -59,6 +64,7 @@ function AdminAstTreePageContent(props: {
                         entity={props.data}
                         columns={columnsAstTrees}
                     />
+
                     <div className={"flex flex-wrap gap-2"}>
                         <Button variant="outline" onClick={() => {
                             setShowEditAstTreeDialog(true)
@@ -88,6 +94,12 @@ function AdminAstTreePageContent(props: {
                             ]))
                         }>Фильтр AST-узлов</Button>
                     </div>
+
+                    <Card>
+                        <CardContent>
+                            <AstView data={props.view} search={false} />
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </>
@@ -98,16 +110,17 @@ function AdminAstTreePage() {
     const adminAstTreeId = useParams()['adminAstTreeId']
     const setSelectedAdminAstTreeId = useSetAtom($adminAstTreeId)
     const adminAstTree = useAtomValue($adminAstTree)
+    const adminAstTreeView = useAtomValue($adminAstTreeView)
 
     useEffect(() => {
         setSelectedAdminAstTreeId(adminAstTreeId!)
     }, [setSelectedAdminAstTreeId, adminAstTreeId]);
 
     return (
-        <BatchLoader states={[adminAstTree]}
+        <BatchLoader states={[adminAstTree, adminAstTreeView]}
                      loadingMessage={"Загрузка AST-дерева"}
                      display={() =>
-                         <AdminAstTreePageContent data={loaded(adminAstTree).data}/>
+                         <AdminAstTreePageContent data={loaded(adminAstTree).data} view={loaded(adminAstTreeView).data}/>
                      }
         />
     )

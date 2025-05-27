@@ -676,6 +676,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/ast_trees/{astTreeId}/view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["viewAstTree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -973,6 +989,7 @@ export interface components {
             /** Format: int32 */
             linesRemoved?: number;
             repository?: components["schemas"]["RepositoryWithOwnerDetailsDto"];
+            branches?: string[];
             /** Format: int32 */
             branchCount?: number;
             /** Format: int32 */
@@ -1004,6 +1021,9 @@ export interface components {
             commit?: components["schemas"]["CommitDto"];
             repository?: components["schemas"]["RepositoryDto"];
             hasAst?: boolean;
+            /** Format: int32 */
+            branchCount?: number;
+            branches?: string[];
         };
         EntityBranchDto: {
             id?: string;
@@ -1012,6 +1032,7 @@ export interface components {
             isDefault?: boolean;
             /** Format: date-time */
             createdAt?: string;
+            commits?: string[];
             /** Format: int32 */
             commitCount?: number;
         };
@@ -1030,6 +1051,7 @@ export interface components {
             type?: string;
             tree?: string;
             parent?: string;
+            children?: string[];
             /** Format: int64 */
             childrenCount?: number;
         };
@@ -2052,6 +2074,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["EntityAstNodeDto"];
+                };
+            };
+        };
+    };
+    viewAstTree: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                astTreeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AstTreeViewDto"];
                 };
             };
         };

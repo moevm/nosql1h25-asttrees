@@ -227,6 +227,16 @@ public class FilteringConfiguration {
                                 "%s == null",
                                 fieldName
                         ))
+                ),
+                new FilterKind(
+                        "list_contains_string",
+                        Map.of("value", new TypeReference<String>() {
+                        }),
+                        ((fieldName, parameters, varBinder) -> String.format(
+                                "%s IN %s",
+                                varBinder.apply(parameters.get("value")),
+                                fieldName
+                        ))
                 )
         );
     }

@@ -3,7 +3,7 @@ import DataTableColumnHeader from "@/components/custom/table/DataTableColumnHead
 import {
     CheckboxRenderer,
     DateRenderer,
-    EntityIdRenderer,
+    EntityIdRenderer, ListRenderer,
     MonoRenderer,
     OptRenderer
 } from "@/components/custom/utils/ValueRenderers.tsx";
@@ -123,6 +123,26 @@ export const fieldsFiles: EntityField[] = [
         id: "hasAst",
         name: "Есть AST",
         type: "boolean"
+    },
+    {
+        id: "branchCount",
+        name: "Количество веток",
+        type: "int"
+    },
+    {
+        id: "branches",
+        name: "Ветки",
+        type: 'list'
+    },
+    {
+        id: "originalAuthor",
+        name: "Первый автор",
+        type: 'string'
+    },
+    {
+        id: "lastChangedBy",
+        name: "Последний изменивший",
+        type: 'string'
     }
 ];
 
@@ -234,5 +254,29 @@ export const columnsFiles = [
         header: DataTableColumnHeader,
         meta: { title: "Есть AST", type: 'boolean', field: "hasAst" },
         cell: ({cell}) => <CheckboxRenderer value={cell.getValue()}/>
-    }
+    },
+    {
+        accessorKey: "branchCount",
+        header: DataTableColumnHeader,
+        meta: { title: "Количество веток", type: "number", field: "branchCount" },
+        cell: ({cell}) => <OptRenderer value={cell.getValue()} />
+    },
+    {
+        accessorKey: 'branches',
+        header: DataTableColumnHeader,
+        meta: { title: 'Ветки', type: 'list', field: 'branches' },
+        cell: ({cell}) => <ListRenderer value={cell.getValue()} renderer={({value}) => <EntityIdRenderer value={value} entity={"branches"} /> } />
+    },
+    {
+        accessorKey: "originalAuthor",
+        header: DataTableColumnHeader,
+        meta: { title: "Первый автор", type: 'string', field: "originalAuthor" },
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
+    },
+    {
+        accessorKey: "lastChangedBy",
+        header: DataTableColumnHeader,
+        meta: { title: "Последний изменивший", type: 'string', field: "lastChangedBy" },
+        cell: ({cell}) => <OptRenderer value={cell.getValue()}/>
+    },
 ] as TypedColumnDef<ApiEntityCommitFileModel>[]

@@ -200,7 +200,9 @@ export function useServerTable<T>({
         newParams.set('page', String(pagination.pageIndex))
         newParams.set('size', String(pagination.pageSize))
 
-        setSearchParams(newParams)
+        setSearchParams(newParams, {
+            replace: true
+        })
     }, [initialized, pagination.pageIndex, pagination.pageSize, searchFields, searchParams, searchQuery, setSearchParams, sorting, filters]);
 
     useEffect(() => {
