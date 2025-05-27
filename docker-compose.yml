@@ -31,7 +31,6 @@ services:
       - JWT_EXPIRATION_MS=86400000
       - FILE_STORAGE_PATH=/data/store
       - SPRING_PROFILES_ACTIVE=prod
-      #- MIGRATION_PATH=
       - MIGRATION_PATH=/data/migration
     volumes:
       - store:/data/store
