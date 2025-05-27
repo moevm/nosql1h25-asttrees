@@ -2,8 +2,7 @@ import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
     $adminCommitFile, $adminCommitFileQueryOptions,
-    $adminFileId, $adminUserQueryOptions, $currentUserReposQueryOptions,
-    $showEditFileDialog, type ApiEntityCommitFileModel
+    $adminFileId, $showEditFileDialog, type ApiEntityCommitFileModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import {useNavigate, useParams} from "react-router-dom";
@@ -14,7 +13,7 @@ import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {columnsFiles} from "@/columns/columnsFiles.tsx";
 import EditCommitFileDialog from "@/components/dialogs/EditCommitFileDialog.tsx";
 import {z} from "zod";
-import {commitFileSchema, type userSchema} from "@/lib/formSchemas.ts";
+import {commitFileSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
 
 function AdminFilePageContent(props: {
@@ -37,7 +36,7 @@ function AdminFilePageContent(props: {
                 }
             },
             body: {
-               name: data.name,
+                name: data.name,
                 fullPath: data.fullPath,
                 // type: data.type,
                 hash: data.hash || undefined,
@@ -47,7 +46,7 @@ function AdminFilePageContent(props: {
         }, {
             onSuccess() {
                 toast.info('Файл изменён')
-                queryClient.invalidateQueries({ queryKey: $adminCommitFileQueryOptions(props.data.id!).queryKey });
+                queryClient.invalidateQueries({queryKey: $adminCommitFileQueryOptions(props.data.id!).queryKey});
                 setShowEditCommitFileDialog(false)
             },
             onError: defaultOnErrorHandler
@@ -58,24 +57,83 @@ function AdminFilePageContent(props: {
     return (
         <>
             <EditCommitFileDialog data={props.data} onSave={onSave}/>
-            {/*<EditRepoDialog data={props.data}/>*/}
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
-                    <Label className={"text-3xl"}>{props.data.id}</Label>
+                    <Label className={"text-3xl"}>{props.data.name}</Label>
 
                     <EntityCard
                         entity={props.data}
                         columns={columnsFiles}
                     />
-                    <div className={"flex justify-between gap-6"}>
-                        <div className="flex justify-between gap-2">
-                            <Button variant="outline" onClick={() => {
-                                setShowEditCommitFileDialog(true)
-                            }}>
-                                Настройка файла
-                            </Button>
-                        </div>
+                    <div className={"flex flex-wrap gap-2"}>
+                        <Button variant="outline" onClick={() => {
+                            setShowEditCommitFileDialog(true)
+                        }}>
+                            Настройка файла
+                        </Button>
+
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner}/repo/${props.data.repository?.id}/branch/default/commit/latest/file/${props.data.id}`)}>
+                            Перейти на страницу файла (пока не рабоатет)
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner}/repo/${props.data.repository?.id}/branch/default/commit/${props.data?.commit?.id}`)}>
+                            Перейти на страницу коммита (пока не рабоатет)
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner}/repo/${props.data.repository?.id}/branch/default/commit/latest`)}>
+                            Перейти на страницу репозитория
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner}`)}>
+                            Перейти на страницу владельца
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/users?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data.repository?.owner
+                                    }
+                                }
+                            ]))
+                        }>Фильтр владельца</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/repos?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data.repository?.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр репозиториев</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/branches?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр веток (пока не работает)</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/commits?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data.commit?.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр коммитов</Button>
                     </div>
+
                 </div>
             </div>
         </>

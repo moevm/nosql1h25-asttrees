@@ -1,5 +1,5 @@
 import type {EntityField} from "@/lib/utils.ts";
-import dayjs, {type Dayjs} from "dayjs";
+import dayjs from "dayjs";
 
 export interface FilterParam {
     id: string,

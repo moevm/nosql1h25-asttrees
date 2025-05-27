@@ -224,7 +224,7 @@ export function useServerTable<T>({
         if (pagination.pageIndex >= data?.page?.totalPages) {
             table.setPageIndex(data?.page?.totalPages - 1)
         }
-    }, [initialized, pagination.pageIndex, data])
+    }, [initialized, pagination.pageIndex, data?.page?.totalPages])
 
     return {
         data,

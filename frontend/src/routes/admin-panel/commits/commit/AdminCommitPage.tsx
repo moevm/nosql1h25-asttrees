@@ -1,31 +1,26 @@
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
-    DateRenderer,
-    MonoRenderer
-} from "@/components/custom/utils/ValueRenderers.tsx";
-import {
-    $adminCommit, $adminCommitId, $adminCommitQueryOptions, $adminUserQueryOptions, $showEditCommitDialog,
+    $adminCommit, $adminCommitId, $adminCommitQueryOptions, $showEditCommitDialog,
     type ApiEntityCommitModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
-import dayjs from "dayjs";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useCallback, useEffect} from "react";
 import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
-import {typesVisibilityType} from "@/lib/table.ts";
 import EditCommitDialog from "@/components/dialogs/EditCommitDialog.tsx";
 import {columnsCommits} from "@/columns/columnsCommits.tsx";
 import {z} from "zod";
-import {commitSchema, getInitialDate, type userSchema} from "@/lib/formSchemas.ts";
+import {commitSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
 
 function AdminCommitPageContent(props: {
     data: ApiEntityCommitModel
 }) {
     const setShowEditCommitDialog = useSetAtom($showEditCommitDialog)
+    const navigate = useNavigate()
 
     const {mutate} = $api.useMutation(
         'patch',
@@ -52,7 +47,7 @@ function AdminCommitPageContent(props: {
         }, {
             onSuccess() {
                 toast.info('Коммит изменён')
-                queryClient.invalidateQueries({ queryKey: $adminCommitQueryOptions(props.data.id!).queryKey });
+                queryClient.invalidateQueries({queryKey: $adminCommitQueryOptions(props.data.id!).queryKey});
                 setShowEditCommitDialog(false)
             },
             onError: defaultOnErrorHandler
@@ -70,14 +65,68 @@ function AdminCommitPageContent(props: {
                         entity={props.data}
                         columns={columnsCommits}
                     />
-                    <div className={"flex justify-between gap-6"}>
-                        <div className="flex justify-between gap-2">
-                            <Button variant="outline" onClick={() => {
-                                setShowEditCommitDialog(true)
-                            }}>
-                                Настройка коммита
-                            </Button>
-                        </div>
+                    <div className={"flex flex-wrap gap-2"}>
+                        <Button variant="outline" onClick={() => {
+                            setShowEditCommitDialog(true)
+                        }}>
+                            Настройка коммита
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner?.id}/repo/${props.data.repository?.id}/branch/default/commit/latest`)}>
+                            Перейти на страницу коммита (пока не рабоатет)
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner?.id}/repo/${props.data.repository?.id}/branch/default/commit/latest`)}>
+                            Перейти на страницу репозитория
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner?.id}`)}>
+                            Перейти на страницу владельца
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/users?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data.repository?.owner?.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр владельца</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/repos?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data.repository?.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр репозиториев</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/branches?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр веток (пока не работает)</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/files?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'commit.id',
+                                    params: {
+                                        value: props.data.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр файлов</Button>
                     </div>
                 </div>
             </div>

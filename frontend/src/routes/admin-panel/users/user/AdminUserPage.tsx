@@ -1,24 +1,17 @@
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
-    CheckboxRenderer,
-    DateRenderer,
-    MonoRenderer
-} from "@/components/custom/utils/ValueRenderers.tsx";
-import {
     $adminUser,
     $adminUserId, $adminUserQueryOptions,
     $showEditUserDialog,
     type ApiEntityUserModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
-import dayjs from "dayjs";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useCallback, useEffect} from "react";
 import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
-import {typesVisibilityType} from "@/lib/table.ts";
 import EditUserDialog from "@/components/dialogs/EditUserDialog.tsx";
 import {columnsUser} from "@/columns/columnsUsers.tsx";
 import {z} from "zod";
@@ -53,7 +46,7 @@ function AdminUserPageContent(props: {
         }, {
             onSuccess() {
                 toast.info('Пользователь изменён')
-                queryClient.invalidateQueries({ queryKey: $adminUserQueryOptions(props.data.id!).queryKey });
+                queryClient.invalidateQueries({queryKey: $adminUserQueryOptions(props.data.id!).queryKey});
                 setShowEditUserDialog(false)
             },
             onError: defaultOnErrorHandler
@@ -78,7 +71,9 @@ function AdminUserPageContent(props: {
                             }}>
                                 Настройка пользователя
                             </Button>
-                            <Button variant="outline" onClick={() => navigate(`/users/${props.data.id}`)}>Перейти на страницу</Button>
+                            <Button variant="outline" onClick={() => navigate(`/users/${props.data.id}`)}>
+                                Перейти на страницу пользователя
+                            </Button>
                             <Button variant="outline" onClick={() =>
                                 navigate(`/admin/repos?filters=` + JSON.stringify([
                                     {

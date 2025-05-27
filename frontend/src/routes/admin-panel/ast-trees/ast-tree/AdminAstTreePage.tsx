@@ -1,17 +1,12 @@
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
-    DateRenderer,
-    MonoRenderer
-} from "@/components/custom/utils/ValueRenderers.tsx";
-import {
     $adminAstTree,
-    $adminAstTreeId, $adminAstTreeQueryOptions, $adminUserQueryOptions, $showEditAstTreeDialog,
+    $adminAstTreeId, $adminAstTreeQueryOptions, $showEditAstTreeDialog,
     type ApiEntityAstTreeModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
-import dayjs from "dayjs";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useCallback, useEffect} from "react";
 import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
@@ -19,13 +14,14 @@ import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import EditAstTreeDialog from "@/components/dialogs/EditAstTreeDialog.tsx";
 import {columnsAstTrees} from "@/columns/columnsAstTrees.tsx";
 import {z} from "zod";
-import {astTreeSchema, type userSchema} from "@/lib/formSchemas.ts";
+import {astTreeSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
 
 function AdminAstTreePageContent(props: {
     data: ApiEntityAstTreeModel
 }) {
     const setShowEditAstTreeDialog = useSetAtom($showEditAstTreeDialog)
+    const navigate = useNavigate()
 
     const {mutate} = $api.useMutation(
         'patch',
@@ -45,7 +41,7 @@ function AdminAstTreePageContent(props: {
         }, {
             onSuccess() {
                 toast.info('AST-дерево изменено')
-                queryClient.invalidateQueries({ queryKey: $adminAstTreeQueryOptions(props.data.id!).queryKey });
+                queryClient.invalidateQueries({queryKey: $adminAstTreeQueryOptions(props.data.id!).queryKey});
                 setShowEditAstTreeDialog(false)
             },
             onError: defaultOnErrorHandler
@@ -57,20 +53,40 @@ function AdminAstTreePageContent(props: {
             <EditAstTreeDialog data={props.data} onSave={onSave}/>
             <div className="flex flex-col py-6 mx-6">
                 <div className="flex flex-col gap-2">
-                    <Label className={"text-3xl"}>{props.data.commitFile?.name}</Label>
+                    <Label className={"text-3xl"}>{props.data.id}</Label>
 
                     <EntityCard
                         entity={props.data}
                         columns={columnsAstTrees}
                     />
-                    <div className={"flex justify-between gap-6"}>
-                        <div className="flex justify-between gap-2">
-                            <Button variant="outline" onClick={() => {
-                                setShowEditAstTreeDialog(true)
-                            }}>
-                                Настройка AST-дерева
-                            </Button>
-                        </div>
+                    <div className={"flex flex-wrap gap-2"}>
+                        <Button variant="outline" onClick={() => {
+                            setShowEditAstTreeDialog(true)
+                        }}>
+                            Настройка AST-дерева
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/files?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'hash',
+                                    params: {
+                                        value: props.data.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр файлов</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/ast-nodes?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'tree',
+                                    params: {
+                                        value: props.data.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр AST-узлов</Button>
                     </div>
                 </div>
             </div>

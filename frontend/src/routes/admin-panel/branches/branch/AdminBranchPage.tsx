@@ -1,27 +1,20 @@
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
-    CheckboxRenderer,
-    DateRenderer,
-    MonoRenderer
-} from "@/components/custom/utils/ValueRenderers.tsx";
-import {
     $adminBranch,
-    $adminBranchId, $adminBranchQueryOptions, $adminUserQueryOptions, $showEditBranchDialog,
+    $adminBranchId, $adminBranchQueryOptions, $showEditBranchDialog,
     type ApiEntityBranchModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
-import dayjs from "dayjs";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useCallback, useEffect} from "react";
 import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
-import {typesVisibilityType} from "@/lib/table.ts";
 import EditBranchDialog from "@/components/dialogs/EditBranchDialog.tsx";
 import {columnsBranches} from "@/columns/columnsBranches.tsx";
 import {z} from "zod";
-import {branchSchema, type userSchema} from "@/lib/formSchemas.ts";
+import {branchSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
 
 function AdminBranchPageContent(props: {
@@ -69,19 +62,46 @@ function AdminBranchPageContent(props: {
                         entity={props.data}
                         columns={columnsBranches}
                     />
-                    <div className={"flex justify-between gap-6"}>
-                        <div className="flex justify-between gap-2">
-                            <Button variant="outline" onClick={() => {
-                                showEditBranchDialog(true)
-                            }}>
-                                Настройка ветки
-                            </Button>
-                            <Button variant="outline" onClick={() =>
-                                navigate(`/users/${props.data.repository.owner.id}/repo/${props.data.repository.id}/branch/${props.data.id}/commit/latest`)}>
-                                Просмотр
-                            </Button>
-
-                        </div>
+                    <div className={"flex flex-wrap gap-2"}>
+                        <Button variant="outline" onClick={() => {
+                            showEditBranchDialog(true)
+                        }}>
+                            Настройка ветки
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner?.id}/repo/${props.data?.repository?.id}/branch/${props.data.id}/commit/latest`)}>
+                            Перейти на страницу ветки
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner?.id}/repo/${props.data?.repository?.id}/branch/default/commit/latest`)}>
+                            Перейти на страницу репозитория
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/users/${props.data?.repository?.owner?.id}`)}>
+                            Перейти на страницу владельца
+                        </Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/users?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'id',
+                                    params: {
+                                        value: props.data?.repository?.owner?.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр владельца</Button>
+                        <Button variant="outline" onClick={() =>
+                            navigate(`/admin/repos?filters=` + JSON.stringify([
+                                {
+                                    kind: 'string_equals',
+                                    field: 'owner.id',
+                                    params: {
+                                        value: props.data.repository?.id
+                                    }
+                                }
+                            ]))
+                        }>Фильтр репозиториев</Button>
                     </div>
                 </div>
             </div>
