@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: backend
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+logging:
+  level:
+    com.arangodb.internal.net.Communication: DEBUG
+
+arangodb:
+  spring:
+    data:
+      database: ${ARANGO_DB}
+      user: ${ARANGO_USER}
+      password: ${ARANGO_PASSWORD}
+      hosts: ${ARANGO_HOST}
+
+springdoc:
+  api-docs:
+    path: /openapi.json
+  swagger-ui:
+    path: /docs
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS}
+
+app:
+  file-storage:
+    path: ${FILE_STORAGE_PATH}
+  migration:
+    path: ${MIGRATION_PATH}
+  backup:
+    executable:
+      dump: ${ARANGO_DUMP}
+      restore: ${ARANGO_RESTORE}
