@@ -16,4 +16,8 @@ public class CommitFileService {
         return commitFileRepository.findById(commitFileId)
                 .filter(it -> it.getCommit().getId().equals(commitId));
     }
+
+    public Optional<CommitFileModel> getById(String commitFileId) {
+        return commitFileRepository.findById(commitFileId);
+    }
 }

@@ -724,6 +724,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/commit_files/{commitFileId}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["viewFileContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/ast_trees/{astTreeId}/view": {
         parameters: {
             query?: never;
@@ -2201,6 +2217,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["EntityAstNodeDto"];
+                };
+            };
+        };
+    };
+    viewFileContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commitFileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FileContentDto"];
                 };
             };
         };

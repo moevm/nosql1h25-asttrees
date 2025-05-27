@@ -31,6 +31,8 @@ import {
     AstLabelRenderer,
     AstView
 } from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/components/AstView.tsx";
+import FileContent
+    from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/components/FileContent.tsx";
 
 function RepoHeader({repo}: { repo: ApiRepositoryViewModel }) {
     return (
@@ -81,20 +83,6 @@ function FileTableContent({repo, fileContent, fileAst}: {
     const navigate = useNavigate()
 
     const [selectedTab, setSelectedTab] = useState("code")
-    const highlightedCode = useMemo(() => {
-        if (!fileContent.isBinary) {
-            const extension = fileContent.commitFile!.name!.includes('.')
-                ? fileContent.commitFile!.name!.substring(fileContent.commitFile!.name!.lastIndexOf('.') + 1).toLowerCase()
-                : null
-
-            const hasLang = extension && hljs.listLanguages().includes(extension)
-
-            return hasLang
-                ? hljs.highlight(extension, fileContent.content!).value
-                : hljs.highlightAuto(fileContent.content!).value
-        }
-        return null
-    }, [fileContent])
 
     return (
         <div>
@@ -132,21 +120,7 @@ function FileTableContent({repo, fileContent, fileAst}: {
                             <div className="p-4 overflow-auto">
                                 <pre className="whitespace-pre-wrap text-sm">
                                     <code>
-                                        <div className="grid grid-cols-[auto_1fr] gap-1 text-xs">
-                                            {
-                                                !fileContent.isBinary
-                                                    ? highlightedCode && highlightedCode.split('\n').map((line, index) => (
-                                                    <React.Fragment key={index}>
-                                                    <span
-                                                        className="text-gray-500 text-right pr-4 font-mono select-none">
-                                                        {index + 1}
-                                                    </span>
-                                                        <span dangerouslySetInnerHTML={{__html: line}}/>
-                                                    </React.Fragment>
-                                                ))
-                                                    : <span>Бинарный файл</span>
-                                            }
-                                        </div>
+                                        <FileContent fileContent={fileContent} />
                                     </code>
                                 </pre>
                             </div>

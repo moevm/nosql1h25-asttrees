@@ -1,13 +1,14 @@
 import {Label} from "@/components/ui/label.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
-    $adminCommitFile, $adminCommitFileQueryOptions,
+    $adminCommitFile, $adminCommitFileQueryOptions, $adminCommitFileView,
     $adminFileId, $showEditFileDialog, type ApiEntityCommitFileModel
 } from "@/store/store.ts";
 import EntityCard from "@/components/custom/EntityCard.tsx"
 import {useNavigate, useParams} from "react-router-dom";
 import {useAtomValue, useSetAtom} from "jotai/react";
 import {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect} from "react";
 import {$api, defaultOnErrorHandler, loaded, queryClient} from "@/api";
 import {BatchLoader} from "@/components/custom/BatchLoader/BatchLoader.tsx";
 import {columnsFiles} from "@/columns/columnsFiles.tsx";
@@ -16,6 +17,9 @@ import {z} from "zod";
 import {commitFileSchema} from "@/lib/formSchemas.ts";
 import {toast} from "sonner";
 import EntitySelector from "@/routes/admin-panel/components/EntitySelector.tsx";
+import {Card, CardContent, CardHeader} from "@/components/ui/card.tsx";
+import FileContent
+    from "@/routes/user-panel/user/repo-panel/repo/commit-panel/commit/file-panel/file/components/FileContent.tsx";
 
 function AdminFilePageContent(props: {
     data: ApiEntityCommitFileModel
@@ -24,7 +28,8 @@ function AdminFilePageContent(props: {
     const navigate = useNavigate()
     const [showSelectBranchForCommitJumpDialog, setShowSelectBranchForCommitJumpDialog] = useState(false)
     const [showSelectBranchForFileJumpDialog, setShowSelectBranchForFileJumpDialog] = useState(false)
-    const [showSelectBranchForBranchFilterDialog, setShowSelectBranchForBranchFilterDialog] = useState(false)
+
+    const view = useAtomValue($adminCommitFileView)
 
     const {mutate} = $api.useMutation(
         'patch',
@@ -98,6 +103,7 @@ function AdminFilePageContent(props: {
                         }}>
                             Настройка файла
                         </Button>
+
                         <Button variant="outline" onClick={() =>
                             setShowSelectBranchForFileJumpDialog(true)}>
                             Перейти на страницу файла
@@ -178,6 +184,21 @@ function AdminFilePageContent(props: {
                             }>Фильтр AST-деревьев</Button>
                         }
                     </div>
+
+                    {props.data.type === 'FILE' && (
+                        <BatchLoader states={[view]} loadingMessage={'Загрузка содержимого'} display={() => {
+                            return (
+                                <Card className={"gap-2"}>
+                                    <CardHeader className={"font-mono text-sm"}>
+                                        {!loaded(view).data.isBinary && <>Строк: {loaded(view).data.lines} &middot; </>}Байт: {loaded(view).data.bytes}
+                                    </CardHeader>
+                                    <CardContent>
+                                        <FileContent fileContent={loaded(view).data}/>
+                                    </CardContent>
+                                </Card>
+                            )
+                        }}/>
+                    )}
                 </div>
             </div>
         </>

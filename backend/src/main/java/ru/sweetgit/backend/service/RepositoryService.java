@@ -102,6 +102,26 @@ public class RepositoryService {
         );
     }
 
+    public FileContentModel adminViewFileContent(String commitFileId) {
+        var commitFile = commitFileService.getById(commitFileId)
+                .orElseThrow(() -> ApiException.notFound("Файл коммита", "id", commitFileId).build());
+
+        if (commitFile.getType().equals(FileTypeModel.DIRECTORY)) {
+            throw ApiException.badRequest().message("Файл является директорией").build();
+        }
+
+        var fileData = fileStorageService.loadFile(commitFile.getHash()).orElse(new byte[0]);
+
+        var hasAst = astTreeService.hasAstTree(commitFile.getHash());
+
+        return new FileContentModel(
+                commitFile,
+                commitFile.getMetadata(),
+                fileData,
+                hasAst
+        );
+    }
+
     public FileAstModel viewFileAst(
             String repositoryId,
             String branchId,
@@ -132,7 +152,7 @@ public class RepositoryService {
         );
     }
 
-    public AstTreeViewModel viewAst(
+    public AstTreeViewModel adminViewAst(
             String astTreeId
     ) {
         return astTreeService.getFileAstTree(astTreeId)
