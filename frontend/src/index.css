@@ -113,3 +113,7 @@
 div[role='tree'] {
   @apply flex-3
 }
+
+div[data-sidebar='group'] > a.active {
+  @apply bg-slate-300
+}
