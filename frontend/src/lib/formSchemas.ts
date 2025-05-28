@@ -89,5 +89,5 @@ export const getInitialDate = (dateString?: string | null): string | undefined =
     if (!dateString) return undefined;
     const djs = dayjs(dateString);
     if (!djs.isValid()) return undefined
-    return djs.format('YYYY-MM-DDTHH:mm')
+    return djs.format('YYYY-MM-DDTHH:mm:ss')
 };

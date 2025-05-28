@@ -41,8 +41,8 @@ export function useExportQuery() {
 
 export function useImportQuery() {
     return $api.useMutation('post', '/db/import', {
-        onSuccess() {
-            toast.success('Импорт завершён!');
+        onSuccess(data) {
+            toast.success('Импорт завершён! Добавлено записей: ' + data);
         },
         onError: defaultOnErrorHandler
     });

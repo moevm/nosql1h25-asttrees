@@ -7,20 +7,14 @@ import {$repoSettingsDialogRepo, type ApiRepositoryModel} from "@/store/store.ts
 import {$showRepoSettingsDialog} from "@/store/store.ts";
 import {useSetAtom} from "jotai/react";
 import {cn} from "@/lib/utils.ts";
+import dayjs from "dayjs";
 
 const formatDate = (isoDateString: string | undefined): string => {
     if (!isoDateString) {
         return "Дата неизвестна";
     }
     try {
-        const date = new Date(isoDateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = String(date.getFullYear()).slice(-2);
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-
-        return `Создан ${day}.${month}.${year} ${hours}:${minutes}`;
+        return `Создан ${dayjs(isoDateString).format('DD.MM.YYYY HH:mm:ss')}`;
     } catch (error) {
         console.error("Ошибка форматирования даты:", error);
         return "Неверный формат даты";

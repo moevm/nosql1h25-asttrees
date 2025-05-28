@@ -59,7 +59,7 @@ export function DateRenderer({value}: { value: Dayjs | null | undefined }) {
         return <MissingValue/>;
     }
 
-    return <span>{value.format('DD.MM.YYYY HH:mm')}</span>;
+    return <span>{value.format('DD.MM.YYYY HH:mm:ss')}</span>;
 }
 
 export function ListRenderer<T>(

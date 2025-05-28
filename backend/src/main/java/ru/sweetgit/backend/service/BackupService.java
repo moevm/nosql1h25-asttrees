@@ -1,6 +1,7 @@
 package ru.sweetgit.backend.service;
 
 import com.arangodb.springframework.boot.autoconfigure.ArangoProperties;
+import com.arangodb.springframework.core.ArangoOperations;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,11 +18,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class BackupService {
     private final ArangoProperties arangoProperties;
+    private final ArangoOperations arangoOperations;
     private final ExecService execService;
 
     @Value("${app.backup.executable.dump}")
@@ -79,13 +82,15 @@ public class BackupService {
     }
 
     @SneakyThrows
-    public void importDatabase(InputStream inputStream) {
+    public long importDatabase(InputStream inputStream) {
         Path uploadFile = Files.createTempFile("sweetgit-import", ".zip");
         Path extractDir = Files.createTempDirectory("sweetgit-import");
 
         try {
             Files.copy(inputStream, uploadFile, StandardCopyOption.REPLACE_EXISTING);
             FileUtil.unzipDirectory(uploadFile, extractDir);
+
+            var entitiesBefore = getEntityNumber();
 
             var executionResult = execService.executeCommand(List.of(
                     restoreExecutablePath.toAbsolutePath().toString(),
@@ -106,6 +111,10 @@ public class BackupService {
                         "Execution did not success: exitCode=%s, timeout=%s".formatted(executionResult.exitCode(), executionResult.timedOut())
                 ).build();
             }
+
+            var entitiesAfter = getEntityNumber();
+
+            return Math.max(0, entitiesAfter - entitiesBefore);
         } finally {
             try {
                 FileUtil.deleteDirectoryRecursively(extractDir);
@@ -116,5 +125,19 @@ public class BackupService {
             } catch (Exception ignored) {
             }
         }
+    }
+
+    private int getEntityNumber() {
+        return Math.toIntExact(Stream.<String>of(
+                "users",
+                "repositories",
+                "branches",
+                "commits",
+                "commit_files",
+                "ast_trees",
+                "ast_nodes",
+                "branch_commits",
+                "ast_parents"
+        ).map(it -> arangoOperations.collection(it).count()).mapToLong(it -> it).sum());
     }
 }

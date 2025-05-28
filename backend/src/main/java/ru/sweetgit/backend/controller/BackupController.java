@@ -37,19 +37,20 @@ public class BackupController {
 
     @PostMapping(value = "/db/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @SneakyThrows
-    public ResponseEntity<Void> importDatabase(@RequestPart("file") MultipartFile multipartFile) {
+    public ResponseEntity<Long> importDatabase(@RequestPart("file") MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
             throw ApiException.badRequest().message("Файл пуст").build();
         }
         var originalFilename = multipartFile.getOriginalFilename();
-        if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".zip")) {
+        if (!originalFilename.toLowerCase().endsWith(".zip")) {
             throw ApiException.badRequest().message("Неверный тип файла. Загрузите .zip файл").build();
         }
 
+        long result;
         try (var inputStream = multipartFile.getInputStream()) {
-            backupService.importDatabase(inputStream);
+            result = backupService.importDatabase(inputStream);
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(result);
     }
 }
